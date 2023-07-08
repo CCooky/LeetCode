@@ -612,6 +612,7 @@ public boolean hasPath (char[][] matrix, String word) {
 这里关键代码是dfs这个函数，因为每一个点我们都可以往他的4个方向查找，所以我们可以把它想象为一棵4叉树，就是每个节点有4个子节点，而树的遍历我们最容易想到的就是递归，我们来大概看一下
 
 ```java
+// 返回值：从当前的【i，j】位置开始搜索，能否搜到匹配路径
 boolean dfs(char[][] board, char[] word, int i, int j, int index) {
     if (边界条件的判断) {
         return;
@@ -5860,6 +5861,8 @@ public class 最少回文分割094 {
 输出: 2
 ```
 
+​															**！！！！！前缀和思想！！！！！**
+
  ```java
      public int getRes(int[] nums, int k) {
          // 不能使用滑动窗口了，因为数组不是非负整数；
@@ -5876,6 +5879,611 @@ public class 最少回文分割094 {
          return ans;
      }
  ```
+
+
+
+# 93、剑指 Offer II 107. 矩阵中的距离 
+
+给定一个由 `0` 和 `1` 组成的矩阵 `mat` ，请输出一个大小相同的矩阵，其中每一个格子是 `mat` 中对应位置元素到最近的 `0` 的距离。
+
+两个相邻元素间的距离为 `1` 。
+
+**提示：**
+
+- `m == mat.length`
+- `n == mat[i].length`
+- `1 <= m, n <= 104`
+- `1 <= m * n <= 104`
+- `mat[i][j] is either 0 or 1.`
+- `mat` 中至少有一个 `0 `
+
+**示例 1：**
+
+![img](images/1626667201-NCWmuP-image.png)
+
+```
+输入：mat = [[0,0,0],[0,1,0],[0,0,0]]
+输出：[[0,0,0],[0,1,0],[0,0,0]]
+```
+
+【分析】这是矩阵的搜索类型：一般是DFS递归回溯法，但这个要找最近的，我们只能BFS搜索,借助辅助数据结构队列实现。其次矩阵的每个位置都要搜索一次。
+
+这道题和前几天的打卡题 **「1162.地图分析」** 一毛一样！那道题是可以理解为需要找到每个 0 最近的 1，而今天这道题是找每个 1 最近的 0。
+
+**思路：**
+
+- 对于 **「Tree 的 BFS」 （典型的「单源 BFS」）** 大家都已经轻车熟路了：
+  - 首先把 root 节点入队，再一层一层无脑遍历就行了。
+- 对于 **「图 的 BFS」 （「多源 BFS」）** 做法其实也是一样滴～，与 「Tree 的 BFS」的区别注意以下两条就 ok 辣～
+  - Tree 只有 1 个 root，而图可以有多个源点，所以首先需要把多个源点都入队；
+  - Tree 是有向的因此不需要标识是否访问过，而对于无向图来说，必须得标志是否访问过哦！并且为了防止某个节点多次入队，需要在其入队之前就将其设置成已访问！【 看见很多人说自己的 BFS 超时了，坑就在这里哈哈哈】
+
+**看我自己写的思路：**
+
+- 就是和树的BFS思路一样，借助一个Queue，然后一个个外圈遍历判断来的；中间使用一个visited数组，标识访问过的元素。
+
+- <img src="images/image-20230702143749110.png" alt="image-20230702143749110" style="zoom:50%;" /><img src="images/image-20230702143913803.png" alt="image-20230702143913803" style="zoom:50%;" />
+
+  ```java
+  
+      public int[][] getRes(int[][] mat) {
+          // 矩阵的搜索类型：一般是DFS递归回溯法，但这个要找最近的，我们只能BFS搜索,借助辅助数据结构队列实现
+          // 其次矩阵的每个位置都要搜索一次
+          int[][] ans = new int[mat.length][mat[0].length];
+          for (int i = 0; i < mat.length; i++) {
+              for (int j = 0; j < mat[0].length; j++) {
+                  ans[i][j] = bfs(mat, i, j);
+              }
+          }
+          return ans;
+      }
+  		// bfs
+      private int bfs(int[][] mat, int i, int j) {
+          if (mat[i][j] == 0) return 0;
+          int distance = 0;
+          Queue<int[]> queue = new ArrayDeque<>();
+          List<int[]> list = new ArrayList<>();
+          boolean[][] visited = new boolean[mat.length][mat[0].length];
+  
+          queue.offer(new int[]{i, j}); // 与Tree的BFS不同，这里要防止某个节点多次入队
+          visited[i][j] = true;
+          while (true) { //外层还有一个循环
+              distance++;
+              while (!queue.isEmpty()) { // 判断一个外圈的所有元素
+                  int[] ints = queue.poll();
+                  i = ints[0];
+                  j = ints[1];
+                  if (0 <= i + 1 && i + 1 < mat.length && 0 <= j && j < mat[0].length && !visited[i+1][j]) {
+                      if (mat[i + 1][j] == 0) return distance;
+                      list.add(new int[]{i + 1, j});
+                      visited[i+1][j] = true;
+                  }
+                  if (0 <= i - 1 && i - 1 < mat.length && 0 <= j && j < mat[0].length && !visited[i-1][j]) {
+                      if (mat[i - 1][j] == 0) return distance;
+                      list.add(new int[]{i - 1, j});
+                      visited[i-1][j] = true;
+                  }
+                  if (0 <= i && i < mat.length && 0 <= j + 1 && j + 1 < mat[0].length && !visited[i][j+1]) {
+                      if (mat[i][j+1] == 0) return distance;
+                      list.add(new int[]{i, j + 1});
+                      visited[i][j+1] = true;
+                  }
+                  if (0 <= i && i < mat.length && 0 <= j - 1 && j - 1 < mat[0].length && !visited[i][j-1]) {
+                      if (mat[i][j-1] == 0) return distance;
+                      list.add(new int[]{i, j - 1});
+                      visited[i][j-1] = true;
+                  }
+              }
+              for (int[] ints1 : list) { //没有找到，下一个外圈入队列
+                  queue.offer(ints1);
+              }
+              list.clear();
+          }
+      }
+  ```
+
+**更好的思路：扩散法**
+
+- leetcode官方题解：逻辑逆着写，从0找1；先把所有的0找出来，然后一依次bfs找1，找到一个1后，就可以知道这个最短为1，然后这个1入队列，由他又可以继续向外扩展。
+- 求每个元素到最近0的距离：为什么**只能从0找1呢**，因为我们能已知0元素的距离是0，但对于其他元素我们无法直接得出，也就不能由它进行扩散；
+
+```java
+
+    public int[][] getResByLC(int[][] mat) {
+        int m = mat.length;
+        int n = mat[0].length;
+        int[][] ans = new int[m][n]; // 结果数组
+        Queue<int[]> queue = new ArrayDeque<>();
+        List<int[]> list = new ArrayList<>();
+        boolean[][] visited = new boolean[m][n];
+        // 1、距离数组初始化，0元素为0，其他元素设置为最大值
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (mat[i][j] == 0) {
+                    ans[i][j] = 0;
+                    queue.offer(new int[]{i, j}); // 0入队
+                    visited[i][j] = true; // 标记已遍历
+                } else ans[i][j] = Integer.MAX_VALUE;
+            }
+        }
+        // bfs
+        int[][] direction = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // 方向数组
+        while (!queue.isEmpty()) {
+            int i = queue.peek()[0], j = queue.peek()[1];
+            queue.poll();
+            // 上下左右
+            for (int[] dir : direction) {
+                int i_new = i + dir[0];
+                int j_new = j + dir[1];
+                if (0 <= i_new && i_new < m && 0 <= j_new && j_new < n && !visited[i_new][j_new]) {
+                    visited[i_new][j_new] = true;
+                    if (ans[i_new][j_new] > ans[i][j] + 1) {
+                        ans[i_new][j_new] = ans[i][j] + 1;
+                        list.add(new int[]{i_new, j_new}); // 已知距离的1入队，继续扩散
+                    }
+                }
+            }
+            queue.addAll(list);
+            list.clear();
+        }
+      
+        return ans;
+    }
+```
+
+
+
+# 93-2、地图分析
+
+你现在手里有一份大小为 `n x n` 的 网格 `grid`，上面的每个 单元格 都用 `0` 和 `1` 标记好了。其中 `0` 代表海洋，`1` 代表陆地。
+
+请你找出一个海洋单元格，这个海洋单元格到离它最近的陆地单元格的距离是最大的，并返回该距离。如果网格上只有陆地或者海洋，请返回 `-1`。
+
+我们这里说的距离是「曼哈顿距离」（ Manhattan Distance）：`(x0, y0)` 和 `(x1, y1)` 这两个单元格之间的距离是 `|x0 - x1| + |y0 - y1|` 。
+
+**提示：**
+
+- `n == grid.length`
+- `n == grid[i].length`
+- `1 <= n <= 100`
+- `grid[i][j]` 不是 `0` 就是 `1`
+
+**示例 1：**
+
+**![img](images/1336_ex1.jpeg)**
+
+```
+输入：grid = [[1,0,1],[0,0,0],[1,0,1]]
+输出：2
+解释： 
+海洋单元格 (1, 1) 和所有陆地单元格之间的距离都达到最大，最大距离为 2。
+```
+
+```java
+    public int getRes(int[][] grid) {
+        //题目：找海洋（0）离陆地（1）的最大距离
+        //解法：逆向从1找0，得出所有元素的距离矩阵，采用bfs
+        int m = grid.length;
+        int n = grid[0].length;
+        int[][] ans = new int[m][n];
+        Queue<int[]> queue = new ArrayDeque<>();
+        boolean[][] visited = new boolean[m][n];
+        //1. 初始化距离矩阵
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 1) {
+                    queue.offer(new int[]{i, j}); //所有1入队
+                    ans[i][j] = 0;
+                    visited[i][j] = true;
+                } else ans[i][j] = Integer.MAX_VALUE;
+            }
+        }
+        if (queue.isEmpty() || queue.size() == m * n) return -1; //全部为0或1时的，异常判断
+        //2. bfs
+        int[][] direction = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        while (!queue.isEmpty()) {
+            int i = queue.peek()[0], j = queue.peek()[1];
+            queue.poll();
+            // sxzy
+            for (int[] dir : direction) {
+                int i_new = i + dir[0];
+                int j_new = j + dir[1];
+                if (0 <= i_new && i_new < m && 0 <= j_new && j_new < n && !visited[i_new][j_new]) {
+                    if (ans[i_new][j_new] > ans[i][j] + 1) {
+                        ans[i_new][j_new] = ans[i][j] + 1;
+                        queue.offer(new int[]{i_new, j_new}); //已知距离的0入队，继续扩散
+                    }
+                    visited[i_new][j_new] = true;
+                }
+            }
+        }
+        // 3.
+        int maxDist = Integer.MIN_VALUE;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                maxDist = Math.max(maxDist, ans[i][j]);
+            }
+        }
+        return maxDist;
+    }
+```
+
+
+
+# 94、剑指 Offer II 109. 开密码锁
+
+一个密码锁由 4 个环形拨轮组成，每个拨轮都有 10 个数字： `'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'` 。每个拨轮可以自由旋转：例如把 `'9'` 变为 `'0'`，`'0'` 变为 `'9'` 。每次旋转都只能旋转一个拨轮的一位数字。
+
+锁的初始数字为 `'0000'` ，一个代表四个拨轮的数字的字符串。
+
+列表 `deadends` 包含了一组死亡数字，一旦拨轮的数字和列表里的任何一个元素相同，这个锁将会被永久锁定，无法再被旋转。
+
+字符串 `target` 代表可以解锁的数字，请给出解锁需要的最小旋转次数，如果无论如何不能解锁，返回 `-1` 。
+
+**示例 1:**
+
+```
+输入：deadends = ["0201","0101","0102","1212","2002"], target = "0202"
+输出：6
+解释：
+可能的移动序列为 "0000" -> "1000" -> "1100" -> "1200" -> "1201" -> "1202" -> "0202"。
+注意 "0000" -> "0001" -> "0002" -> "0102" -> "0202" 这样的序列是不能解锁的，因为当拨动到 "0102" 时这个锁就会被锁定。
+```
+
+**提示：**
+
+- `1 <= deadends.length <= 500`
+- `deadends[i].length == 4`
+- `target.length == 4`
+- `target` **不在** `deadends` 之中
+- `target` 和 `deadends[i]` 仅由若干位数字组成
+
+https://leetcode.cn/problems/open-the-lock/solutions/843888/shou-hua-tu-jie-tu-bfs-lin-jie-guan-xi-7-ud8c/
+
+<img src="images/1624555376-UjSNOW-image.png" alt="image.png" style="zoom:50%;" />
+
+- "0000" 经过一次旋转，可变成的字符串是 0000 的邻接节点
+- 维护一个队列，逐个考察这一层的所有 “节点”，安排它们的邻接点入列
+- 1100 - 1000 - 1100 这样变回来，徒增转换的次数，违背求最小的要求
+- 所以要跳过访问过的节点，同时也要跳过“死亡点”
+- 一层一层地遍历节点，当访问到目标节点时，返回当前所在的层次，即为最小旋转次数。
+
+```java
+import java.util.*;
+
+public class 开密码锁109 {
+    //
+    public int getRes(String[] deadends, String target) {
+        // 最少次数只能用BFS，暴力搜索, 初始状态是0000,然后0000旋转一次得到的状态有限，我们放入队列依次判断（是否等于target，是否碰到死亡密码），如果没有就将每个状态的下一个所有旋转状态放入队列判断。并且记录旋转次数
+        // 还要注意，因为我们的方向是无向的，所以要防止重复入队，否则会超时
+        String start = "0000";
+        Queue<String> queue = new ArrayDeque<>();
+        queue.add(start);
+        List<String> list = new ArrayList<>();
+        Set<String> deadSet = new HashSet<>(); // 将死亡密码存入set集合中，快速判断死亡
+        for (int i = 0; i < deadends.length; i++) {
+            deadSet.add(deadends[i]);
+        }
+        Set<String> outdateSet = new HashSet<>(); // 存储已经判断过的密码状态
+        // begin
+        int step = 0;
+        while (!queue.isEmpty()) {
+            while (!queue.isEmpty()) { //判断当前层所有的情况
+                String current = queue.poll();
+                if (Objects.equals(current, target)) { //判断目标值
+                    return step;
+                }
+                if (deadSet.contains(current)) { //判断死亡密码，这里将死亡密码存入set集合中
+                    continue;
+                }
+                if (outdateSet.contains(current)) { // 防止重复入队
+                    continue;
+                } else outdateSet.add(current);
+                list.add(current);
+            }
+            for (String s : list) { //将下一层的所有状态放入队列
+                queue.addAll(getAllState(s));
+            }
+            list.clear();
+            step++; // 记录旋转次数+1
+        }
+        return -1; //还有一种是无法开锁
+    }
+
+
+    // 某个锁状态，旋转一次后可能得到的所有状态
+    private List<String> getAllState(String curState) {
+        List<String> list = new ArrayList<>();
+        int[] state = new int[]{1, -1};
+        for (int i = 0; i < curState.length(); i++) { //i：此次旋转的数字索引
+            Integer index = getIndexByCharMap.get(curState.charAt(i)); //根据当前旋转数字定位索引，然后就可以找到前一个后一个字符了
+            for (int sta : state) {
+                int new_index = index + sta;
+                if (new_index == 10) new_index = 0;
+                if (new_index == -1) new_index = 9;
+                Character new_char = allChar.get(new_index);
+                String new_string = curState.substring(0, i) + new_char + curState.substring(i + 1);
+                list.add(new_string);
+            }
+        }
+        return list;
+    }
+
+    // 每个密码的位置可能出现的状态
+    private List<Character> allChar = new ArrayList<Character>() {{
+        add('0');
+        add('1');
+        add('2');
+        add('3');
+        add('4');
+        add('5');
+        add('6');
+        add('7');
+        add('8');
+        add('9');
+    }};
+    // 根据当前密码字符定位索引
+    private Map<Character, Integer> getIndexByCharMap = new HashMap<Character, Integer>() {{
+        put('0', 0);
+        put('1', 1);
+        put('2', 2);
+        put('3', 3);
+        put('4', 4);
+        put('5', 5);
+        put('6', 6);
+        put('7', 7);
+        put('8', 8);
+        put('9', 9);
+    }};
+}
+
+```
+
+
+
+# 95、剑指 Offer II 013. 二维子矩阵的和
+
+给定一个二维矩阵 `matrix`，以下类型的多个请求：
+
+- 计算其子矩形范围内元素的总和，该子矩阵的左上角为 `(row1, col1)` ，右下角为 `(row2, col2)` 。
+
+实现 `NumMatrix` 类：
+
+- `NumMatrix(int[][] matrix)` 给定整数矩阵 `matrix` 进行初始化
+- `int sumRegion(int row1, int col1, int row2, int col2)` 返回左上角 `(row1, col1)` 、右下角 `(row2, col2)` 的子矩阵的元素总和。
+
+**示例 1：**
+
+<img src="images/1626332422-wUpUHT-image.png" alt="img" style="zoom:50%;" />
+
+```
+输入: 
+["NumMatrix","sumRegion","sumRegion","sumRegion"]
+[[[[3,0,1,4,2],[5,6,3,2,1],[1,2,0,1,5],[4,1,0,1,7],[1,0,3,0,5]]],[2,1,4,3],[1,1,2,2],[1,2,2,4]]
+输出: 
+[null, 8, 11, 12]
+
+解释:
+NumMatrix numMatrix = new NumMatrix([[3,0,1,4,2],[5,6,3,2,1],[1,2,0,1,5],[4,1,0,1,7],[1,0,3,0,5]]]);
+numMatrix.sumRegion(2, 1, 4, 3); // return 8 (红色矩形框的元素总和)
+numMatrix.sumRegion(1, 1, 2, 2); // return 11 (绿色矩形框的元素总和)
+numMatrix.sumRegion(1, 2, 2, 4); // return 12 (蓝色矩形框的元素总和)
+```
+
+**提示：**
+
+- `m == matrix.length`
+- `n == matrix[i].length`
+- `1 <= m, n <= 200`
+- `-105 <= matrix[i][j] <= 105`
+- `0 <= row1 <= row2 < m`
+- `0 <= col1 <= col2 < n`
+- 最多调用 `104` 次 `sumRegion` 方法
+
+
+
+​													**！！！！！前缀和！！！！！**
+
+```java
+/**
+ * 前缀和解法！凡是这种连续元素累计求和的，都可以使用前缀和。这道题和该系列010思想一模一样
+ * 为什么要这样做，不直接累计和呢？
+ * 1、一劳永逸和每次重复性机械工作是不一样的，计算sumRegion的次数越多，差距越大
+ * 2、缓存的思想 你不懂
+ */
+class NumMatrixPrefix {
+    private int[][] matrix;
+    private int[][] matrixPrefix; // 每一行的前缀和数组
+
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        int sum = 0;
+        for (int i = row1; i <= row2; i++) {
+            sum += matrixPrefix[i][col2] - matrixPrefix[i][col1] + matrix[i][col1];
+        }
+        return sum;
+    }
+    
+    public NumMatrixPrefix(int[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        this.matrix = matrix;
+        this.matrixPrefix = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            int sum = 0;
+            for (int j = 0; j < n; j++) {
+                sum += matrix[i][j];
+                matrixPrefix[i][j] = sum;
+            }
+        }
+    }
+}
+```
+
+![image-20230706111706523](images/image-20230706111706523.png)
+
+```java
+/**
+ * 暴力解法1
+ */
+class NumMatrix {
+    private int[][] matrix;
+
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        int sum = 0;
+        for (int i = row1; i <= row2; i++) {
+            for (int j = col1; j <= col2; j++) {
+                sum += matrix[i][j];
+            }
+        }
+        return sum;
+    }
+
+
+    public NumMatrix(int[][] matrix) {
+        this.matrix = matrix;
+    }
+}
+```
+
+
+
+# ==96、剑指 Offer II 106. 二分图==
+
+存在一个 **无向图** ，图中有 `n` 个节点。其中每个节点都有一个介于 `0` 到 `n - 1` 之间的唯一编号。
+
+给定一个二维数组 `graph` ，表示图，其中 `graph[u]` 是一个节点数组，由节点 `u` 的邻接节点组成。形式上，对于 `graph[u]` 中的每个 `v` ，都存在一条位于节点 `u` 和节点 `v` 之间的无向边。该无向图同时具有以下属性：
+
+- 不存在自环（`graph[u]` 不包含 `u`）。
+- 不存在平行边（`graph[u]` 不包含重复值）。
+- 如果 `v` 在 `graph[u]` 内，那么 `u` 也应该在 `graph[v]` 内（该图是无向图）
+- 这个图可能不是连通图，也就是说两个节点 `u` 和 `v` 之间可能不存在一条连通彼此的路径。
+
+**二分图** 定义：如果能将一个图的节点集合分割成两个独立的子集 `A` 和 `B` ，并使图中的每一条边的两个节点一个来自 `A` 集合，一个来自 `B` 集合，就将这个图称为 **二分图** 。
+
+如果图是二分图，返回 `true` ；否则，返回 `false` 。
+
+**示例 1：**
+
+![img](images/bi2.jpg)
+
+```
+输入：graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
+输出：false
+解释：不能将节点分割成两个独立的子集，以使每条边都连通一个子集中的一个节点与另一个子集中的一个节点。
+```
+
+**示例 2：**
+
+![img](images/bi1.jpg)
+
+```
+输入：graph = [[1,3],[0,2],[1,3],[0,2]]
+输出：true
+解释：可以将节点分成两组: {0, 2} 和 {1, 3} 。 
+```
+
+**提示：**
+
+- `graph.length == n`
+- `1 <= n <= 100`
+- `0 <= graph[u].length < n`
+- `0 <= graph[u][i] <= n - 1`
+- `graph[u]` 不会包含 `u`
+- `graph[u]` 的所有值 **互不相同**
+- 如果 `graph[u]` 包含 `v`，那么 `graph[v]` 也会包含 `u`
+
+
+
+**解法：红绿色盲法**
+
+1. 我们从开始节点遍历，并且将它染成红色，然后将其所有的邻接节点染成绿色，再将这些绿色节点直接相连的所有节点染成红色，依次类推。
+2. 如果可以全部染色成功，则可以二分，如果染色过程中，出现了邻接节点和父节点颜色一样，则染色失败了，表示不能二分。
+
+```java
+    public boolean isBipartite(int[][] graph) {
+				// 已经把邻接表发给你了，就简单很多，但还是很难
+        nodeColor = new int[graph.length]; // 0：表示无颜色
+        dfs(0, 0, graph, RED);
+        return ans;
+    }
+
+    private static final int RED = 1;
+    private static final int GREEN = 2;
+    private int[] nodeColor; // 记录每个节点颜色；
+    private boolean ans = true; // 是否为二分图
+    // DFS搜索
+    // pre：当前节点父节点；x：当前节点；color：当前节点要被染的颜色
+    private void dfs(int pre, int x, int[][] graph, int color) {
+        nodeColor[x] = color;
+        int curColor = color == RED ? GREEN : RED; //邻接点颜色
+        for (int y : graph[x]) {
+            if (y == pre) continue;// 遇到父节点跳过
+            if (nodeColor[y] != 0 && nodeColor[y] == nodeColor[x]) { // 已经被染色，且颜色一致，则false
+                ans = false;
+                return;
+            }
+            if (nodeColor[y] != 0 && nodeColor[y] != nodeColor[x]) continue; // 已经被染色，且颜色不一致，则颜色符合条件，跳过该节点避免重复染色
+            dfs(x, y, graph, curColor);
+        }
+    }
+
+```
+
+
+
+# DFS和BFS总结
+
+​		有关DFS和BFS主要在树中（最常见的二叉树）和图中见到很多，但在这两种数据结构中的写法有所不同，虽然思路是一样的，我们需要注意一下并且记下来，后面写代码就不会混乱，写的更快。
+
+## DFS
+
+​		这个是一般而言用的最多的，而且代码结构也比较简短。但在**求最短路径这一类**的搜索题目中就不行了，只能使用BFS，所以两种搜索方法都要掌握。
+
+**树：方向唯一，不会往回递归**
+
+​		因为方向一直是向下的，所以如何不往回遍历呢，只需要加一个“if(y==pre) continue;”就可以了，如果邻接点是现节点的父节点，就跳过该节点的判断。
+
+```java
+public void dfs(int pre, int x, List<List<Integer>> ver){
+  	//1. 搜索结束条件
+  	if(ver[x].size()==0) return;
+  	for(int y : ver.get(x)){
+      	if(y==pre) continue;
+      	dfs(x, y, ver);
+    }
+}
+```
+
+**图：方向不定，会递归到已经遍历的节点**
+
+​		因为方式是多向的，只加一个对于父节点的跳过判断是不行的，因为可能现节点的邻接点的邻接点是现节点的父节点，所以这里必须是加一个**visited数组**，标识节点已经访问过。
+
+```java
+public void dfs(int x, List<List<Integer>> ver, boolean[] visited){
+  	visited[x] = true; // 标记已搜索
+  	for(int y: ver.get(x)){ //   遍历邻接表
+      	if(visited[y]) { // 
+          continue;
+        }else{
+          	dfs(y, ver, visited);
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
