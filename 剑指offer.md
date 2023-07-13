@@ -86,19 +86,36 @@ public boolean isOdd(int n){
 
 
 
-## **4、与、或、异或操作**
+## **4、与、或、异或、位运算**
 
 - **&（与）**
   - 用于两个数字就是==比较二进制，都是1则为1；==
   - 用于逻辑运算符就是 两个条件都为true，结果才为true，一定会去判断两个表达式；
+  
 - **|（或）**
   - 用于两个数字就是==比较二进制位，有一个为1则为1；==
   - 用于逻辑运算符就是，两个条件有一个为true，结果为true，一定会去判断两个表达式；
+  
 - **^（异或）**
   - 两个数字就是==比较二进制位，当数字不相同是为1；==
   - 用于逻辑运算符，一般不用。
-- \>>（右移）和<<（左移）  
+  
+- **\>>（右移）和<<（左移）**  
   - 将二进制位进行右移或左移操作；如1 << 2
+  
+  **（右移）>> 运算符**  将二进制表示的整数向右移动指定的位数，同时保留符号位（即正负号）。
+  
+  ​	对于有符号整数，右移操作会**用符号位填充**左侧的空位，即高位保持与原值相同的符号位。
+  
+  > 例如，对于整数-8（二进制表示为11111111111111111111111111111000），执行右移操作-8 >> 2，结果为-2（二进制表示为11111111111111111111111111111110）。这里，符号位1被用来填充左侧的空位。
+  
+  **（左移）<< 运算符**  将二进制表示的整数向左移动指定的位数，并在右侧**用零填充**。
+  
+  ​	左移操作将整数的每个位都向左移动指定的位数，结果为原整数的值乘以2的移动位数次幂。
+  
+  > 例如，对于整数3（二进制表示为11），执行左移操作3 << 2，结果为12（二进制表示为1100）。这里，每个位向左移动两位，所以原值3乘以2的2次幂（即4）得到12。
+  
+  
 
 <img src="images/image-20230516141137635.png" alt="image-20230516141137635" style="zoom:80%;" />
 
@@ -153,6 +170,33 @@ System.out.println(random.nextBoolean());
 - -2147483648 * 2 = 0
 
 
+
+# 0、常用技巧
+
+## 1. 如何使用比特位表示一个字符串中含有的字母个数
+
+**对于仅含小写字母的情况，**因为只有26个小写字母，所以我们可以使用int类型表示，因为它有32位，去掉符号位有31位，满足要求；每一位可以表示一个小写字母，从低位到高位依次表示a,b,c,d,.....
+
+以下是一个示例代码，演示如何使用比特位来表示字符串中包含的字母个数：
+
+```java
+
+    public static void main(String[] args) {
+        String str = "hello";
+        int count = 0;
+        for (char c : str.toCharArray()) {
+            if (c >= 'a' && c <= 'z') {
+                int index = c - 'a';
+                count |= (1 << index); // 将对应位置的比特位设为1
+            }
+        }
+        System.out.println("字母个数表示为比特位：" + Integer.toBinaryString(count));
+    }
+```
+
+在上面的示例中，我们遍历字符串中的每个字符。如果字符是小写字母，则计算出它在比特位中的索引（即字母'a'到当前字符的距离），然后将对应位置的比特位设为1。最后，我们使用`Integer.toBinaryString()`方法将整数转换为二进制字符串，并打印出来。
+
+注意，**由于int类型是32位的**，只能表示26个小写字母的出现情况。如果需要考虑更多的字符，你可以使用**长整型`long`，它是64位的**，可以表示更多的比特位。同样的原理适用于`long`类型。
 
 
 
@@ -6400,10 +6444,10 @@ class NumMatrix {
 2. 如果可以全部染色成功，则可以二分，如果染色过程中，出现了邻接节点和父节点颜色一样，则染色失败了，表示不能二分。
 
 ```java
-    public boolean isBipartite(int[][] graph) {
-				// 已经把邻接表发给你了，就简单很多，但还是很难
+    public boolean isBipartiteBydfs(int[][] graph) {
         nodeColor = new int[graph.length]; // 0：表示无颜色
-        dfs(0, 0, graph, RED);
+        visited = new boolean[graph.length];
+        dfs(0, graph, RED);
         return ans;
     }
 
@@ -6411,42 +6455,465 @@ class NumMatrix {
     private static final int GREEN = 2;
     private int[] nodeColor; // 记录每个节点颜色；
     private boolean ans = true; // 是否为二分图
-    // DFS搜索
-    // pre：当前节点父节点；x：当前节点；color：当前节点要被染的颜色
-    private void dfs(int pre, int x, int[][] graph, int color) {
+    private boolean[] visited; // 标记节点已访问
+
+    // dfs
+    // x：当前节点；
+    private void dfs(int x, int[][] graph, int color) {
         nodeColor[x] = color;
+        visited[x] = true;
         int curColor = color == RED ? GREEN : RED; //邻接点颜色
         for (int y : graph[x]) {
-            if (y == pre) continue;// 遇到父节点跳过
-            if (nodeColor[y] != 0 && nodeColor[y] == nodeColor[x]) { // 已经被染色，且颜色一致，则false
-                ans = false;
-                return;
+            if (visited[y]) { // 已经被染色
+                if (nodeColor[y] == nodeColor[x]) { //颜色一致，则false
+                    ans = false;
+                    return;
+                } else continue; // 跳过
             }
-            if (nodeColor[y] != 0 && nodeColor[y] != nodeColor[x]) continue; // 已经被染色，且颜色不一致，则颜色符合条件，跳过该节点避免重复染色
-            dfs(x, y, graph, curColor);
+            dfs(y, graph, curColor);
         }
     }
+```
+
+**BFS**
+
+```java
+    public boolean isBipartiteBybfs(int[][] graph) {
+        bfs(0, graph);
+        return result;
+    }
+
+    // BFS搜索
+    private static final int RED = 1;
+    private static final int GREEN = 2;
+    private boolean result = true;
+    private void bfs(int x, int[][] graph) {
+        Queue<Integer> queue = new ArrayDeque<>();
+        List<Integer> list = new ArrayList<>();
+        boolean[] visited = new boolean[graph.length];
+        int[] nodeColor = new int[graph.length];
+        queue.offer(x);
+        int color = GREEN;
+        while (!queue.isEmpty()) {
+            color = color == RED ? GREEN : RED;
+            while (!queue.isEmpty()) { // 该层节点判断
+                Integer node = queue.poll();
+                nodeColor[node] = color;
+                visited[node] = true;
+                list.add(node);
+            }
+            // 遍历该层所有节点的所有邻接表
+            for (Integer node : list) {
+                for (int y : graph[node]) {
+                    if (visited[y]) {
+                        if (nodeColor[y] == color) {
+                            result = false;
+                            return;
+                        }
+                    } else {
+                        queue.offer(y);
+                    }
+                }
+            }
+            list.clear();
+        }
+    }
+```
+
+
+
+# 97、剑指 Offer II 093. 最长斐波那契数列
+
+如果序列 `X_1, X_2, ..., X_n` 满足下列条件，就说它是 *斐波那契式* 的：
+
+- `n >= 3`
+- 对于所有 `i + 2 <= n`，都有 `X_i + X_{i+1} = X_{i+2}`
+
+给定一个**严格递增**的正整数数组形成序列 `arr` ，找到 `arr` 中最长的斐波那契式的子序列的长度。如果一个不存在，返回 0 。
+
+（回想一下，子序列是从原序列 `arr` 中派生出来的，它从 `arr` 中删掉任意数量的元素（也可以不删），而不改变其余元素的顺序。例如， `[3, 5, 8]` 是 `[3, 4, 5, 6, 7, 8]` 的一个子序列）
+
+**示例 1：**
 
 ```
+输入: arr = [1,2,3,4,5,6,7,8]
+输出: 5
+解释: 最长的斐波那契式子序列为 [1,2,3,5,8] 。
+```
+
+**示例 2：**
+
+```
+输入: arr = [1,3,7,11,12,14,18]
+输出: 3
+解释: 最长的斐波那契式子序列有 [1,11,12]、[3,11,14] 以及 [7,11,18] 。
+```
+
+**提示：**
+
+- `3 <= arr.length <= 1000`
+- `1 <= arr[i] < arr[i + 1] <= 10^9`
+
+【解析】这一看就是使用dp做，然后分析是子序列问题且对象是一维数组，使用 ” 前i个元素中，以第i个元素结尾的xxxx ” （以后都使用索引表示吧，代码可读性更高，即[0,i]中，以索引i结尾的xxxx）。
+
+立即推：dp[i]: 前面【0，i】中，以索引i元素结尾的斐波那契数列最长长度。然后找关系发现做不出来，因为dp[i]  不仅和前面一个dp[i-1]有关，也不是和前面所有的元素相关，而是和前面某一个dp，然后它前面还有一个，我真是是服了，所以一维的数组肯定不行！！，此时我们就要考虑到二维的情况了，这道题很难，之前没有遇到过。
+
+**正确思路：**
+
+```java
+1. dp[i][j]：在[0,j]的子数组中，以索引i元素和索引j元素作为最后两个数字的斐波那契子序列的最大长度，必须以j结尾，这一点还是一样的，i小于j（就是在之前基础上，多加了一维dp）
+2. 现在我们已知了序列最后两个元素，那么求dp[i][j]，（固定了结尾元素j，要去遍历前面所有的i，找i前面有没有k）就需要知道arr[i]前面是否存在符合要求的元素，arr[k]+arr[i]=arr[j]
+3. 如果满足，那么 dp[i][j] = Math.max(dp[k][i]+1, 3) 不满足那么就是0. 这里要注意的就是索引k元素要从后往前遍历
+```
+
+```java
+    public int getRes(int[] arr) {
+        int n = arr.length;
+        int[][] dp = new int[n][n];
+        Map<Integer, Integer> map = new HashMap<>(); // 根据元素值获取索引
+        for (int i = 0; i < arr.length; i++) {
+            map.put(arr[i], i);
+        }
+        int ans = 0;
+        for (int j = 2; j < n; j++) {
+            for (int i = j - 1; i >= 1; i--) {
+                Integer k = map.getOrDefault(arr[j] - arr[i], -1);
+                if (k >= 0 && k < i) {
+                    dp[i][j] = Math.max(dp[k][i] + 1, 3);
+                }
+                ans = Math.max(dp[i][j], ans);
+            }
+        }
+        return ans;
+    }
+```
+
+
+
+
+
+# ==98、剑指 Offer II 005. 单词长度的最大乘积==
+
+给定一个字符串数组 `words`，请计算当两个字符串 `words[i]` 和 `words[j]` 不包含相同字符时，它们长度的乘积的最大值。假设字符串中只包含英语的小写字母。如果没有不包含相同字符的一对字符串，返回 0。
+
+**示例 1:**
+
+```
+输入: words = ["abcw","baz","foo","bar","fxyz","abcdef"]
+输出: 16 
+解释: 这两个单词为 "abcw", "fxyz"。它们不包含相同字符，且长度的乘积最大。
+```
+
+**示例 2:**
+
+```
+输入: words = ["a","ab","abc","d","cd","bcd","abcd"]
+输出: 4 
+解释: 这两个单词为 "ab", "cd"。
+```
+
+**提示：**
+
+- `2 <= words.length <= 1000`
+- `1 <= words[i].length <= 1000`
+- `words[i]` 仅包含小写字母
+
+
+
+```java
+    public int getRes(String[] words) {
+        //1. 获取每个字符串含有的字符，使用比特位表示
+        int[] bitChar = new int[words.length];
+        for (int i = 0; i < words.length; i++) {
+            for (int j = 0; j < words[i].length(); j++) {
+                int index = words[i].charAt(j) - 'a';
+                bitChar[i] |= (1 << index); // 对应比特位置为1（或：有一个1就是1）
+            }
+        }
+        // 依次遍历判断
+        int ans = 0;
+        boolean flag = true;
+        for (int i = 0; i < words.length; i++) {
+            for (int j = i + 1; j < words.length; j++) {
+                if ((bitChar[i] & bitChar[j]) != 0) { //相与不为0，则两个字符串出现了相同的字符
+
+                } else {
+                    ans = Math.max(ans, words[i].length() * words[j].length());
+                }
+            }
+        }
+        return ans;
+    }
+```
+
+
+
+
+
+# 99、剑指 Offer II 096. 字符串交织
+
+给定三个字符串 `s1`、`s2`、`s3`，请判断 `s3` 能不能由 `s1` 和 `s2` **交织（交错）** 组成。
+
+两个字符串 `s` 和 `t` **交织** 的定义与过程如下，其中每个字符串都会被分割成若干 **非空** 子字符串：
+
+- `s = s1 + s2 + ... + sn`
+- `t = t1 + t2 + ... + tm`
+- `|n - m| <= 1`
+- **交织** 是 `s1 + t1 + s2 + t2 + s3 + t3 + ...` 或者 `t1 + s1 + t2 + s2 + t3 + s3 + ...`
+
+**提示：**`a + b` 意味着字符串 `a` 和 `b` 连接。
+
+**示例 1：**
+
+<img src="images/interleave.jpg" alt="img" style="zoom:80%;" />
+
+```
+输入：s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+输出：true
+```
+
+**示例 2：**
+
+```
+输入：s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+输出：false
+```
+
+**提示：**
+
+- `0 <= s1.length, s2.length <= 100`
+- `0 <= s3.length <= 200`
+- `s1`、`s2`、和 `s3` 都由小写英文字母组成
+
+```java
+    /**
+     * 采用分割的思路肯定做不了，很混乱
+     */
+    // 使用DP的方法做，也没见过这种的题目
+    public boolean getRes(String s1, String s2, String s3) {
+        if (s3.length() != (s1.length() + s2.length())) return false;
+        // dp[i][j]: 前i个元素的字符串s1和前j个元素的字符串s2，能否组成前（i+j）个元素的字符串s3。求dp[n1][n2]
+        boolean[][] dp = new boolean[s1.length() + 1][s2.length() + 1];
+
+        // 初始化，第一行第一列
+        for (int i = 1; i < dp[0].length; i++) {
+            if (s2.substring(0, i).equals(s3.substring(0, i))) {
+                dp[0][i] = true;
+            } else dp[0][i] = false;
+        }
+        for (int i = 1; i < dp.length; i++) {
+            if (s1.substring(0, i).equals(s3.substring(0, i))) {
+                dp[i][0] = true;
+            }else dp[i][0] = false;
+        }
+        dp[0][0] = true;
+
+        // dp[i][j] = dp[i-1][j], dp[i][j-1], dp[i-1][j-1];
+        for (int i = 1; i < dp.length; i++) {
+            for (int j = 1; j < dp[0].length; j++) {
+                if (dp[i - 1][j] && s1.charAt(i - 1) == s3.charAt(i + j - 1)) {
+                    dp[i][j] = true;
+                } else if (dp[i][j - 1] && s2.charAt(j - 1) == s3.charAt(i + j - 1)) {
+                    dp[i][j] = true;
+                } else if (dp[i - 1][j - 1]) {
+                    //这种情况起始已经被上面两种情况包括了
+                } else {
+                    dp[i][j] = false;
+                }
+            }
+        }
+        return dp[s1.length()][s2.length()];
+    }
+```
+
+
+
+# 100、剑指 Offer II 085. 生成匹配的括号
+
+正整数 `n` 代表生成括号的对数，请设计一个函数，用于能够生成所有可能的并且 **有效的** 括号组合。
+
+**示例 1：**
+
+```
+输入：n = 3
+输出：["((()))","(()())","(())()","()(())","()()()"]
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：["()"]
+```
+
+**提示：**
+
+- `1 <= n <= 8`
+
+```java
+    public List<String> getRes(int n) {
+        //1.生成n个（和n个）的所有排列哦，不是组合
+        List<String> allSymbol = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            allSymbol.add("(");
+        }
+        for (int i = 0; i < n; i++) {
+            allSymbol.add(")");
+        }
+        Set<Integer> indexSet = new HashSet<>();
+        backtracking(allSymbol, indexSet);
+        System.out.println(pathList);
+        //2.使用栈结构，判断所有组合是否合法
+        Stack<String> stack = new Stack<>();
+        List<String> ans = new ArrayList<>();
+        for (List<String> stringList : pathList) {
+            stack.clear();
+            for (String s : stringList) {
+                if (stack.isEmpty()) stack.push(s);
+                else if (s.equals(")") && stack.peek().equals("(")) { // 判断即将入栈元素是否匹配栈顶元素
+                    stack.pop();
+                } else {
+                    stack.push(s);
+                }
+            }
+            if (stack.isEmpty()) { // 该组合满足要求
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String s : stringList) {
+                    stringBuilder.append(s);
+                }
+                ans.add(stringBuilder.toString());
+            }
+        }
+        return ans;
+    }
+
+    // 求所有排列,注意有树层去重（结果去重）去重先排序相同的放在一起，回溯
+    public List<List<String>> pathList = new ArrayList<>();
+    public List<String> path = new ArrayList<>();
+
+    public void backtracking(List<String> list, Set<Integer> indexSet) {
+        // 2.stop
+        if (path.size() == list.size()) {
+            pathList.add(new ArrayList<>(path));
+            return;
+        }
+        //3.回溯搜索（处理递归回溯）
+        for (int i = 0; i < list.size(); i++) {
+            if (indexSet.contains(i)) { //避免放入重复的元素
+                continue;
+            }
+            if (i>0 && list.get(i).equals(list.get(i-1)) && !indexSet.contains(i-1)){
+                continue;
+            }
+            path.add(list.get(i));
+            indexSet.add(i);
+            backtracking(list, indexSet);
+            indexSet.remove(i);
+            path.remove(path.size() - 1);
+        }
+    }
+```
+
+
+
+# 101、剑指 Offer II 062. 实现前缀树
+
+**[Trie](https://baike.baidu.com/item/字典树/9825209?fr=aladdin)**（发音类似 "try"）或者说 **前缀树** 是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补完和拼写检查。
+
+请你实现 Trie 类：
+
+- `Trie()` 初始化前缀树对象。
+- `void insert(String word)` 向前缀树中插入字符串 `word` 。
+- `boolean search(String word)` 如果字符串 `word` 在前缀树中，返回 `true`（即，在检索之前已经插入）；否则，返回 `false` 。
+- `boolean startsWith(String prefix)` 如果之前已经插入的字符串 `word` 的前缀之一为 `prefix` ，返回 `true` ；否则，返回 `false` 。
+
+**示例：**
+
+```
+输入
+inputs = ["Trie", "insert", "search", "search", "startsWith", "insert", "search"]
+inputs = [[], ["apple"], ["apple"], ["app"], ["app"], ["app"], ["app"]]
+输出
+[null, null, true, false, true, null, true]
+
+解释
+Trie trie = new Trie();
+trie.insert("apple");
+trie.search("apple");   // 返回 True
+trie.search("app");     // 返回 False
+trie.startsWith("app"); // 返回 True
+trie.insert("app");
+trie.search("app");     // 返回 True
+```
+
+**提示：**
+
+- `1 <= word.length, prefix.length <= 2000`
+- `word` 和 `prefix` 仅由小写英文字母组成
+- `insert`、`search` 和 `startsWith` 调用次数 **总计** 不超过 `3 * 104` 次
+
+```java
+class Trie {
+    private Set<String> allElement;
+    private Set<String> allPrefix;
+
+    public void insert(String s) {
+        allElement.add(s);
+        for (int i = 0; i < s.length(); i++) {
+            String s1 = s.substring(0, i + 1);
+            allPrefix.add(s1);
+        }
+    }
+    public boolean search(String s) {
+        if (allElement.contains(s)) {
+            return true;
+        }
+        return false;
+    }
+    public boolean startsWith(String prefix) {
+        if (allPrefix.contains(prefix)){
+            return true;
+        }
+        return false;
+    }
+
+    public Trie() {
+        this.allElement = new HashSet<>();
+        this.allPrefix = new HashSet<>();
+    }
+}
+```
+
+
+
+
+
+
 
 
 
 # DFS和BFS总结
 
-​		有关DFS和BFS主要在树中（最常见的二叉树）和图中见到很多，但在这两种数据结构中的写法有所不同，虽然思路是一样的，我们需要注意一下并且记下来，后面写代码就不会混乱，写的更快。
+有关DFS和BFS主要在树中（最常见的二叉树）和图中见到很多，但在这两种数据结构中的写法有所不同，虽然思路是一样的，我们需要注意一下并且记下来，后面写代码就不会混乱，写的更快。
+
+==以下都是使用邻接表进行树、图的搜索解法==
 
 ## DFS
 
-​		这个是一般而言用的最多的，而且代码结构也比较简短。但在**求最短路径这一类**的搜索题目中就不行了，只能使用BFS，所以两种搜索方法都要掌握。
+==以下都是使用邻接表进行树、图的搜索解法==
 
-**树：方向唯一，不会往回递归**
+​	这个是一般而言用的最多的，而且代码结构也比较简短。但在**求最短路径这一类**的搜索题目中就不行了，只能使用BFS，所以两种搜索方法都要掌握。
+
+**树：方向唯一，不会往回递归，函数参数有pre**
 
 ​		因为方向一直是向下的，所以如何不往回遍历呢，只需要加一个“if(y==pre) continue;”就可以了，如果邻接点是现节点的父节点，就跳过该节点的判断。
 
 ```java
 public void dfs(int pre, int x, List<List<Integer>> ver){
-  	//1. 搜索结束条件
+  	//1. 结束条件
   	if(ver[x].size()==0) return;
+  	......
+  	// 遍历邻接表
   	for(int y : ver.get(x)){
       	if(y==pre) continue;
       	dfs(x, y, ver);
@@ -6454,26 +6921,68 @@ public void dfs(int pre, int x, List<List<Integer>> ver){
 }
 ```
 
-**图：方向不定，会递归到已经遍历的节点**
+**图：方向不定，会递归到已经遍历的节点，函数参数无pre，有visited**
 
-​		因为方式是多向的，只加一个对于父节点的跳过判断是不行的，因为可能现节点的邻接点的邻接点是现节点的父节点，所以这里必须是加一个**visited数组**，标识节点已经访问过。
+​		因为方式是多向的，只加一个对于父节点的跳过判断是不行的，因为可能现节点的邻接点的邻接点是现节点的父节点，所以这里必须是加一个**visited数组**，标识节点已经访问过；
 
 ```java
 public void dfs(int x, List<List<Integer>> ver, boolean[] visited){
   	visited[x] = true; // 标记已搜索
+  	......
   	for(int y: ver.get(x)){ //   遍历邻接表
       	if(visited[y]) { // 
-          continue;
-        }else{
-          	dfs(y, ver, visited);
+          	......
+            continue;
         }
+        dfs(y, ver, visited);
     }
 }
 ```
 
 
 
+## BFS
 
+==以下都是使用邻接表进行树、图的搜索解法==
+
+这个在树的搜索和图的搜索都是一样的思路，**一个Queue加List，两个While **就可以；
+
+有的时候，这种会比较难写一点，但要会写。
+
+**树：方向唯一；形参简单，遍历有pre**
+
+​		
+
+**图：方向不定；形参简单，遍历有visited**
+
+```java
+private void bfs(int x, int[][] graph) {
+  	Queue<Integer> queue = new ArrayDeque<>();
+    List<Integer> list = new ArrayList<>();
+    boolean[] visited = new boolean[graph.length];
+  	queue.offer(x);
+  	......
+    while (!queue.isEmpty()) {
+      ......
+      while (!queue.isEmpty()) {
+        	Integer node = queue.poll();
+        	......
+          list.add(node);
+      }
+      // 遍历该层所有节点的所有邻接表
+      for (int node : list) {
+          for (int y : graph[node]) {
+              if (visited[y]) {
+									......
+              } else {
+                  queue.offer(y);
+              }
+          }
+      }
+    }
+  
+}
+```
 
 
 
