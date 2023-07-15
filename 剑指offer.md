@@ -6852,6 +6852,66 @@ trie.search("app");     // 返回 True
 - `word` 和 `prefix` 仅由小写英文字母组成
 - `insert`、`search` 和 `startsWith` 调用次数 **总计** 不超过 `3 * 104` 次
 
+**前缀树知识点！！！！！！！面试容易问到！！！！！！！！**
+
+```java
+class Trie {
+
+    private Trie[] children;
+    private boolean isWord;
+
+    public Trie() {
+        children = new Trie[26];
+        isWord = false;
+    }
+  
+    public void insert(String s) {
+        Trie node = this; // 跟节点（不存放数据）
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            int index = ch - 'a';
+            if (node.children[index] == null) {
+                node.children[index] = new Trie();
+            }
+            node = node.children[index]; // 移动到当前字符的节点
+        }
+        node.isWord = true;
+    }
+
+    public boolean search(String s) {
+        Trie node = this;
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            int index = ch - 'a';
+            if (node.children[index] == null) { // 路径找不到
+                return false;
+            }
+            node = node.children[index];
+        }
+        return node.isWord; // 找到了路径，还要判断是否存储了者条路径！！！
+    }
+
+    public boolean startsWith(String prefix) { // 和前面的是一模一样
+        Trie node = this;
+        for (int i = 0; i < prefix.length(); i++) {
+            char ch = prefix.charAt(i);
+            int index = ch - 'a';
+            if (node.children[index] == null) { // 路径找不到
+                return false;
+            }
+            node = node.children[index];
+        }
+        return true; // 找到了路径就可以了
+    }
+
+
+}
+```
+
+
+
+**暴力解法勉强更过，但这道题考察了一个重要知识点，面试经常问到！！！！**
+
 ```java
 class Trie {
     private Set<String> allElement;
@@ -6883,6 +6943,136 @@ class Trie {
     }
 }
 ```
+
+
+
+# 102、剑指 Offer II 067. 最大的异或
+
+给你一个整数数组 `nums` ，返回 `nums[i] XOR nums[j]` 的最大运算结果，其中 `0 ≤ i ≤ j < n` 。
+
+**示例 1：**
+
+```
+输入：nums = [3,10,5,25,2,8]
+输出：28
+解释：最大运算结果是 5 XOR 25 = 28.
+```
+
+**示例 2：**
+
+```
+输入：nums = [14,70,53,83,49,91,36,80,92,51,66,70]
+输出：127
+```
+
+**提示：**
+
+- `1 <= nums.length <= 2 * 105`
+- `0 <= nums[i] <= 2^31 - 1`
+
+【解析】：2的31次方，最大表示数字为2的31次方-1。
+
+这道题目还是蛮有意思的，用到前缀树的思想来将复杂度降低到 `O(N)`。 我们分两步来解决这个问题：
+
+1. 构建二进制前缀树 具体来说就是利用数的二进制表示，从高位到低位构建一棵树（因为只有0和1 两个值，所以是一棵二叉树），每个从根节点到叶子节点的路径都表示一个数。（构建的树看下图）
+
+2. 搜索前缀树 然后遍历数组中的数字，将每一个二进制位，在对应的层中找到一个异或的最大值，也就是：如果是1，找0的那条路径，如果是0，找1的那条路径。 这样搜索下来的路径就是这个数字和整个数组异或的最大值，看下图
+
+<img src="images/1621125569-USzfNp-tree.jpg" alt="tree.jpg" style="zoom:50%;" />
+
+具体步骤是： 对于2， 二进制从高到低是 0，0，1，0
+
+- 第一步：二进制位是0，我们到第四层去选择，有1，我们选择1这个节点，异或计算结果是1
+- 第二步：二进制位是0，在第三层，上一步选择的节点没有为1的子节点，所以我们只能选择0，异或计算结果是0
+- 第三步：二进制位是1，在第二层，上一步选择的节点的子节点下有0的节点，我们选择0，异或计算结果是1
+- 第四部：二进制位是0，在第一层，上一步选择的节点的子节点下只有一个0，所以选择0，异或计算结果是0
+
+所以我们异或的结果是1010， 十进制表示是10.
+
+**分析：**其实每个数字还是都要和其他数字做个异或，不过利用了前缀树和贪心思想，每一步都挑一个最大的值，把其他路径都剪枝掉了。
+
+**复杂度分析：**
+
+- 构建前缀树，遍历一个数字，是O(N), 对于每个数字，遍历每一个二进制位，由于数字最大是32位，所以是常数，总的复杂度为 O(N)，树的最大层次也是32层(这个还可以优化，取当前数组中所有数的最长二进制表示即可，肯定小于等于32位)
+
+- 搜索前缀树，遍历每一个数字，是O(N), 对于数字的每个二进制位，我们要往下搜索树，不过树的层次是一个常数，所以总的复杂度还是O(N)
+
+总体复杂度为 O(N)
+
+```java
+public class 最大的异或067_2 {
+    /**
+     * 和前一个思路一样，这里直接写成了一个数据结构，看起来感觉比较舒服
+     */
+    public int findMaximumXOR(int[] nums) {
+        XORTrie xorTrie = new XORTrie();
+        int ans = 0;
+        for (int num : nums) {
+            xorTrie.insert(num);
+            ans = Math.max(xorTrie.getMaxXOR(num), ans);
+        }
+        return ans;
+    }
+}
+
+class XORTrie{
+    public static final int HIGH_BIT = 30;
+    private XORTrie[] children; //[0]:标识0, [1]:标识1
+
+    public XORTrie(){
+        children = new XORTrie[2];
+    }
+
+    // 元素插入前缀树里面
+    public void insert(int num){
+        XORTrie node = this; // 根节点：我们在外部调用初始化的那个，内部是没有根节点的
+        for (int i = HIGH_BIT; i >=0 ; i--) { // 从高到低哦
+            int bit = (num >> i) & 1;
+            if (bit == 0){
+                if (node.children[0] == null){
+                    node.children[0] = new XORTrie();
+                }
+                node = node.children[0];
+            }else {
+                if (node.children[1] == null){
+                    node.children[1] = new XORTrie();
+                }
+                node = node.children[1];
+            }
+        }
+    }
+
+    // 求出当前数与前缀树中已有数字的最大异或（从高到低哦）
+    public int getMaxXOR(int num){
+        XORTrie node = this;
+        int maxXOR = 0;
+        for (int i = HIGH_BIT; i >=0 ; i--) {
+            int bit = (num >> i) & 1;
+            if (bit == 0){
+                if (node.children[1] != null){
+                    maxXOR = maxXOR * 2 + 1;
+                    node = node.children[1];
+                }else {
+                    maxXOR = maxXOR * 2;
+                    node = node.children[0];
+                }
+            }else {
+                if (node.children[0] != null){
+                    maxXOR = maxXOR * 2 + 1;
+                    node = node.children[0];
+                }else {
+                    maxXOR = maxXOR * 2;
+                    node = node.children[1];
+                }
+            }
+        }
+        return maxXOR;
+    }
+
+}
+```
+
+
 
 
 
@@ -6986,25 +7176,101 @@ private void bfs(int x, int[][] graph) {
 
 
 
+# 前缀树
 
+## 从二叉树说起
 
+前缀树，也是一种树。为了理解前缀树，我们先从二叉树说起。
 
+常见的二叉树结构是下面这样的：
 
+```kotlin
+class TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+}
+```
 
+可以看到一个树的节点包含了三个元素：该节点本身的值，左子树的指针，右子树的指针。二叉树可视化是下面这样的：
 
+<img src="images/image-20230714102926335.png" alt="image-20230714102926335" style="zoom:50%;" />
 
+二叉树的每个节点只有两个孩子，那如果每个节点可以有多个孩子呢？这就形成了多叉树。多叉树的子节点数目一般不是固定的，所以会用变长数组来保存所有的子节点的指针。多叉树的结构是下面这样：
 
+```cpp
+class TreeNode {
+    int val;
+    vector<TreeNode*> children;
+}
+```
 
+多叉树可视化是下面这样：
 
+<img src="images/image-20230714103010748.png" alt="image-20230714103010748" style="zoom:50%;" />
 
+对于普通的多叉树，每个节点的所有子节点可能是没有任何规律的。而本题讨论的「前缀树」就是每个节点的 children 有规律的多叉树。
 
+## 前缀树
 
+（只保存小写字符的）「前缀树」是一种特殊的多叉树，它的 TrieNode 中 chidren 是一个大小为 26 的一维数组，分别对应了26个英文字符 'a' ~ 'z'，也就是说形成了一棵 26叉树。
 
+前缀树的结构可以定义为下面这样。 里面存储了两个信息：
 
+- isWord 表示从根节点到当前节点为止，该路径是否形成了一个有效的字符串。
+- children 是该节点的所有子节点。
 
+```c++
+class TrieNode {
+public:
+    vector<TrieNode*> children;
+    bool isWord;
+    TrieNode() : isWord(false), children(26, nullptr) {
+    }
+    ~TrieNode() {
+        for (auto& c : children)
+            delete c;
+    }
+};
+```
 
+## 构建
 
+在构建前缀树的时候，按照下面的方法
 
+- 根节点不保存任何信息；
+
+- 关键词放到「前缀树」时，需要把它拆成各个字符，每个字符按照其在` 'a' ~ 'z' `的序号，放在对应的 chidren 里面。下一个字符是当前字符的子节点。
+
+- 一个输入字符串构建「前缀树」结束的时候，需要把该节点的 isWord 标记为 true，说明从根节点到当前节点的路径，构成了一个关键词。
+
+下面是一棵「前缀树」，其中保存了 `{"am", "an", "as", "b", "c", "cv"} `这些关键词。图中红色表示 isWord 为 true。 看下面这个图的时候需要注意：
+
+- 所有以相同字符开头的字符串，会聚合到同一个子树上。比如 `{"am", "an", "as"} `；
+
+- 并不一定是到达叶子节点才形成了一个关键词，只要 isWord 为true，那么从根节点到当前节点的路径就是关键词。比如 `{"c", "cv"} `；
+
+<img src="images/image-20230714103253458.png" alt="image-20230714103253458" style="zoom:50%;" />
+
+有些题解把字符画在了节点中，我认为是不准确的。因为前缀树是根据 字符在 children 中的位置确定子树，而不真正在树中存储了 'a' ~ 'z' 这些字符。树中每个节点存储的 isWord，表示从根节点到当前节点的路径是否构成了一个关键词。
+
+## 查询
+
+在判断一个关键词是否在「前缀树」中时，需要依次遍历该关键词所有字符，在前缀树中找出这条路径。可能出现三种情况：
+
+1. 在寻找路径的过程中，发现到某个位置路径断了。比如在上面的前缀树图中寻找 "d" 或者 "ar" 或者 "any" ，由于树中没有构建对应的节点，那么就查找不到这些关键词；
+2. 找到了这条路径，但是最后一个节点的 isWord 为 false。这也说明没有改关键词。比如在上面的前缀树图中寻找 "a" ；
+3. 找到了这条路径，并且最后一个节点的 isWord 为 true。这说明前缀树存储了这个关键词，比如上面前缀树图中的 "am" , "cv" 等。
+
+## 应用
+
+上面说了这么多前缀树，那前缀树有什么用呢？
+
+其实我们生活中就有应用。比如我们常见的电话拨号键盘，当我们输入一些数字的时候，后面会自动提示以我们的输入数字为开头的所有号码。
+
+比如我们的英文输入法，当我们输入半个单词的时候，输入法上面会自动联想和补全后面可能的单词。
+
+再比如在搜索框搜索的时候，输入"负雪"，后面会联想到 负雪明烛 。
 
 
 
