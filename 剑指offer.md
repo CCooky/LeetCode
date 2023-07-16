@@ -5374,6 +5374,39 @@ public class MaxPriorityQueue {
 
 
 
+```java
+/**
+ * 解法2:DP
+ * 难点是如何定义这个数组
+ */
+public int getResByDP(String s) {
+    // 我们定义dp[i]: 将前i个字符（[0:i-1]) 分割为若干回文串的最小分割次数，那么最终答案为dp[n]。
+    int[] dp = new int[s.length() + 1];
+    dp[0] = 0;
+    dp[1] = 0;
+    //2.dp[i] 和前面的dp[i-1]关系
+    // 如果i个字符是回文的，则直接=0；
+    // 如果不是，那么dp[i]和dp[i-1]的关系在于，如后面这段字串如果为回文，则dp[i]=dp[i-1]+1;大概就是这个意思
+    // 从右向左依次判断，【left，i-1】（left是索引，left=i-1，left>=1）如果被判断的是回文则，dp[i] = dp[left]+1，并且这里会有多种方案，我们要取最小的;
+    // 反正肯定是可以分割的，就是全部为单个字符；
+    for (int i = 2; i < dp.length; i++) {
+        dp[i] = i - 1;
+        if (isPalindrome(s.substring(0, i))) {
+            dp[i] = 0;
+        } else {
+            for (int left = i - 1; left >= 1; left--) {
+                if (isPalindrome(s.substring(left, i))) {
+                    dp[i] = Math.min(dp[left] + 1, dp[i]);
+                }
+            }
+        }
+    }
+    return dp[s.length()];
+}
+```
+
+
+
 # ==83、剑指 Offer II 001. 整数除法==
 
 给定两个整数 `a` 和 `b` ，求它们的除法的商 `a/b` ，要求不得使用乘号 `'*'`、除号 `'/'` 以及求余符号 `'%'` 。
@@ -6995,7 +7028,7 @@ class Trie {
 
 - 构建前缀树，遍历一个数字，是O(N), 对于每个数字，遍历每一个二进制位，由于数字最大是32位，所以是常数，总的复杂度为 O(N)，树的最大层次也是32层(这个还可以优化，取当前数组中所有数的最长二进制表示即可，肯定小于等于32位)
 
-- 搜索前缀树，遍历每一个数字，是O(N), 对于数字的每个二进制位，我们要往下搜索树，不过树的层次是一个常数，所以总的复杂度还是O(N)
+- 搜索前缀树，遍历每一个数字，是O(N), 对于数字的每个二进制位，我们要往下搜索树，**不过树的层次是一个常数，所以总的复杂度还是O(N)**
 
 总体复杂度为 O(N)
 
@@ -7076,9 +7109,591 @@ class XORTrie{
 
 
 
+# 103、剑指 Offer II 064. 神奇的字典
+
+设计一个使用单词列表进行初始化的数据结构，单词列表中的单词 **互不相同** 。 如果给出一个单词，请判定能否只将这个单词中**一个**字母换成另一个字母，使得所形成的新单词存在于已构建的神奇字典中。
+
+实现 `MagicDictionary` 类：
+
+- `MagicDictionary()` 初始化对象
+- `void buildDict(String[] dictionary)` 使用字符串数组 `dictionary` 设定该数据结构，`dictionary` 中的字符串互不相同
+- `bool search(String searchWord)` 给定一个字符串 `searchWord` ，判定能否只将字符串中 **一个** 字母换成另一个字母，使得所形成的新字符串能够与字典中的任一字符串匹配。如果可以，返回 `true` ；否则，返回 `false` 。
+
+**示例：**
+
+```
+输入
+inputs = ["MagicDictionary", "buildDict", "search", "search", "search", "search"]
+inputs = [[], [["hello", "leetcode"]], ["hello"], ["hhllo"], ["hell"], ["leetcoded"]]
+输出
+[null, null, false, true, false, false]
+
+解释
+MagicDictionary magicDictionary = new MagicDictionary();
+magicDictionary.buildDict(["hello", "leetcode"]);
+magicDictionary.search("hello"); // 返回 False
+magicDictionary.search("hhllo"); // 将第二个 'h' 替换为 'e' 可以匹配 "hello" ，所以返回 True
+magicDictionary.search("hell"); // 返回 False
+magicDictionary.search("leetcoded"); // 返回 False
+```
+
+**提示：**
+
+- `1 <= dictionary.length <= 100`
+- `1 <= dictionary[i].length <= 100`
+- `dictionary[i]` 仅由小写英文字母组成
+- `dictionary` 中的所有字符串 **互不相同**
+- `1 <= searchWord.length <= 100`
+- `searchWord` 仅由小写英文字母组成
+- `buildDict` 仅在 `search` 之前调用一次
+- 最多调用 `100` 次 `search`
+
+**【分析】这道题**一开始我就想到了使用前缀树来做，先存储所有字符串到字典里面去，然后去查找输入的字符串，但是啊，这里是需要替换一个字符，那在树的哪个路径去替换呢，这就不知道，只能暴力回溯，相当于是在前缀树上进行dfs或者bfs，这个就有点麻烦；
+
+另一个思路：首先我们肯定是要判断输入字符串的长度，如果没有对应相等的，肯定就找不到，如果有的话，我们就从那几个长度相等的字符串一个个去匹配就行了，复杂度的话起始就不高，O（mn）还行。使用一个map集合就行，因为`dictionary` 中的所有字符串 **互不相同**，所以没问题，我觉得这种方法比较好。
+
+```java
+class MagicDictionary {
+
+    private Map<String, Integer> map;
+
+    public MagicDictionary() {
+        map = new HashMap<>();
+    }
+
+    public void buildDict(String[] dictionary) {
+        for (String s : dictionary) {
+            map.put(s, s.length());
+        }
+    }
+
+    public boolean search(String searchWord) {
+        int n = searchWord.length();
+        Set<Map.Entry<String, Integer>> entrySet = map.entrySet();
+        for (Map.Entry<String, Integer> entry : entrySet) {
+            if (entry.getValue() == n) {
+                // compare
+                String key = entry.getKey();
+                int p = 0;
+                int count = 0;
+                while (p < n) {
+                    if (searchWord.charAt(p) != key.charAt(p)){
+                        count++;
+                    }
+                    p++;
+                }
+                if (count==1) return true;
+            }
+        }
+        return false;
+    }
+}
+```
 
 
 
+
+
+# 104、剑指 Offer II 060. 出现频率最高的 k 个数字
+
+给定一个整数数组 `nums` 和一个整数 `k` ，请返回其中出现频率前 `k` 高的元素。可以按 **任意顺序** 返回答案。
+
+**示例 1:**
+
+```
+输入: nums = [1,1,1,2,2,3], k = 2
+输出: [1,2]
+```
+
+**示例 2:**
+
+```
+输入: nums = [1], k = 1
+输出: [1]
+```
+
+**提示：**
+
+- `1 <= nums.length <= 105`
+- `k` 的取值范围是 `[1, 数组中不相同的元素的个数]`
+- 题目数据保证答案唯一，换句话说，数组中前 `k` 个高频元素的集合是唯一的
+
+ 
+
+```java
+public int[] topKFrequent(int[] nums, int k) {
+    // 直接统计数组里面每个元素出现的次数就行了，然后使用大根堆得出前k个，直接拿出优先队列即可，排序规则为次数
+    Map<Integer, Integer> map = new HashMap<>();
+    for (int num : nums) {
+        if (map.containsKey(num)) {
+            map.put(num, map.get(num) + 1);
+        } else {
+            map.put(num, 1);
+        }
+    }
+    Set<Map.Entry<Integer, Integer>> set = map.entrySet();
+    //
+    Queue<Map.Entry<Integer, Integer>> queue = new PriorityQueue<>((o1, o2) -> o2.getValue() - o1.getValue());
+    for (Map.Entry<Integer, Integer> entry : set) {
+        queue.offer(entry);
+    }
+    int[] ans = new int[k];
+    for (int i = 0; i < k; i++) {
+        ans[i] = queue.poll().getKey();
+    }
+    return ans;
+}
+```
+
+
+
+# ==105、剑指 Offer II 009. 乘积小于 K 的子数组==
+
+给定一个正整数数组 `nums`和整数 `k` ，请找出该数组内乘积小于 `k` 的连续的子数组的个数；
+
+**示例 1:**
+
+```
+输入: nums = [10,5,2,6], k = 100
+输出: 8
+解释: 8 个乘积小于 100 的子数组分别为: [10], [5], [2], [6], [10,5], [5,2], [2,6], [5,2,6]。
+需要注意的是 [10,5,2] 并不是乘积小于100的子数组。
+```
+
+**示例 2:**
+
+```
+输入: nums = [1,2,3], k = 0
+输出: 0
+```
+
+**提示:** 
+
+- `1 <= nums.length <= 3 * 104`
+- `1 <= nums[i] <= 1000`
+- `0 <= k <= 106`
+
+
+
+【这道题很好啊】
+
+```java
+public int numSubarrayProductLessThanK(int[] nums, int k) {
+    //只需要输出个数，直接dp；滑动窗口也可以；dp好像做不了，算了，滑动起来for+while
+    // 注意forwhile只能求大于的条件，我们可以逆序转换成大于的条件,这道题有点难
+    int multiply = 1;
+    int start = 0;
+    int ans = 0;
+    for (int i = 0; i < nums.length; i++) { // 终止位置
+        multiply *= nums[i];
+        if (multiply < k) {
+            ans += i - start + 1; // 以窗口右端点结尾的子连续数组的个数
+        } else {
+            while (multiply >= k && start <= i) {
+                multiply /= nums[start];
+                start++;
+            }
+            if (start <= i){
+                ans += i - start + 1; // 以窗口右端点结尾的子连续数组的个数
+            }
+        }
+    }
+    return ans;
+}
+```
+
+
+
+# 106、剑指 Offer II 045. 二叉树最底层最左边的值
+
+给定一个二叉树的 **根节点** `root`，请找出该二叉树的 **最底层 最左边** 节点的值。
+
+假设二叉树中至少有一个节点。
+
+**示例 1:**
+
+<img src="images/tree1-16894231098581.jpg" alt="img" style="zoom:50%;" />
+
+```
+输入: root = [2,1,3]
+输出: 1
+```
+
+**示例 2:**
+
+<img src="images/tree2.jpg" alt="img" style="zoom:50%;" />
+
+```
+输入: [1,2,3,4,null,5,6,null,null,7]
+输出: 7 
+```
+
+**提示:**
+
+- 二叉树的节点个数的范围是 `[1,104]`
+- `-231 <= Node.val <= 231 - 1` 
+
+
+
+```java
+    // bfs
+    Queue<TreeNode> queue = new ArrayDeque<>();
+    List<TreeNode> list = new ArrayList<>();
+    queue.offer(root);
+    TreeNode ans;
+    while (!queue.isEmpty()){
+        while (!queue.isEmpty()){
+            TreeNode poll = queue.poll();
+            list.add(poll);
+        }
+        ans = list.get(0); // 记录该层的左端节点
+        for (TreeNode node : list) {
+            if (node.left!=null){
+                queue.offer(node.left);
+            }
+            if (node.right!=null){
+                queue.offer(node.right);
+            }
+        }
+        list.clear();
+        // 判断是否到了最后一层，此时队列为空了
+        if (queue.isEmpty()){
+            return ans.val;
+        }
+    }
+    return -1;
+}
+```
+
+
+
+# 107、剑指 Offer II 044. 二叉树每层的最大值
+
+给定一棵二叉树的根节点 `root` ，请找出该二叉树中每一层的最大值。
+
+**示例1：**
+
+```
+输入: root = [1,3,2,5,3,null,9]
+输出: [1,3,9]
+解释:
+          1
+         / \
+        3   2
+       / \   \  
+      5   3   9 
+```
+
+**示例2：**
+
+```
+输入: root = [1,2,3]
+输出: [1,3]
+解释:
+          1
+         / \
+        2   3
+```
+
+**提示：**
+
+- 二叉树的节点个数的范围是 `[0,104]`
+- `-231 <= Node.val <= 231 - 1`
+
+
+
+```java
+public List<Integer> getRes(TreeNode root) {
+        // bfs
+        List<Integer> ans = new ArrayList<>();
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        List<TreeNode> list = new ArrayList<>();
+        int maxLayer;
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            maxLayer = Integer.MIN_VALUE;
+            while (!queue.isEmpty()) {
+                TreeNode poll = queue.poll();
+                maxLayer = Math.max(maxLayer, poll.val);
+                list.add(poll);
+            }
+            ans.add(maxLayer);
+            for (TreeNode node : list) {
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            list.clear();
+        }
+        return ans;
+}
+```
+
+
+
+# 108、剑指 Offer II 118. 多余的边==（并查集）==
+
+树可以看成是一个连通且 **无环** 的 **无向** 图。
+
+给定往一棵 `n` 个节点 (节点值 `1～n`) 的树中添加一条边后的图。添加的边的两个顶点包含在 `1` 到 `n` 中间，且这条附加的边不属于树中已存在的边。图的信息记录于长度为 `n` 的二维数组 `edges` ，`edges[i] = [ai, bi]` 表示图中在 `ai` 和 `bi` 之间存在一条边。
+
+请找出一条可以删去的边，删除后可使得剩余部分是一个有着 `n` 个节点的树。如果有多个答案，则返回数组 `edges` 中最后出现的边。
+
+**示例 1：**
+
+<img src="images/1626676174-hOEVUL-image.png" alt="img" style="zoom:80%;" />
+
+```
+输入: edges = [[1,2],[1,3],[2,3]]
+输出: [2,3]
+```
+
+**示例 2：**
+
+<img src="images/1626676179-kGxcmu-image.png" alt="img" style="zoom:80%;" />
+
+```
+输入: edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
+输出: [1,4]
+```
+
+**提示:**
+
+- `n == edges.length`
+- `3 <= n <= 1000`
+- `edges[i].length == 2`
+- `1 <= ai < bi <= edges.length`
+- `ai != bi`
+- `edges` 中无重复元素
+- 给定的图是连通的 
+
+[代码随想录 (programmercarl.com)](https://www.programmercarl.com/0684.冗余连接.html#java)
+
+【解析】怎么说呢，主要是你如何去想到要用并查集数组这个数据结构，他是一个数组的抽象树，**特点是可以快速判断两个元素是否在同一颗树里面**或者说同一个组里面，并查集两个函数：判断两个元素是否在同一个树、将一个元素加入到这个树里面；
+
+**这道题应用并查集的思路：**每条边都判断该边的两个节点是否已在并查集中，已经在则说明要加入的这条边多余了不能再加入，是需要被删除的边，不在则将新节点加入到并查集里面（因为正常的多叉树是连通的，再随便多一条就形成了一个环）
+
+```java
+import java.util.Arrays;
+
+public class 多余的边118 {
+    public static void main(String[] args) {
+        int[][] edges = new int[][]{{1, 2}, {2, 3}, {3, 4}, {1, 4}, {1, 5}};
+        System.out.println(Arrays.toString(new 多余的边118().findRedundantConnection(edges)));
+    }
+
+    public int[] findRedundantConnection(int[][] edges) {
+        UF uf = new UF();
+        int[] ans = new int[2];
+        for (int[] edge : edges) { // 判断每一条边
+            int i = edge[0];
+            int u = edge[1];
+            if (uf.isConnect(i, u)) { // 如果该边两个节点已经在并查集中
+                ans = edge;
+            } else { // 不在，则将该边加入到并查集
+                uf.union(i, u);
+            }
+        }
+        System.out.println(Arrays.toString(uf.eleFather));
+        return ans;
+    }
+
+}
+
+class UF {
+    public int[] eleFather;
+
+    public UF() {
+        eleFather = new int[6]; // 题目说了最多1000个节点，索引代表每个节点的编号
+        for (int i = 0; i < eleFather.length; i++) {
+            eleFather[i] = i;
+        }
+    }
+
+    // 将 v->u v节点加入到u所在并查集中,这个看题目给的那端是根节点
+    // 哇！！！那所有节点都直接连在同一个节点上了啊，最后发现就是这样的，完全没了输入的树结构
+    public void union(int u, int v) {
+        int uroot = find(u);
+        int vroot = find(v);
+        eleFather[vroot] = uroot;
+    }
+
+    // 找出元素的根节点（该并查集的头）
+    public int find(int ele) {
+        if (ele == eleFather[ele]) {
+            return ele;
+        }
+        return find(eleFather[ele]);
+    }
+
+    // 判断两个元素是否在并查集中
+    public boolean isConnect(int i, int u) {
+        int iroot = find(i);
+        int uroot = find(u);
+        return iroot == uroot;
+    }
+}
+```
+
+
+
+# 109、剑指 Offer II 047. 二叉树剪枝
+
+给定一个二叉树 **根节点** `root` ，树的每个节点的值要么是 `0`，要么是 `1`。请剪除该二叉树中所有节点的值为 `0` 的子树。
+
+节点 `node` 的子树为 `node` 本身，以及所有 `node` 的后代。
+
+**示例 1:**
+
+```
+输入: [1,null,0,0,1]
+输出: [1,null,0,null,1] 
+解释: 
+只有红色节点满足条件“所有不包含 1 的子树”。
+右图为返回的答案。
+```
+
+<img src="images/1028_2.png" alt="img" style="zoom:50%;" />
+
+**示例 2:**
+
+```
+输入: [1,0,1,0,0,0,1]
+输出: [1,null,1,null,1]
+解释: 
+```
+
+<img src="images/1028_1.png" alt="img" style="zoom:50%;" />
+
+**提示:**
+
+- 二叉树的节点个数的范围是 `[1,200]`
+- 二叉树节点的值只会是 `0` 或 `1`
+
+
+
+```java
+public class 二叉树剪枝047 {
+
+    public TreeNode pruneTree(TreeNode root) {
+        // 直接dfs，且带返回值的
+        // dfs写完了，那每个节点都需要判断一次啊，然后进行删除,现在是要前序遍历，再来一个dfs
+        // 删除需要知道该节点的上一个节点
+        TreeNode rRoot = new TreeNode();
+        rRoot.left = root;
+        preOrder(rRoot.left, rRoot);
+        return rRoot.left;
+    }
+
+    public void preOrder(TreeNode root, TreeNode pre) {
+        if (root == null) return;
+        if (dfs(root)) {
+            if (pre.left == root) { //比较引用地址
+                pre.left = null;
+            } else {
+                pre.right = null;
+            }
+            return; // 当前节点都没了，不用往下判断子节点了
+        }
+        preOrder(root.left, root);
+        preOrder(root.right, root);
+    }
+
+    // 以当前节点为根节点的树，是否全为0
+    public boolean dfs(TreeNode node) {
+        if (node == null) return true;
+        boolean left = dfs(node.left);
+        boolean right = dfs(node.right);
+        if (node.val == 0 && left && right) {
+            return true;
+        }
+        return false;
+    }
+}
+```
+
+
+
+
+
+# ==110、剑指 Offer II 019. 最多删除一个字符得到回文==
+
+给定一个非空字符串 `s`，请判断如果 **最多** 从字符串中删除一个字符能否得到一个回文字符串。
+
+**示例 1:**
+
+```
+输入: s = "aba"
+输出: true
+```
+
+**示例 2:**
+
+```
+输入: s = "abca"
+输出: true
+解释: 可以删除 "c" 字符 或者 "b" 字符
+```
+
+**示例 3:**
+
+```
+输入: s = "abc"
+输出: false
+```
+
+**提示:**
+
+- `1 <= s.length <= 105`
+- `s` 由小写英文字母组成
+
+```java
+public boolean getRes(String s) {
+    // 就是删或者不删呗，暴力
+    if (isPalindrome(s)) {
+        return true;
+    }
+    //删除哪一个呢，双指针从头尾开始,遇到不同字符暂停， 可以试着删除其中一个字符,再判断中间部分回文
+    int left = 0;
+    int right = s.length() - 1;
+    while (left < right) {
+        if (s.charAt(left) != s.charAt(right)) { //找到第一个不相等的判断就可以了，时间复杂度很低哦
+            //删除left
+            String leftString = s.substring(left + 1, right + 1); // [left+1, right]
+            if (isPalindrome(leftString)) {
+                return true;
+            }
+            //删除right
+            String rightString = s.substring(left, right);
+            if (isPalindrome(rightString)) {
+                return true;
+            }
+            // 如果前面两个删除方法都不是回文，则整体结果就false
+            return false;
+        }
+        left++;
+        right--;
+    }
+    return true;
+}
+
+private boolean isPalindrome(String s) {
+    int left = 0;
+    int right = s.length() - 1;
+    while (left < right) {
+        if (s.charAt(left) != s.charAt(right)) {
+            return false;
+        }
+        left++;
+        right--;
+    }
+    return true;
+}
+```
 
 
 
