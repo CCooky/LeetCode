@@ -1009,50 +1009,52 @@ B是A的子结构， 即 A中有出现和B相同的结构和节点值。
 
 
 
-【难】属于是使用了两次递归，分别是两个函数。其实就是拿着A树的每个节点，和B树去一一匹配相等，采用后序遍历的方式，一定是遍历了A的每个节点哦（即每个节点为根节点的子树和B去匹配，就是两棵树的匹配问题，匹配规则是完全一样）
+【难】（即每个节点为根节点的A子树和B去匹配，就是两棵树的匹配问题，匹配规则是完全一样）
+
+ 判断两棵树是否完全相同，直接前序遍历即可，很简单的；
 
 ```java
-/**
- * Definition for a binary tree node.
- * public class TreeNode {
- * int val;
- * TreeNode left;
- * TreeNode right;
- * TreeNode(int x) { val = x; }
- * }
- */
-class Solution11 {
-    /*
-    死死记住isSubStructure()的定义:判断B是否为A的子结构
-    */
-    public boolean isSubStructure(TreeNode A, TreeNode B) {
-        // 若A与B其中一个为空,立即返回false
-        if (A == null || B == null) {
+public class Solution {
+    public boolean HasSubtree(TreeNode root1,TreeNode root2) {
+        if(root2==null){ //空树不是任意一个树的子结构
             return false;
         }
-        // B为A的子结构有3种情况,满足任意一种即可:
-        // 1.B的子结构起点为A的根节点,此时结果为recur(A,B)
-        // 2.B的子结构起点隐藏在A的左子树中,而不是直接为A的根节点,此时结果为isSubStructure(A.left, B)
-        // 3.B的子结构起点隐藏在A的右子树中,此时结果为isSubStructure(A.right, B)
-        return recur(A, B) || isSubStructure(A.left, B) || isSubStructure(A.right, B);
+        preOrderA(root1,root2);
+        return ans;
+    }
+  	
+    private boolean ans = false;
+    // 前序遍历每个A的节点，依次判断每个A的子树是否与B树相等
+    public void preOrderA(TreeNode node, TreeNode root2){
+        if(node==null){
+            return;
+        }
+        if(ans){
+            return;
+        }
+        if(preOrder(node,root2)){
+            ans = true;
+            return;
+        }
+        preOrderA( node.left , root2);
+        preOrderA( node.right , root2);
     }
 
-    /*
-    判断B是否为A的子结构,其中B子结构的起点为A的根节点
-    */
-    private boolean recur(TreeNode A, TreeNode B) {
-        // 若B走完了,说明查找完毕,B为A的子结构。为什么呢，因为B第一次传入进来肯定不为null的，我们在上面那个函数已经判断了
-        if (A == null && B == null) return true;
-        if (A != null && B == null) return true;
-        // 若B不为空并且A为空，可以判断B不是A的子结构
-        if (A == null && B != null) return false;
-        // if (A.val != B.val) return false; //这里是提前判断——属于剪枝，按照后序遍历逻辑应该放在中的
-
-        // 当A与B当前节点值相等,若要判断B为A的子结构
-        // 还需要判断B的左子树是否为A左子树的子结构 && B的右子树是否为A右子树的子结构
-        // 若两者都满足就说明B是A的子结构,并且该子结构以A根节点为起点
-        return recur(A.left, B.left) && recur(A.right, B.right) &&(A.val == B.val);
-        // return recur(A.left, B.left) && recur(A.right, B.right);
+    // 判断两棵树是否完全相等
+    public boolean preOrder(TreeNode node1, TreeNode node2){
+        if(node1==null && node2==null){
+            return true;
+        }
+        if(node2==null){ //第二颗树匹配完了
+            return true;
+        }
+        if(node1==null){
+            return false;
+        }
+        if(node1.val != node2.val){
+            return false;
+        }
+        return preOrder(node1.left,node2.left) && preOrder(node1.right, node2.right);
     }
 }
 ```
@@ -1072,29 +1074,20 @@ class Solution11 {
  * }
  */
 class Solution12 {
-    // 将每个节点左子树和右子树交换位置即可；递归挂载 / 前序遍历都可以
-    public TreeNode mirrorTree(TreeNode root) {
-        if (root==null) return null;
-        TreeNode leftTree = mirrorTree(root.left);
-        TreeNode rightTree = mirrorTree(root.right);
-        root.left = rightTree;
-        root.right = leftTree;
-        return root;
+    public TreeNode Mirror (TreeNode pRoot) {
+        afterOrder(pRoot);
+        return pRoot;
     }
-		
-  // 方法二：前序遍历
-    public TreeNode mirrorTree2(TreeNode root) {
-        preOrder(root);
+    // 后续遍历，递归挂载即可
+    public TreeNode afterOrder (TreeNode root) {
+        if(root == null){
+            return null;
+        }
+        TreeNode left = afterOrder(root.left);
+        TreeNode right = afterOrder(root.right);
+        root.left = right;
+        root.right = left;
         return root;
-    }
-    //前序遍历
-    public void preOrder(TreeNode node){
-        if (node==null)return;
-        TreeNode temp = node.left;
-        node.left = node.right;
-        node.right = temp;
-        preOrder(node.left);
-        preOrder(node.right);
     }
 }
 ```
@@ -1103,66 +1096,33 @@ class Solution12 {
 
 # ==17、剑指 Offer 28. 对称的二叉树==
 
-<img src="images/image-20230329163912264.png" alt="image-20230329163912264" style="zoom:80%;" />
+请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
 
+例如，二叉树 [1,2,2,3,4,4,3] 是对称的。
 
+<img src="images/image-20230719233714352.png" alt="image-20230719233714352" style="zoom:80%;" />
 
-```java
-//入口：采用前序遍历
-public boolean getRes(TreeNode root){
-    preOrder(root.left,root.right);
-    return isOK;
-}
-
-// 前序我看看
-boolean isOK = true;
-public void preOrder(TreeNode leftTree, TreeNode rightTree){
-    if (leftTree==null && rightTree ==null){ //同时为null
-        return;
-    }
-    if (leftTree==null || rightTree ==null){ //只有一个为null
-        isOK = false; return;
-    }
-    if (leftTree.val != rightTree.val) {
-        isOK = false; return;
-    }
-    //
-    preOrder(leftTree.left, rightTree.right);
-    preOrder(leftTree.right, rightTree.left);
-}
-```
+【分析】直接判断根节点下面的左右子树是否完全相同就行了啊，很简单！！！前序方式判断完全相同。
 
 ```java
-/**
- * Definition for a binary tree node.
- * public class TreeNode {
- *     int val;
- *     TreeNode left;
- *     TreeNode right;
- *     TreeNode(int x) { val = x; }
- * }
- */
-class Solution {
-    // 后序遍历；需要拿到左右孩子的信息，才可以判断；
-    // 不用管根节点，我们直接拿左子树、右子树两棵树去匹配判断即可
-    public boolean isSymmetric(TreeNode root) {
-        if (root==null) return true;
-        return isOK(root.left,root.right);
+    public boolean isSymmetrical (TreeNode pRoot) {
+        // write code here
+        if(pRoot==null) return true;
+        return isSample(pRoot.left, pRoot.right);
     }
 
-    //函数返回值意义：这两颗树是否对称
-    public boolean isOK(TreeNode leftTree, TreeNode rightTree){
-        if (leftTree==null && rightTree==null) return true;
-        if (leftTree!=null && rightTree==null) return false;
-        if (leftTree==null && rightTree!=null) return false;
-        // 剪枝
-        if (leftTree.val != rightTree.val) return false;
-        boolean outSide = isOK(leftTree.left, rightTree.right); //根据比较规则
-        boolean inSide = isOK(leftTree.right, rightTree.left);
-        return outSide&&inSide;
+    public boolean isSample(TreeNode node1, TreeNode node2){
+        if(node1 == null && node2 == null){ // 同时走到叶子节点
+            return true;
+        }
+        if(node1==null || node2==null){ // 一个走到叶子，一个不到叶子
+            return false;
+        }
+        if(node1.val != node2.val){ // 两个节点值不相同
+            return false;
+        }
+        return isSample(node1.left,node2.right) && isSample(node1.right,node2.left);
     }
-
-}
 ```
 
 
@@ -1246,7 +1206,7 @@ public boolean isNumber(String s){
 
 
 
-# 19、剑指 Offer 21. 调整数组顺序使奇数位于偶数前面
+# 19、剑指 Offer 21. 调整数组顺序使奇数位于偶数前面(1)
 
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
@@ -1258,6 +1218,8 @@ public boolean isNumber(String s){
 注：[3,1,2,4] 也是正确的答案之一。
 ```
 
+要求：时间复杂度 O*(*n)，空间复杂度 O(1)
+
 **提示：**
 
 1. `0 <= nums.length <= 50000`
@@ -1265,57 +1227,88 @@ public boolean isNumber(String s){
 
 ```java
 class Solution19 {
-    // 很简单，双指针即可，把所有的奇数移动到数组前面。采用单移动版本
+    // 快慢指针
     public int[] exchange(int[] nums) {
-        if (nums.length==0) return nums;
-        int fast = 0;
         int slow = 0;
-        int temp;
-        while (fast<= nums.length-1){
-            if (isOdd(nums[fast])){
-              //
-                temp = nums[fast];
-                nums[fast] = nums[slow];
-                nums[slow] = temp;
-              //
-                slow++;
+        int fast = 0;
+        while(fast < nums.length){ // 终止条件就是fast遍历完所有的元素
+            if(nums[fast]%2 == 0){
                 fast++;
-            }else {
-                fast++;
+                continue;
             }
+            int temp = nums[fast];
+            nums[fast] = nums[slow];
+            nums[slow] = temp;
+            slow++;
+            fast++;
+          // 这里不用有一个顾虑啊，就是交换之后，fast指针是不是要后移，新换上的元素要不要判断，这里是不用的，因为fast前面的肯定都是b
         }
         return nums;
     }
-
-    // 素数是一个大于1 的自然数
-    public boolean isPrime(int n){
-        if (n<2) return false; //均不是素数
-        for (int i = 2; i <= Math.sqrt(n); i++) {
-            if (n % i == 0){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // 奇数有正、负之分。一个不能被2整除的整数
-    public boolean isOdd(int n){
-        return n%2!=0;
-    }
 }
+
+
+    public int[] exchange(int[] nums) {
+        if(nums.length==0) return nums;
+        // 左右双指针，左边是奇数
+        int left = 0;
+        int right = nums.length - 1;
+        while (true) {
+            //1.left找偶数
+            while (left<nums.length && nums[left] % 2 != 0) {
+                left++;
+            }
+            //2.right找奇数
+            while (right >=0 && nums[right] % 2 == 0) {
+                right--;
+            }
+            //3.判断。这里只要left大于了right就说明两边已经分好了
+            if(left>right){
+                return nums;
+            }
+            //4.交换指针，但不需要移动它了，因为left指针现在偶数了，
+            int temp = nums[left];
+            nums[left] = nums[right];
+            nums[right] = temp;
+        }
+    }
 ```
+
+**上面的做法无法保证元素的相对顺序，例如看一个例子：**
+
+<img src="images/image-20230720020843584.png" alt="image-20230720020843584" style="zoom:80%;" />
+
+
+
+# 19-2、 调整数组顺序使奇数位于偶数前面(2)
+
+输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
+
+并保证奇数和奇数，偶数和偶数之间的相对位置不变。
+
+要求：时间复杂度 O*(*n)，空间复杂度 O(*n*)
+
+进阶：时间复杂度 O*(*n2)，空间复杂度 O(1)
+
+
+
+【】这里要求元素的相对有序，上面的双指针和快慢指针就不行了啊，怎么搞呢？
+
+​		**要保证有序性，一次遍历就无法保证了**
+
+只能使用遍历几次，第一次遍历找到奇数，第二次遍历找到偶数，然后两个数组拼接起来即可。
 
 
 
 # ==20、剑指 Offer 15. 二进制中1的个数==
 
-编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数（也被称为 [汉明重量](http://en.wikipedia.org/wiki/Hamming_weight)).）。
+编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数。
+
+
 
 
 
 【就是位运算】输入的是一个int类型，一共4个字节，32个比特位，挨个判断即可。从第1个比特开始判断，它是不是1。
-
-
 
 ```java
 // you need to treat n as an unsigned value
