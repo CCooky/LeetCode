@@ -2,9 +2,18 @@
 
 
 
+- 奇数、偶数都是指的自然数，0，1，2，3，.......
+- 0是偶数，满足0%2==0；
+- **质数一定是2或奇数；**合数不一定是奇数或偶数，无规律（例如，8、9）
+- 奇数、偶数---->>>>质数、合数没有规律；
+
+
+
+
+
 ## **1、判断一个数为素数（质数）**
 
-素数又称[质数](https://so.csdn.net/so/search?q=质数&spm=1001.2101.3001.7020)，一个大于1的正整数，且除了1和它自身外，不能被其他正整数整除。否则称为合数（规定1既不是素数也不是合数）。
+素数又称[质数](https://so.csdn.net/so/search?q=质数&spm=1001.2101.3001.7020)，**大于1的正整数**，且除了1和它自身外，不能被其他正整数整除。否则称为合数（规定1既不是素数也不是合数）。
 
 ==2是特殊的质数，它的质因子是2；1不是质数==
 
@@ -28,7 +37,7 @@ public static boolean isprim(int n) {
 
 （和上面的质数不一样哦）
 
-- 质因数，指能整除给定正整数的质数。例如，30可以被2、3、5这三个质数整除。
+- 质因数，指能整除给定**正整数**的**质数**。	例如，30可以被2、3、5这三个质数整除。
 
 - 一个数可能有多个质因子，例如6的质因子是2和3，也可能只有一个质因子，例如7、11等。
 
@@ -36,15 +45,19 @@ public static boolean isprim(int n) {
 
 例如：
 
-- 当一个数没有质因子时，它就是1。
+- 只有1没有质因子。（1只能被1整除，8能被2整除）
 - 5只有1个质因子，5本身。（5是质数。）
 - 6的质因子是2和3。(6 = 2×3)
 - 2、4、8、16等只有1个质因子：2。
 - 100有2个质因子：2和5。
 
+
+
+**【质因数分解定理】每个正整数都可以分解成若干个质数的乘积，如果一个正整数没有质因子，那么它只能是1**
+
 ```java
 // 求一个正整数的所有质因子。100 ：【2，2，5，5】
-// 思路：依次从小到大选取质数2、3、5...，拿2去整除它，一直循环整除直到不能整除为止，再拿3去整除，再拿5去整除
+// 分解质因数思路：依次从小到大选取质数2、3、5...，拿2去整除它，一直循环整除直到不能整除为止，再拿3去整除，再拿5去整除
 ```
 
 ```java
@@ -119,7 +132,7 @@ public boolean isOdd(int n){
 
 <img src="images/image-20230516141137635.png" alt="image-20230516141137635" style="zoom:80%;" />
 
-![image-20230330150517443](images/image-20230330150517443.png)
+<img src="images/image-20230330150517443.png" alt="image-20230330150517443" style="zoom: 50%;" />
 
 
 
@@ -173,7 +186,7 @@ System.out.println(random.nextBoolean());
 
 # 0、常用技巧
 
-## 1. 如何使用比特位表示一个字符串中含有的字母个数
+## 1. 如何使用比特位表示一个字符串中含有的不同字母
 
 **对于仅含小写字母的情况，**因为只有26个小写字母，所以我们可以使用int类型表示，因为它有32位，去掉符号位有31位，满足要求；每一位可以表示一个小写字母，从低位到高位依次表示a,b,c,d,.....
 
@@ -241,7 +254,7 @@ System.out.println(random.nextBoolean());
 
 
 
-# ==2、约瑟夫环==
+# 2、约瑟夫环
 
 已知n个人坐成一圈，按顺时针由1开始给大家编号。然后由第一个人开始顺时针循环报数从1开始，数到m的人出局，然后从下一个人接着开始从1报数，循环此过程直到最后只剩一个人。给定两个int **n**和**m**，要求编写函数返回最后一个人的编号。保证n和m小于等于1000。
 
@@ -337,7 +350,7 @@ class ListNode{
 
 
 
-# ==3、约瑟夫环2==
+# 3、约瑟夫环2
 
 链接：https://www.nowcoder.com/questionTerminal/ff063da83b1a4d91913dd1b1e8b01466
 来源：牛客网
@@ -359,7 +372,6 @@ public class 约瑟夫2 {
     public int getResult(int n) {
         // write code here
         //1.两个队列解决这个问题，因为我们要记录循环了几次，第一个队列挨个到第二个队列里面去
-        //队列存的是每个人的编号
         Deque<Integer> queue1 = new LinkedList<>();
         Deque<Integer> queue2 = new LinkedList<>();
         for (int i = 1; i <= n; i++) {
@@ -367,39 +379,39 @@ public class 约瑟夫2 {
         }
         //开始报数，报一个数出一个队列
         int count = 0; //记录报数
-        int num = 1; //第几轮
-        while (true) { //q2里面只有一个人的时候，表示结束了
+        int num = 1; 
+        while (true) { 
+          	num++;
+          	if (queue1.size()==1){
+                return queue1.poll();
+            }
             while (!queue1.isEmpty()) { //q1全部出去了，表示一轮结束了
                 count++;
                 Integer gay = queue1.poll();
                 if (count == 1) {
                     queue2.offer(gay);
                 }
-                if (count == num + 1) {
+                if (count == num) {
                     count = 0;
                 }
             }
-            count = 0;
-            num++;
             //接着第二轮再从上一轮最后一个报数的人开始依次报, 最后一个报数的在q2的尾巴啊，要把他拿到前面来，使用双端队列才行
             queue2.offerFirst(queue2.pollLast());
-            if (queue2.size()==1){
-                break;
-            }
             // 让q1、q2交换指针指向，
             Deque<Integer> temp = queue1;
             queue1 = queue2;
             queue2 = temp;
+            count = 0;
         }
-        // 当q2只有一个时结束了
-        return queue2.poll();
     }
 }
 ```
 
-# ==4、糖果美味值==
+# 4、糖果美味值
 
 吃第i个糖果就不能吃第i-1, i-2 , i+1 ,i+2个，每个糖果有一个美味值，求最大美味值。一共有n个糖果，每个糖果的美味值以数组形式给出。
+
+
 
 【打家劫舍啊】最简单的线性版本；只是这里是相邻的两个不能被偷；本质上跳跃着从数组里面选数，可以左右横跳，求可以选的最大和是多少。
 
@@ -413,9 +425,12 @@ public class 约瑟夫2 {
   dp[i] = MAX( dp[i-1], dp[i-3]+value[i-1] );
   ```
 
-  
 
-# ==5、火车进站系列1-判断==
+
+
+
+
+# 5、火车进站系列1-判断
 
 剑指 Offer 31. 栈的压入、弹出序列
 
@@ -486,7 +501,7 @@ class Solution3 {
 请注意，[3,1,2]这个序列是不可能实现的。     
 ```
 
-# ==7、剑指 Offer 04. 二维数组中的查找==
+# 7、剑指 Offer 04. 二维数组中的查找
 
 在一个 n * m 的二维数组中，每一行都按照从左到右 **非递减** 的顺序排序，每一列都按照从上到下 **非递减** 的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
 
@@ -575,7 +590,9 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
     }
 ```
 
-简言之：旋转数组=两个升序数组的组合；例如**【34512】**这个；其实这种类型的题目查找最小值啊、或者查找某一个元素啊，可以使用二分法。暴力也可以就是只能过20%样例。
+简言之：旋转数组=两个升序数组的组合；例如**【34512】**这个；其实这种类型的题目查找最小值啊、或者查找某**一个元素啊，可以使用二分法。**暴力也可以就是只能过20%样例。
+
+
 
 看不懂啊！[剑指 Offer 11. 旋转数组的最小数字 - 力扣（Leetcode）](https://leetcode.cn/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/solutions/340801/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-by-leetcode-s/)
 
@@ -612,7 +629,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 
 
 
-# ==9、剑指12. 矩阵中的路径==
+# 9、剑指12. 矩阵中的路径
 
 给定一个 `m x n` 二维字符网格 `board` 和一个字符串单词 `word` 。如果 `word` 存在于网格中，返回 `true` ；否则，返回 `false` 。
 
@@ -631,7 +648,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 输出：true
 ```
 
-【经典的矩阵DFS：属于递归回溯算法】
+【经典的矩阵DFS：属于递归算法】
 
 由于我们要进行匹配字符串，所以有**回溯的操作**，比较难！！使用 **深度优先搜索（DFS）+ 回溯** 解决。我们就是暴力搜索矩阵里面的每一个点，然后每个点可以往他的上下左右四个方向进行查找。
 
@@ -687,6 +704,7 @@ class Solution6 {
         // dfs的返回值意义是：从当前【i，j】节点开始搜索，有没有完成字符串的匹配
         int m = board.length;
         int n = board[0].length;
+      	visited = new boolean[m][n];
         int index = 0;
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -694,38 +712,41 @@ class Solution6 {
                 if (dfs) return true; //有一个为true即可
             }
         }
-        //
         return false;
     }
 
     //index 表示当前匹配的字符索引，i，j是当前所在格子，
+  	boolean[][] visited;
     private boolean dfs(char[][] board, int i, int j, String word, int index) {
-        //如果i、j越界了return false；如果当前字符和矩阵i，j字符不匹配 return false
-        if (i<0||i>board.length-1 || j<0||j>board[0].length-1
-        || word.charAt(index)!=board[i][j]){
+        //i、j越界；当前字符和矩阵i，j字符不匹配
+        if (i<0||i>board.length-1 || j<0||j>board[0].length-1){
             return false;
         }
-        //如果全部匹配上，返回true
-        if (index == word.length()-1){
+      	if (visited[i][j]) { //已经访问过 
+            return false;
+        }
+      	if(word.charAt(index)!=board[i][j]){
+          	return false;
+        }
+        //注意这里不能判断index == word.length()这个条件哦，
+        if (index == word.length()-1){// 因为可能全部匹配上了，但是被上面条件提前截取了
             return true;
         }
         //处理、递归、回溯;
-        char temp = board[i][j];//提前记录下来，方便回溯时候修改回来
-        board[i][j] = '.'; //防止重复匹配，标记已访问
-        boolean res = dfs(board, i+1, j, word, index+1)  //向上下左右搜索
+        visited[i][j] = true; //防止重复匹配，标记已访问
+        boolean res = dfs(board, i+1, j, word, index+1)  //上下左右搜索
                 || dfs(board, i-1, j, word, index+1)
                 || dfs(board, i, j+1, word, index+1)
                 || dfs(board, i, j-1, word, index+1);
-        board[i][j] = temp;//回溯，修改回来，表示未访问过
+        visited[i][j] = false; //回溯
         return res;
-
     }
 }
 ```
 
 
 
-# ==10、面试题13. 机器人的运动范围==
+# 10、面试题13. 机器人的运动范围
 
 地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 `[0, 0] `的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
 
@@ -866,9 +887,9 @@ class Solution {
     //这就是一个整数拆分的题目啊，根据贪心就是 拆分成n个3，如果最后一个数是4就保留下来，不再拆分；
     public int cuttingRope(int n) {
         if (n<2) return -1;
-        //dp算法，递推公式是两个for，j是拆分出的第一个正整数，1<=j<n的，因为最少拆分成两个啊,
+        //递推公式是两个for，j是拆分出的第一个正整数，1<=j<n的，因为最少拆分成两个啊,
         //那么就是j、i-j这两个部分，我们接下来只看一个 i-j 能不能继续拆分即可，两种情况+自身的dp[i]三个进行对比
-        int[] dp = new int[n + 1];
+        int[] dp = new int[n + 1];//dp[i]表示的是长度为i的绳子能得到的最大乘积
         //3.
         dp[0] = 0;
         dp[1] = 0;
