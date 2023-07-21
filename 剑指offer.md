@@ -962,7 +962,7 @@ class Solution {
 
 
 
-# ==14、剑指 Offer 25. 合并两个排序的链表==
+# 14、剑指 Offer 25. 合并两个排序的链表
 
 输入两个递增排序的链表，合并这两个链表并使新链表中的节点仍然是递增排序的。
 
@@ -1020,7 +1020,7 @@ class Solution {
 }
 ```
 
-# ==15、剑指 Offer 26. 树的子结构==
+# 15、剑指 Offer 26. 树的子结构
 
 输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
 
@@ -1115,7 +1115,7 @@ class Solution12 {
 
 
 
-# ==17、剑指 Offer 28. 对称的二叉树==
+# 17、剑指 Offer 28. 对称的二叉树
 
 请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
 
@@ -1227,7 +1227,7 @@ public boolean isNumber(String s){
 
 
 
-# 19、剑指 Offer 21. 调整数组顺序使奇数位于偶数前面(1)
+# ==19、剑指 Offer 21==. 调整数组顺序使奇数位于偶数前面(1)
 
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
@@ -1301,7 +1301,7 @@ class Solution19 {
 
 
 
-# 19-2、 调整数组顺序使奇数位于偶数前面(2)
+# ==19-2、==调整数组顺序使奇数位于偶数前面(2)
 
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
@@ -1332,17 +1332,16 @@ class Solution19 {
 【就是位运算】输入的是一个int类型，一共4个字节，32个比特位，挨个判断即可。从第1个比特开始判断，它是不是1。
 
 ```java
-// you need to treat n as an unsigned value
-public int hammingWeight(int n) {
-    int res = 0;
-    for (int i = 0; i < 32; i++) {
-        int t = 1 << i; // 数字1依次右移，判断32个比特位
-        if ((n & t) !=0) { //判断第1位比特位是不是1，假如结果不为0，则是1
-            res++;
+
+    public int NumberOf1 (int n) {
+        // 直接拿1和每一位进行&就行了
+        int ans = 0;
+        for (int i = 0; i < 32; i++) {
+            int num = n >> i;
+            ans += num & 1;
         }
+        return ans;
     }
-    return res;
-}
 ```
 
 
@@ -1500,6 +1499,25 @@ public int[][] generateMatrix(int n) {
  *     ListNode(int x) { val = x; }
  * }
  */
+		// 这道题使用虚拟头节点当输入的k不合法时，会有很多问题
+    public ListNode FindKthToTail (ListNode pHead, int k) {
+        // write code here
+        //快慢指针、栈
+        ListNode slow = pHead;
+        ListNode fast = pHead;
+        for (int i = 0; i < k; i++) {
+            if (fast == null) { //输入k不合法
+                return null;
+            }
+            fast = fast.next;
+        }
+        while (fast != null) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        return slow;
+    }
+
 class Solution {
     public ListNode getKthFromEnd(ListNode head, int k) {
         // 虚拟头节点，采用间隔指针即可
@@ -1619,7 +1637,7 @@ class Solution25{
 
 
 
-# ==26、剑指 Offer 24. 反转链表==
+# 26、剑指 Offer 24. 反转链表
 
 定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
 
@@ -1641,7 +1659,6 @@ class Solution26{
       public ListNode getResult1(ListNode head){
         ListNode left = null;
         ListNode right = head;
-
         while (right!=null){
             //先处理后移动
             ListNode temp = right.next;
@@ -1652,6 +1669,7 @@ class Solution26{
         }
         return left;
     }
+  
   
   // Stack的解法
     public ListNode getResult(ListNode head){
@@ -1705,21 +1723,22 @@ class Solution26{
  * }
  */
 class Solution {
-    public ListNode getResult(ListNode head, int val) {
+    public ListNode deleteNode (ListNode head, int val) {
+        // 删除一个节点，需要知道它的父节点
         ListNode rhead = new ListNode(-1);
         rhead.next = head;
-        ListNode temp = rhead;
-        //
-        while (temp.next != null) {
-            //先处理后移动
-            if (temp.next.val == val) { //删除后，不要移动temp节点，需要接着判断新接入的节点
-                temp.next = temp.next.next;
-                continue;
+        ListNode pre = rhead;
+        ListNode cur = head;
+
+        while(cur!=null){
+            if(cur.val == val){
+                pre.next = cur.next;
+                break;
             }
-            temp = temp.next;
+            cur = cur.next;
+            pre = pre.next;
         }
         return rhead.next;
-
     }
 }
 ```
@@ -1743,41 +1762,38 @@ class Solution {
 
 所以需要遍历两遍，第一次遍历原链表，对每个节点都创建一个对应的新节点，并且赋值next指针；也就是直接复制这个单链表，并且将原节点和新节点关系都放入到map集合里面；
 
-第二遍：再次遍历原链表，同一时刻遍历新链表，然后取出原链表节点的random值对应节点，从map集合内获取这个random节点对应的新节点，赋值给我们的新节点的random值即可；（如果原链表的节点的random为null，
+第二遍：再次遍历原链表，同一时刻遍历新链表，然后取出原链表节点的random值对应节点，从map集合内获取这个老节点对应的新节点，赋值给我们的新节点的random值即可；
 
 ```java
 class Solution28 {
     public Node copyRandomList(Node head) {
-        //map集合存储old节点和它复制的新节点
-        Map<Node,Node> map = new HashMap<>();
-        //原链表直接遍历，不需要虚拟头节点了；
-        //新链表需要虚拟头节点
+        // 先复制一个单链表
         Node newhead = new Node(-1); //虚拟
         Node oldtemp = head;
         Node newtemp = newhead;
+        Map<Node,Node> map = new HashMap<>(); // old节点和它复制的新节点地址
         while (oldtemp!=null){
-            //先处理后move
             Node node = new Node(oldtemp.val);
+            map.put(oldtemp,node); 
             newtemp.next = node;
-            map.put(oldtemp,node); //老节点：对应复制出来的新节点
-            //move
             newtemp = newtemp.next;
             oldtemp = oldtemp.next;
         }
-        // 第二次遍历完成新节点的random复制
+        // 这个random指针，如何将新new的节点地址和之前的关联上呢；
+        // 使用map，key——老节点，value——老节点new出的新节点
         oldtemp = head;
-        newtemp = newhead.next; //这里也可以从虚拟头节点开始，无所谓
+        newtemp = newhead.next; //注意哦
         while (oldtemp!=null){
-            //先处理后move
-            Node random = oldtemp.random;
-            newtemp.random = map.get(random);
-            //
+            newtemp.random = map.get(oldtemp.random);
             oldtemp = oldtemp.next;
             newtemp = newtemp.next;
         }
         return newhead.next;
     }
 }
+
+
+
 class Node {
     int val;
     Node next;
@@ -1792,9 +1808,11 @@ class Node {
 
 
 
-# 29、剑指 Offer 40. 最小的k个数
+# ==29、剑指 Offer 40. 最小的k个数==
 
 输入整数数组 `arr` ，找出其中最小的 `k` 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+
+要求：空间复杂度 O*(*n) ，时间复杂度 O(nlogk)
 
 **示例 1：**
 
@@ -1802,6 +1820,8 @@ class Node {
 输入：arr = [3,2,1], k = 2
 输出：[1,2] 或者 [2,1]
 ```
+
+
 
 【EASY】
 
@@ -1947,6 +1967,14 @@ class MedianFinder {
 -  插入时数据时，分为数组整体大小奇数、偶数两种情况，
 - 奇数时：肯定是右边小根堆元素加1。先把num加入大根堆内排序，然后把大根堆最大值弹出加入右边
 - 偶数时：肯定是左边大根堆元素加1。先把num加入右边小根堆内排序，然后把小根堆最小值弹出加入左边
+
+**时间复杂度：**
+
+- 查找中位数 O(1)：获取堆顶元素使用 O(1)时间；
+
+- 添加数字 O(log⁡N)：堆的插入和弹出操作使用 O(log⁡N)时间。
+
+**空间复杂度 O(N)：** 其中 N 为数据流中的元素数量，小顶堆 A 和大顶堆 B 最多同时保存 N 个元素
 
 ```java
 class MedianFinder {
