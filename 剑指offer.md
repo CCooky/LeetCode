@@ -2503,7 +2503,7 @@ class Solution39{
 
 
 
-# ==40、剑指 Offer 44. 数字序列中某一位的数字==
+# ==40、剑指 Offer 44. 数字序列中某一位的数字==(背诵)
 
 
 
@@ -2730,7 +2730,7 @@ public class Solution {
 
 # 43、1008. 前序遍历构造二叉搜索树
 
-给定一个整数数组，它表示BST(即 **二叉搜索树** )的 **先****序遍历** ，构造树并返回其根。
+给定一个整数数组，它表示BST( **二叉搜索树** )的 **先序遍历** ，构造树并返回其根。
 
 **保证** 对于给定的测试用例，总是有可能找到具有给定需求的二叉搜索树。
 
@@ -2748,6 +2748,8 @@ public class Solution {
 ```
 
 【之前学过普通的二叉树，构建需要最少两个遍历数组】但是二叉搜索树，只需要前序、后序就可以完成构建，因为我们可以对「前序遍历」的结果 **排序** 得到「中序遍历」的结果。就把问题还原了。
+
+
 
 
 
@@ -2821,7 +2823,7 @@ class Solution44{
 
 
 
-# ==45、剑指 Offer 34. 二叉树中和为某一值的路径==
+# ==45、剑指 Offer 34. 二叉树中和为某一值的路径==(背诵)
 
 给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 **从根节点到叶子节点** 路径总和等于给定目标和的路径。
 
@@ -2900,9 +2902,9 @@ class Solution45 {
 
 - `LRUCache(int capacity)` 以正整数作为容量 `capacity` 初始化 LRU 缓存
 
-- `int get(int key)` 如果关键字 `key` 存在于缓存中，则返回关键字的值，否则返回 `-1` 。
+- `int get(int key)`  如果关键字 `key` 存在于缓存中，则返回关键字的值，否则返回 `-1` 。
 
-- `void put(int key, int value)` 如果关键字已经存在，则变更其数据值；如果关键字不存在，则插入该组「关键字-值」。当缓存容量达到上限时，它应该在写入新数据之前删除最久未使用的数据值，从而为新的数据值留出空间。
+- `void put(int key, int value)`  如果关键字已经存在，则变更其数据值；如果关键字不存在，则插入该组「关键字-值」。当缓存容量达到上限时，它应该在写入新数据之前删除最久未使用的数据值，从而为新的数据值留出空间。
 
 - 函数 `get` 和 `put` 必须以 `O(1)` 的平均时间复杂度运行。
 
@@ -2998,27 +3000,6 @@ public class LRUCache {
         tail.pre = rhead;
     }
 
-    //双向链表的方法，抽出来的
-    //1、传入要插入的节点，将其插入到头部第一个位置
-    public void addToHead(doubleListNode node){
-        doubleListNode temp = rhead.next;
-        rhead.next = node;
-        node.pre = rhead;
-        node.next = temp;
-        temp.pre = node;
-    }
-    //2、传入被删除的节点，将其删除，返回被删除的节点
-    public void removeNode(doubleListNode node){
-        node.pre.next = node.next;
-        node.next.pre = node.pre;
-    }
-    //3、直接删除尾部的节点，返回被删除的节点;
-    public doubleListNode removeToTail(){
-        doubleListNode node = tail.pre;
-        removeNode(node);
-        return node;
-    }
-
     public int get(int key) {
         doubleListNode node = mapcache.get(key);
         if (node == null) return -1;
@@ -3053,6 +3034,28 @@ public class LRUCache {
             //2.将node插到链表第一个位置
             addToHead(node);
         }
+    }
+  
+
+    //双向链表的方法，抽出来的
+    //1、传入要插入的节点，将其插入到头部第一个位置
+    public void addToHead(doubleListNode node){
+        doubleListNode temp = rhead.next;
+        rhead.next = node;
+        node.pre = rhead;
+        node.next = temp;
+        temp.pre = node;
+    }
+    //2、传入被删除的节点，将其删除，返回被删除的节点
+    public void removeNode(doubleListNode node){
+        node.pre.next = node.next;
+        node.next.pre = node.pre;
+    }
+    //3、直接删除尾部的节点，返回被删除的节点;
+    public doubleListNode removeToTail(){
+        doubleListNode node = tail.pre;
+        removeNode(node);
+        return node;
     }
 
 }
@@ -3138,9 +3141,11 @@ class Solution {
 
 
 
-# 49、剑指 Offer 56 - I. 数组中数字出现的次数
+# ==49、剑指 Offer 56 - I. 数组中数字出现的次数==
 
-一个整型数组 `nums` 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+一个整型数组 `nums` 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。
+
+要求时间复杂度是O(n)，**空间复杂度是O(1)**。
 
 **限制：**
 
@@ -3160,31 +3165,53 @@ class Solution {
 输出：[2,10] 或 [10,2]
 ```
 
+【分析】如何保证空间复杂度是常数呢，说明我们不能借助任何辅助的数据结构存东西，也就是不能使用Map、数组这些；
+
+那么就可以借助位运算来，因为相同的两个数字进行异或后为0（这就是为什么数字出现两次的原因）
+
+- 数组元素中，只有一个只出现一次，那么我们把所有的数字进行异或，结果就是这个只出现一次的数字；
+- 那么，有两个数字的情况下，如何做呢？我们进行二分组，将这两个数字分到不同的组，其他数字（相同的数字会被分到同一个的组中）
+
+> 先对所有数字进行一次异或，得到两个出现一次的数字的异或值。
+>
+> 在异或结果中找到任意为 111 的位。
+>
+> 根据这一位对所有的数字进行分组。
+>
+> 在每个组内进行异或操作，得到两个数字。
+>
+> [剑指 Offer 56 - I. 数组中数字出现的次数 - 力扣（LeetCode）](https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/solutions/222307/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-by-leetcode/)
+
 ```java
-class Solution49{
-    public int[] getResult(int[] nums){
-        //不可能小于2
-        int[] res = new int[2];
-        //
-        Map<Integer, Integer> map = new HashMap<>();
+    public int[] FindNumsAppearOnce (int[] nums) {
+        // write code here
+        int xorAll = 0;
         for (int num : nums) {
-            if (map.containsKey(num)){
-                map.put(num,map.get(num)+1);
-            }else {
-                map.put(num,1);
+            xorAll = xorAll ^ num;
+        }
+        int div = 1;
+        for (int i = 1; i < 32; i++) {
+            if ( (div & xorAll) != 0) {
+                break;
+            }
+            div = div << i;
+        }
+        int ansA = 0, ansB = 0;
+        for (int num : nums) {
+            if ((div & num) == 0) {
+                ansA ^= num;
+            } else {
+                ansB ^= num;
             }
         }
-        //遍历map，取出
-        int i = 0;
-        Set<Map.Entry<Integer, Integer>> entries = map.entrySet();
-        for (Map.Entry<Integer, Integer> entry : entries) {
-            if (entry.getValue()==1){
-                res[i++] = entry.getKey();
-            }
+        if(ansA>ansB){
+            int temp = ansA;
+            ansA = ansB;
+            ansB = temp;
         }
-        return res;
+        return new int[]{ansA,ansB};
+
     }
-}
 ```
 
 
@@ -3201,6 +3228,11 @@ class Solution49{
 输入：nums = [3,4,3,3]
 输出：4
 ```
+
+**限制：**
+
+- `1 <= nums.length <= 10000`
+- `1 <= nums[i] < 2^31`
 
 
 
@@ -3251,7 +3283,7 @@ class Solution51{
 
 
 
-# ==52、面试题45. 把数组排成最小的数==
+# ==52、剑指 Offer 45. 把数组排成最小的数==
 
 输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
 
@@ -3302,6 +3334,30 @@ class Solution51{
 // 意思就是 "o1o2"字符串大于"o2o1"的话就交换两个元素的位置。最后就是将最大的组合元素方式扔到最后面（冒泡类似）
 // 注意到Arrays.sort()自定义排序规则只能针对泛型进行排序哦！哎呀直接string类型数组走起
 
+
+    public String PrintMinNumber (int[] numbers) {
+        // 排序规则：利用字符串的比较，然后不能直接比较，要比较o1+o2, o2+o1，小的放在前面。
+        // 普通排序 / 高级排序
+        StringBuilder stringbuilder = new StringBuilder();
+        for (int i = numbers.length - 1; i >= 1; i--) {
+            for (int j = 0; j <= i - 1; j++) {
+                String o12 = String.valueOf(numbers[j]) + String.valueOf(numbers[j + 1]);
+                String o21 = String.valueOf(numbers[j + 1]) + String.valueOf(numbers[j]);
+                int flag = o12.compareTo(o21);
+                if (flag > 0) {
+                    int temp = numbers[j];
+                    numbers[j] = numbers[j + 1];
+                    numbers[j + 1] = temp;
+                }
+            }
+        }
+        for (int i = 0; i < numbers.length; i++) {
+            stringbuilder.append(numbers[i]);
+        }
+        return stringbuilder.toString();
+    }
+
+
 public String getResult(int[] nums){
     List<String> stringList = new ArrayList<>();
     for (int num : nums) {
@@ -3347,6 +3403,40 @@ public String getResult(int[] nums){
 62 + 82 = 100
 12 + 02 + 02 = 1
 ```
+
+```java
+    public boolean happynum (int n) {
+        // write code here
+        Set<Integer> set = new HashSet<>();
+        while (true) {
+            if (n == 1) {
+                return true;
+            }
+            if (set.contains(n)) {
+                return false;
+            }
+            set.add(n);
+            n = getNext(n);
+        }
+    }
+
+    public int getNext(int n) {
+        int ans = 0;
+        while (n != 0) {
+            ans += (n % 10) * (n % 10);
+            n = n / 10;
+        }
+        return ans;
+    }
+```
+
+
+
+
+
+
+
+
 
 
 
