@@ -1821,13 +1821,13 @@ class Node {
 输出：[1,2] 或者 [2,1]
 ```
 
-
-
 【EASY】
 
 双指针啊，将最小的k个数放到数组最前面去；或者优先队列啊，单调队列不行哦，他是一个滑动的连续范围内的选取最大值；
 
 不对不对不对，双指针不行。只能要么排序，要么使用优先队列。
+
+下面这种做法时间复杂度是：O（NLogN），因为往优先队列插入N个元素的复杂度就是这个，虽然说最后出队列的复杂度只有O（KLogK）
 
 ```java
 class Solution29 {
@@ -1922,8 +1922,6 @@ class Solution30{
 - void addNum(int num) - 从数据流中添加一个整数到数据结构中。
 - double findMedian() - 返回目前所有元素的中位数。
 
-
-
 **示例 1：**
 
 ```
@@ -1970,42 +1968,47 @@ class MedianFinder {
 
 **时间复杂度：**
 
-- 查找中位数 O(1)：获取堆顶元素使用 O(1)时间；
+- 单操作查找中位数 O(1)：获取堆顶元素使用 O(1)时间；
 
-- 添加数字 O(log⁡N)：堆的插入和弹出操作使用 O(log⁡N)时间。
+- 单操作添加数字 O(log⁡N)：堆的插入和弹出一个元素操作使用 O(log⁡N)时间。为当前树的高度。
 
 **空间复杂度 O(N)：** 其中 N 为数据流中的元素数量，小顶堆 A 和大顶堆 B 最多同时保存 N 个元素
 
+
+
 ```java
 class MedianFinder {
-    /** initialize your data structure here. */
-
-    Queue<Integer> queue1 = new PriorityQueue<>((o1,o2)-> o2-o1); //左边，大根堆
-    Queue<Integer> queue2 = new PriorityQueue<>(); //右边，小根堆
+  
+    // 要得到更好的时间复杂度，那么哪种排序算法支持插入的时候复杂度低了，肯定就是堆排序了，插入一个新元素看当前树的高度O（logk）。
+    // 并且题目只要求返回中位数，不要返回所有的元素，所以我们利用大根堆小根堆想办法下手
+    private Queue<Integer> bigHeap = new PriorityQueue<>((o1, o2)->o2 - o1);
+    private Queue<Integer> smallHeap = new PriorityQueue<>();
 
     public MedianFinder() {
 
     }
 
     public void addNum(int num) {
-        //偶数时，两个堆数量相等。最后入左边的大根堆
-        if (queue1.size()==queue2.size()){
-            queue2.add(num);
-            queue1.add(queue2.poll());
-        }else {
-            //奇数时，最后入右边小根堆
-            queue1.add(num);
-            queue2.add(queue1.poll());
+        //规定奇数个元素时，多的放入大根堆
+        if (bigHeap.size() == smallHeap.size()) {
+            bigHeap.offer(num);
+        } else {
+            smallHeap.offer(num);
+        }
+        // 两个堆进行元素调整
+        //每次只加入一个元素，所以我们管好这一个元素位置就行了
+        if (smallHeap.size() != 0 && bigHeap.peek() > smallHeap.peek()) { 
+            smallHeap.offer(bigHeap.poll());
+            bigHeap.offer(smallHeap.poll());
         }
     }
 
     public double findMedian() {
-        if (queue1.size()==0) return 0;
-        //
-        if (queue1.size()==queue2.size()){
-            return (queue1.peek()+queue2.peek())/2.0; //运算符最后结果类型和前面的那个数据类型保持一致
-        }else {
-            return queue1.peek();
+        int count = bigHeap.size() + smallHeap.size();
+        if (count % 2 == 0) {
+            return (bigHeap.peek() + smallHeap.peek()) / 2.0;
+        } else {
+            return bigHeap.peek() / 1.0;
         }
     }
 }
@@ -2013,11 +2016,13 @@ class MedianFinder {
 
 
 
-# 32、剑指 Offer 42. 连续子数组的最大和
+# ==32、剑指 Offer 42. 连续子数组的最大和==
 
 输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
 
 要求时间复杂度为O(n)。
+
+ 
 
 **示例1:**
 
@@ -2027,58 +2032,51 @@ class MedianFinder {
 解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
 ```
 
-【分析半天】
+ 
 
-【单个数组、子序列、连续、只要结果】满足dp条件，属于子序列问题。
+**提示：**
+
+- `1 <= arr.length <= 10^5`
+- `-100 <= arr[i] <= 100`
+
+【分析】
+
+连续子数组，求最大和，但是数组元素不是非负的，不能使用滑动窗口；
+
+只求出最大和，所以使用dp，套一下子序列问题解法。
 
 ```java
 class Solution32{
-    //求所有的连续子数组中，最大和。假如用暴力肯定不行，这里只要和，不要具体的数组，考虑一下dp
-    public int getResult(int[] nums){
-        if (nums.length==0) return 0;
-        if (nums.length==1) return nums[0];
-        //果然是dp的题目啊
-        //1.dp数组含义
-        // dp[i]：以第i个元素结尾的子数组，最大和为多少。dp[n]
-        int[] dp = new int[nums.length+1];
-        //3.dp初始化
-        dp[0] = 0;
-        dp[1] = nums[0];
-        //2.
+  
+     */
+    public int FindGreatestSumOfSubArray (int[] array) {
+        // dp——子序列问题
+        // dp[i]: 以第i个元素结尾的所有连续子数组中，最大和为dp[i]；
+        int[] dp = new int[array.length+1];
+        dp[1] = array[0];
 
-        //4.遍历顺序;
-        for (int i = 2; i < dp.length; i++) {
-            if (nums[i-1]>0){
-                // 1、第i个元素的值大于0
-                if (dp[i-1]<=0){
-                    dp[i] = nums[i-1];
-                }else {
-                    dp[i] = dp[i-1] + nums[i-1];
-                }
-            }else {
-                // 2、第i个元素的值小于0
-                if (dp[i-1]<=0){
-                    dp[i] = nums[i-1];
-                }else {
-                    dp[i] = dp[i-1] + nums[i-1];
-                }
+        // 第i个元素肯定包含在里面
+        // dp[i-1]>0  ,dp[i-1]<=0
+        int ans = dp[1];
+        for(int i=2; i<dp.length; i++){
+            if(dp[i-1] > 0){
+                dp[i] = dp[i-1] + array[i-1];
+            }else{
+                dp[i] = array[i-1];
             }
+            ans = Math.max(ans,dp[i]);
         }
-        //返回结果是dp数组内最大值
-        int res = dp[1];
-        for (int i = 1; i < dp.length; i++) {
-            res = Math.max(res,dp[i]);
-        }
-        return res;
+
+        return ans;
     }
 }
 ```
 
 # 33、剑指 Offer 36. 二叉搜索树与双向链表
 
-![image-20230331143234459](images/image-20230331143234459.png)
+<img src="images/image-20230331143234459.png" alt="image-20230331143234459" style="zoom:80%;" />
 
-![image-20230331143248486](images/image-20230331143248486.png)
+<img src="images/image-20230331143248486.png" alt="image-20230331143248486" style="zoom:80%;" />
 
 【就是按照中序遍历来构建】
 
@@ -2096,50 +2094,48 @@ public class TreeNode {
     }
 }
 */
-
 import java.util.*;
 class Solution33 {
   
-    List<TreeNode> list = new ArrayList<>();
-  
     public TreeNode Convert(TreeNode pRootOfTree) {
-        inOrder(pRootOfTree);
-        if (list.size() == 0) return null;
-        // 1、中序遍历保持各个节点
-        // 先拿到头节点，这里就弄一个虚拟头节点，最后再去掉
-        TreeNode rhead = new TreeNode(-1);
-        TreeNode temp = rhead;
+      
+        List<TreeNode> list = new ArrayList<>();
+        // 中序遍历得到递增
+        inOrder(pRootOfTree, list);
+        TreeNode pre, cur, after;
+        //三指针才行，中间指针是本次操作节点
         for (int i = 0; i < list.size(); i++) {
-            //
-            temp.right = list.get(i);
-            list.get(i).left = temp;
-            //
-            temp = temp.right;
+            if (i - 1 < 0) {
+                pre = null;
+            } else {
+                pre = list.get(i - 1);
+            }
+            cur = list.get(i);
+            if (i + 1 > list.size() - 1) {
+                after = null;
+            } else {
+                after = list.get(i + 1);
+            }
+            cur.left = pre;
+            cur.right = after;
         }
-        // 最后做一下扫尾工作;
-        // 处理第一个节点、最后一个节点。此时temp在最后一个节点
-        TreeNode head = rhead.right;
-        head.left = null;
-        rhead.right = null;
-        temp.right = null;
-        return head;
-
+        return list.size() != 0 ? list.get(0) : null;
     }
 
-    public void inOrder(TreeNode TreeNode) {
-        if (TreeNode == null) {
+    public void inOrder(TreeNode node, List<TreeNode> list) {
+        if (node == null) {
             return;
         }
-        inOrder(TreeNode.left);
-        list.add(TreeNode);
-        inOrder(TreeNode.right);
+        inOrder(node.left, list);
+        list.add(node);
+        inOrder(node.right, list);
     }
 }
 ```
 
 
 
-# 34、剑指 Offer 37. 序列化二叉树（不会）
+# ==34、剑指 Offer 37. 序列化二叉树==
 
 序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
 
@@ -2154,52 +2150,79 @@ class Solution33 {
 输出：[1,2,3,null,null,4,5]
 ```
 
-【这里要根据一个序列完成二叉树的构建，深度优先的话需要前序+中序 或 后序+中序，也比较麻烦】【所以这里只能使用层序遍历】
-
-将null节点也加入队列哦！！才可以完成构建。
 
 
+**【分析】难点就是如何 根据中序遍历结果 重建二叉树**
+
+一定要想到使用Queue队列，进行节点的存储遍历！！！！就可以做出来
 
 ```java
 class Codec {
+
+    // Encodes a tree to a single string.
     public String serialize(TreeNode root) {
-        if(root == null) return "[]";
-        StringBuilder res = new StringBuilder("[");
-        Queue<TreeNode> queue = new LinkedList<>() ;
-        queue.add(root);
-        while(!queue.isEmpty()) {
-            TreeNode node = queue.poll();
-            if(node != null) {
-                res.append(node.val + ",");
+        if (root==null) return "";
+        //easy
+        List<Integer> ans = new ArrayList<>();
+        Queue<TreeNode> queue = new LinkedList<>(); // 其他两个实现类不能添加null空指针进队列
+        List<TreeNode> list = new ArrayList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+
+            while (!queue.isEmpty()) {
+                TreeNode poll = queue.poll();
+                ans.add(poll == null ? null : poll.val);
+                list.add(poll);
+            }
+            for (int i = 0; i < list.size(); i++) {
+                TreeNode node = list.get(i);
+                if(node==null) continue;
                 queue.add(node.left);
                 queue.add(node.right);
             }
-            else res.append("null,");
+            list.clear();
         }
-        res.deleteCharAt(res.length() - 1);
-        res.append("]");
-        return res.toString();
+        // 去掉最后多余的null指针
+        for (int i = ans.size()-1; i >=0 ; i--) {
+            if(ans.get(i)!=null){
+                break;
+            }
+            ans.remove(i);
+        }
+        return ans.toString();
     }
 
+    // 不能使用数组进行每个元素的遍历，因为我们要按照数组从前往后遍历节点，无法直接根据索引i定位已经被挂载的节点地址，所以想到queue
     public TreeNode deserialize(String data) {
-        if(data.equals("[]")) return null;
-        String[] vals = data.substring(1, data.length() - 1).split(",");
-        TreeNode root = new TreeNode(Integer.parseInt(vals[0]));
-        Queue<TreeNode> queue = new LinkedList<>() ;
-        queue.add(root);
-        int i = 1;
-        while(!queue.isEmpty()) {
-            TreeNode node = queue.poll();
-            if(!vals[i].equals("null")) {
-                node.left = new TreeNode(Integer.parseInt(vals[i]));
-                queue.add(node.left);
+        if(data.length()==0) return null;
+        //hard
+        data = data.substring(1, data.length() - 1);
+        String[] valString = data.split(", ");
+      
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        int p = 0; // 指针指向数组中未被挂载的元素
+        TreeNode root = new TreeNode(Integer.parseInt(valString[p]));
+        queue.offer(root);
+        p++;
+        while (p < valString.length) {
+            TreeNode poll = queue.poll();
+            if (valString[p].equals("null")) {
+                poll.left = null;
+            } else {
+                TreeNode node = new TreeNode(Integer.parseInt(valString[p]));
+                poll.left = node;
+                queue.offer(node);
             }
-            i++;
-            if(!vals[i].equals("null")) {
-                node.right = new TreeNode(Integer.parseInt(vals[i]));
-                queue.add(node.right);
+            p++;
+            if (p >= valString.length) break;
+            if (valString[p].equals("null")) {
+                poll.right = null;
+            } else {
+                TreeNode node = new TreeNode(Integer.parseInt(valString[p]));
+                poll.right = node;
+                queue.offer(node);
             }
-            i++;
+            p++;
         }
         return root;
     }
@@ -2225,7 +2248,7 @@ class Codec {
 
 【去重第一步排序啊】
 
-1、使用Set防止元素重复使用, `usedIndex.contains(i)`
+1、使用Set防止元素重复使用, `set.contains(i)`
 
 2、树层去重：``i>0 && nums[i]==nums[i-1] && !set.contain(i-1)``
 
@@ -2295,27 +2318,17 @@ class Solution35 {
 ```
 
 ```java
-class Solution36{
-    public int getResult(int n){
-        int[] nums = new int[n];
-        int x = 1;
-        for (int i = 0; i < nums.length; i++) {
-            nums[i] = x;
-            x++;
-        }
-        //
-        int count = 0;
-        StringBuilder s = new StringBuilder();
-        for (int num : nums) {
-            s.append(num);
-            for (int i = 0; i < s.length(); i++) {
-                if (s.charAt(i)=='1'){
-                    count++;
-                }
+import java.util.*;
+public class Solution {
+    public int NumberOf1Between1AndN_Solution(int n) {
+        int ans = 0;
+        for(int i=1; i<=n;i++){
+            String s = String.valueOf(i);
+            for(int j=0; j<s.length();j++){
+                if(s.charAt(j)=='1') ans++;
             }
-            s.delete(0,s.length());
         }
-        return count;
+        return ans;
     }
 }
 ```
@@ -2529,9 +2542,7 @@ class Solution39{
 
 [剑指 Offer 44. 数字序列中某一位的数字 - 力扣（Leetcode）](https://leetcode.cn/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof/solutions/1262747/js-5xing-dai-ma-ji-shi-xing-zhu-shi-by-o-2skd/)
 
-首先我们应该找到它的虚拟隔间位置，此例中按照每 2 数位一隔间，我们可以利用 21/2 = 10 得到，它在第 10 个隔间 （下标均从0开始)
-
-之后我们需要确定它在隔间的位置，很简单，求余即可，21 % 2 = 1
+首先我们应该找到它的虚拟隔间位置，此例中按照每 2 数位一隔间，我们可以利用 21/2 = 10 得到，它在第 10 个隔间 （下标均从0开始)  之后我们需要确定它在隔间的位置，很简单，求余即可，21 % 2 = 1
 
         // 每个数字字符宽度都补成当前位数i, 那么最后我们要找的数字区间的数是 k/i ,区间内最后得到的数是 k%i.
         // 例如i为3时，数字序列补为 000 001 002 003 004 005 006 007 008 009 010 011... 前面补0后n要右移对应的长度
@@ -2547,19 +2558,18 @@ class Solution39{
         //最大数字是一位数时，n <=10的，最大数字是两位数字时（0-99），我们将每一个非2位的数字前面补上0，（000102，99）它的长度最大是200，并且我原来的第n位需要后移10^(i-1)，i是当前最大数的位数。
         //确定了求的那个数字的位数后。使用（k / i )就可以得到我的那个数字，具体是哪一位呢，使用k%i得到。
   
-        long k = n; //n 是要变化的,这里必须是long，因为k会增大的，超出int的表示范围
-        int i = 1; //最大数字的位数。
-        long numSum = i * (long)Math.pow(10, i);//10,200,3000
-        while (true) {
-            if (k <= numSum) {
-                String s = String.valueOf(k / i);
-                return s.charAt( (int)k % i ) - '0';
-            } else {
-                i++; //加一位
-                numSum = i *(long) Math.pow(10, i); //当前位数补0后最大的数字长度
-                k += Math.pow(10, i - 1); //后移
-            }
+        // 核心就是找出当前索引的n值，先进行补0；注意这个n是索引哦
+        int t = 1;
+        long maxLen = 10; //当前数位下最大长度 10/200/3000
+        long k = n; //换成long类型，是求的索引
+        while (k > maxLen-1) {
+            k += Math.pow(10, t); // 后移10/100/1000
+            t++;
+            maxLen = (long)Math.pow(10, t) * t; // 200
         }
+        String num = String.valueOf(k / t);
+        int ans = num.charAt((int) (k % t)) - '0';
+        return ans;
 }
 ```
 
@@ -2667,7 +2677,7 @@ class Solution41 {
 
 【因为是二叉搜索树】所以知道了后序，也就知道了中序，还原就是根据后序+中序判断构建出来的二叉树，是不是一颗二叉搜索树。暴力一点的办法就是，直接先构建，然后再写一个验证二叉搜索树的方法，但之前我们的验证二叉搜索树是通过获取树中序遍历判断是否严格递增实现的，这里就有问题，所以说，如果可以成功构建出来那么就肯定是合理的后序，不能构建出来就是不合理的；那不合理的条件在构建过程中怎么判断呢，这里是不得行的！！！所以这种构造的办法去判断不行。而且麻烦呢。
 
-**【采用后序遍历递归解决】**首先知道根节点是最后一个，其值是rootValue，那么我们拿着数组遍历，找到第一个大于rootValue的值，这个值前面的就是左子树的后序遍历，剩下的就是右子树的后序遍历，此时判断这个右子树的后序是不是全部大于rootValue，如果出现不是的情况，说明不是合理的后序return false，如果全部都满足就递归处理左子树和右子树。递归的结束条件是 传入的后序数组长度为0时，return true（空树的后序遍历就是一个空数组啊，或者终止条件改成1也可以）。整个递归函数的意义是：该后序数组是否为一个合理的二叉搜索树的后序。
+**【采用后序遍历递归解决】**
 
  **【大佬的解题思路】**
 
@@ -2675,31 +2685,53 @@ class Solution41 {
 2. 我们得到中序遍历序列后, 将其作为入栈序列, 检查后序遍历序列是不是一个合法的出栈序列即可
 
 ```java
-class Solution43 {
-    // 递归函数意义：判断传入序列是不是一个合法的二叉搜索树后序遍历。
-    public boolean getResult(int[] postorder) {
-        //.递归终止条件
-        if (postorder.length == 0) return true;
-        //1.找到根节点，rootValue
-        int rootValue = postorder[postorder.length - 1];
-        //2.找到第一个大于rootValue的数
-        int leftIndex = postorder.length-1; //如果全部小于了，防止该值不被覆盖！
-        for (int i = 0; i < postorder.length - 1; i++) {
-            if (postorder[i] > rootValue){
-                leftIndex = i;break;
+    public boolean verifyPostorder(int [] sequence) {
+        if (sequence.length == 0) {
+            return false;
+        }
+        //左右根，最后一个为根节点，因为是二叉搜索树，所以得到中序遍历
+        // 可以使用递归进行切分判断
+        int[] afterOrder = Arrays.copyOfRange(sequence, 0, sequence.length);
+        Arrays.sort(sequence);
+        return postorderTraverse(sequence, afterOrder);
+    }
+
+    // 前序遍历
+    public boolean preorderTraverse(int[] inOrder, int[] afterOrder) {
+        if (inOrder.length <= 1) {
+            return true;
+        }
+        //1. 切分序列
+        int rootValue = afterOrder[afterOrder.length - 1];
+        int rootIndex = 0;
+        for (int i = 0; i < inOrder.length; i++) {
+            if (inOrder[i] == rootValue) {
+                rootIndex = i;
+                break;
             }
         }
-        //3.判断剩下的右子树后序数组，是不是满足要求
-        for (int i = leftIndex; i < postorder.length - 1; i++) {
-            if (postorder[i] < rootValue) return false;
+        int[] leftIn = Arrays.copyOfRange(inOrder, 0, rootIndex);
+        int[] rightIn = Arrays.copyOfRange(inOrder, rootIndex + 1, inOrder.length);
+        int[] leftAfter = Arrays.copyOfRange(afterOrder, 0, leftIn.length);
+        int[] rightAfter = Arrays.copyOfRange(afterOrder, leftIn.length,
+                                              afterOrder.length - 1);
+      	//2. 判断当前节点
+        for (int i = 0; i < leftAfter.length; i++) {
+            if (rootValue < leftAfter[i]) {
+                return false;
+            }
         }
-        int[] leftpost = Arrays.copyOfRange(postorder, 0, leftIndex);
-        int[] rightpost = Arrays.copyOfRange(postorder, leftIndex, postorder.length - 1);
-        boolean leftResult = getResult(leftpost); //递归左区间
-        boolean rightResult = getResult(rightpost);
-        return leftResult && rightResult; 
+        for (int i = 0; i < rightAfter.length; i++) {
+            if (rootValue > rightAfter[i]) {
+                return false;
+            }
+        }
+        //3. 递归处理左子树和右子树
+        boolean leftAns = preorderTraverse(leftIn, leftAfter);
+        boolean rightAns = preorderTraverse(rightIn, rightAfter);
+        return leftAns && rightAns;
+      
     }
-}
 ```
 
 ```java
