@@ -2139,7 +2139,7 @@ class Solution33 {
 
 
 
-# 34、剑指 Offer 37. 序列化二叉树（不会）
+# 34、剑指 Offer 37. 序列化二叉树==
 
 序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
 
@@ -3471,43 +3471,36 @@ NO，仔细分析你会发现dp法无法解决，因为是求连续的，所以�
 
 所以这道题只能暴力去解，两个for的优化——采用滑动窗口可解；
 
-==for + while 或者 while + while 都可以==
+==for + while 可以==
 
 ```java
-public class 无重复字符的最长子串 {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        String s = sc.nextLine();
-        getRes(s);
-    }
-
-    //
-    public static int getRes(String s) {
+    public int lengthOfLongestSubstring(String s) {
         //使用一个Set记录窗口内的所有元素，来判断是否重复
         char[] chars = s.toCharArray();
-        int left = 0;
-        int MaxLen = 0;
+        int start = 0;
         Set<Character> set = new HashSet<>();
-      
-        for (int i = 0; i < chars.length; i++) {// i——结束位置
+        int ans = 0;
+        int currentLen = 0;
+        for (int i = 0; i < chars.length; i++) { // i——结束位置
             if (!set.contains(chars[i])) {
                 set.add(chars[i]);
-                MaxLen = Math.max(MaxLen, i - left + 1);
+                currentLen++;
+                ans = Math.max(ans, currentLen);
             } else {
-                //此时i索引元素没有加入滑动窗口，这里需要一直移动到left指针满足要求的位置
-                while (set.contains(chars[i])) {
-                    set.remove(chars[left]); 
-                    left++;
+                //这里需要一直移动到，指针满足要求的位置
+                while (set.contains(chars[i]) && start < i) {
+                    set.remove(chars[start]);
+                    start++;
+                    currentLen--;
                 }
-              //最后加入i索引元素
+                // 最后加入当前元素
                 set.add(chars[i]);
-                Maxlen = Math.max(i - left + 1, Maxlen);
+                currentLen++;
+                ans = Math.max(ans, currentLen);
             }
         }
-        System.out.println(MaxLen);
-        return MaxLen;
+        return ans;
     }
-}
 ```
 
 
