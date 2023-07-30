@@ -3539,7 +3539,7 @@ public class 和为s的连续正数序列 {
     
     public static ArrayList<ArrayList<Integer> > FindContinuousSequence(int sum) {
         //可选区范围是[1, sum/2 +1]，因为最少两个数
-        int[] nums = new int[sum / 2 + 2];
+        int[] nums = new int[sum / 2 + 1];
         int x = 1;
         for(int i=0; i<nums.length; i++){
             nums[i] = x++;
@@ -3557,13 +3557,13 @@ public class 和为s的连续正数序列 {
             }
             if (pathSum > sum) {
                 // 循环缩小开始区间
-                while (pathSum > sum) {
+                while (pathSum > sum && start<=i) {
                     pathSum -= nums[start];
                     path.remove(0);
                     start++;
                 }
                 //注意，这里容易漏掉
-                if (pathSum == sum && path.size()>=2) {
+                if (pathSum == sum  && start<=i && path.size()>=2) {
                     pathList.add(new ArrayList<>(path));
                 }
             }
@@ -3578,7 +3578,7 @@ public class 和为s的连续正数序列 {
 
 
 
-# 56、剑指 Offer 46. 把数字翻译成字符串
+# ==56、剑指 Offer 46. 把数字翻译成字符串==
 
 
 
@@ -3594,7 +3594,9 @@ public class 和为s的连续正数序列 {
 
 **提示：**
 
-- `0 <= num < 231`
+- `0 <= num < 2^31`
+
+
 
 【分割问题】
 
@@ -3655,35 +3657,87 @@ public class 把数字翻译成字符串 {
 这里是连续的分割情况哦，我们试试哈；
 
 ```java
-/**
- * DP 解法
- */
-public static int getResDP(int num) {
-    String s = String.valueOf(num);
-    int n = s.length();
-    //1、dp[i] ：前i个数字不同的翻译方案数；求dp[n]
-    int[] dp = new int[n + 1];
-
-    //3.
-    dp[0] = 1; //代入dp[2]求出
-    dp[1] = 1;
-
-    //2、
-    // 第i个数字，本身可以自己翻译，那么就是有 dp[i-1];
-    // 如果第i个数字和第i-1个数字，两个组合也可以成功翻译，那么就是有 dp[i-2] + dp[i-1]; 不可以成功，那就是dp[i-1]；
-    for (int i = 2; i < dp.length; i++) {
-        // i——前i个数字，当前数字的索引是i-1
-        if (Integer.parseInt(s.substring(i - 2, i)) > 25 || s.charAt(i - 2) == '0') {
-            //不满足
-            dp[i] = dp[i - 1];
-        } else {
-            dp[i] = dp[i - 2] + dp[i - 1];
+class Solution {
+    public int translateNum(int num) {
+        if(num == 0){
+            return 1;
         }
+        String str = String.valueOf(num);
+        //dp[i]: 前i个元素的数字，有多少种不同的方法（全序列问题哦）
+        int[] dp = new int[str.length()+1];
+
+        dp[0] = 1; //
+        dp[1] = 1;
+
+        // dp[i] = ...
+        // 最后一个数字0-9，看题意肯定合法
+        // 最后两个数字，需要限制在0-25，判断合法
+        for( int i=2; i< dp.length; i++){
+            int twonum = Integer.parseInt(str.substring(i-2,i)); // 最后两个数字
+            int firstnum = Integer.parseInt(str.substring(i-2,i-1)); // 最后两个数字的前一个，07是不合法的
+            if(0 <= twonum && twonum <= 25 && firstnum!=0){
+                dp[i] = dp[i-1] + dp[i-2];
+            }else{
+                dp[i] = dp[i-1];
+            }
+        }
+        return dp[str.length()];
     }
-    System.out.println(dp[n]);
-    return dp[n];
 }
 ```
+
+
+
+# ==56、**JZ46** 把数字翻译成字符串（牛客）==
+
+有一种将字母编码成数字的方式：'a'->1, 'b->2', ... , 'z->26'。
+
+现在给一串数字，返回有多少种可能的译码结果
+
+数据范围：字符串长度满足 0< n<=90
+
+进阶：空间复杂度 O(n)，时间复杂度 O(n)
+
+<img src="images/image-20230730153540206.png" alt="image-20230730153540206" style="zoom:50%;" />
+
+```java
+    public int solve (String nums) {
+        if (nums.length() == 0) {
+            return 0;
+        }
+        // 本质上是一个分割问题，每段区间保证合法即可，只要求得出有多少种不同的结果；
+        // 就不需要使用回溯了，使用dp先尝试，这不是子序列问题哦，这是求全序列的结果！！！
+        // dp[i]: 前i个元素的序列有多少种结果；
+        int[] dp = new int[nums.length() + 1];
+
+        dp[0] = 1; //由递归公式得到
+        dp[1] = nums.charAt(0) == '0' ? 0 : 1;
+
+        for (int i = 2; i < dp.length; i++) {
+            int twonum = Integer.parseInt(nums.substring(i - 2, i));
+            int firstnum = Integer.parseInt(nums.substring(i - 2, i-1));
+            int lastnum = Integer.parseInt(nums.substring(i - 1, i));
+            // firstnum属于两个数字的判断条件
+            if (1 <= twonum && twonum <= 26 && firstnum!=0 && lastnum != 0) {
+                // 最后两个数字、最后一个数字都合法
+                dp[i] = dp[i - 1] + dp[i - 2];
+            } else if (1 <= twonum && twonum <= 26  && firstnum!=0 && lastnum == 0) {
+                // 最后两个数字合法、最后一个数字不合法
+                dp[i] = dp[i - 2];
+            }else if((1 > twonum || twonum > 26 || firstnum==0)&& lastnum != 0) {
+                // 最后两个数字不合法、最后一个数字合法
+                dp[i] = dp[i - 1];
+            }else {
+                // 最后两个数字、最后一个数字都不合法
+                dp[i] = 0;
+            }
+
+        }
+        return dp[nums.length()];
+    }
+```
+
+
 
 
 
