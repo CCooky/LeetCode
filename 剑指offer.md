@@ -4236,7 +4236,7 @@ public class 丑数 {
 
 
 
-#==66、剑指 Offer 65. 不用加减乘除做加法==
+# ==66、剑指 Offer 65. 不用加减乘除做加法==
 
 写一个函数，求两个整数之和，要求在函数体内不得使用 “+”、“-”、“*”、“/” 四则运算符号。
 
@@ -4258,18 +4258,23 @@ public class 丑数 {
 
 **1、加法**
 
-- 与&操作：两个整数相与后，结果为二进制下的进位，但进位信息的位置不对，要往前移一位，也就是左移。即`int t1 = (a&b) <<1; //进位`;
-- 异或^操作：两个整数异或，结果为二进制下无进位的相加，就是抹去了进位信息；
-- 所以结合 与&操作 + 异或^操作，就可以直到进位信息和无进位相加信息，做加法！！！
+- （进位）与&操作：两个整数相与后，结果为二进制下的进位，但进位信息的位置不对，要往前移一位，也就是左移。
+
+  即`int t1 = (a&b) <<1; //进位`;
+
+- （无进位和）异或^操作：两个整数异或，结果为二进制下无进位的相加，就是抹去了进位信息；
+
+- 所以结合 **&**操作 和 **^ **操作，就可以直到进位信息和无进位相加信息，做加法！！！
+
 - 最后当进位信息为0时，对应的异或操作就是最后相加结果。
 
 **2、减法**
 
 - 很简单，写出来了加法后，如果求`a-b`直接在输入上变成 `a+(-b)`即可;
 
-![image-20230411150022149](images/image-20230411150022149.png)
+<img src="images/image-20230411150022149.png" alt="image-20230411150022149" style="zoom:67%;" />
 
-![image-20230411150040587](images/image-20230411150040587.png)
+<img src="images/image-20230411150040587.png" alt="image-20230411150040587" style="zoom:67%;" />
 
 ```java
 public class 不用加减乘除做加法 {
@@ -4279,7 +4284,7 @@ public class 不用加减乘除做加法 {
 
     public static int getRes(int a, int b){
         int t1 = (a&b) <<1; //进位
-        int t2 = a^b; //非进位相加
+        int t2 = a^b; //无进位和
       
         while (t1!=0){ //stop：进位为0啊，必须是进位
             int tt = (t1&t2) <<1;
@@ -4840,7 +4845,7 @@ class Solution72 {
 
 
 
-# ==73、剑指 Offer 62. 圆圈中最后剩下的数字==
+# 73、剑指 Offer 62. 圆圈中最后剩下的数字
 
 0,1,···,n-1这n个数字排成一个圆圈，从数字0开始，每次从这个圆圈里删除第m个数字（删除后从下一个数字开始计数）。求出这个圆圈里剩下的最后一个数字。
 
@@ -4909,7 +4914,7 @@ class Solution {
 
 
 
-# 74、剑指 Offer 63. 股票的最大利润
+# ==74、剑指 Offer 63. 股票的最大利润==
 
 假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖该股票一次可能获得的最大利润是多少？
 
@@ -4938,36 +4943,54 @@ class Solution {
 
 
 
-```java
-public class 股票的最大利润 {
-    public static void main(String[] args) {
+==其实就是选一个最大值，一个最小值，且最小值在前面==
 
-    }
-    // 买卖一次股票，最简单问题
-    public static int getRes(int[] prices){
-        if (prices.length<2) return 0;
-        //1、二维dp，一天有两个状态：dp[i][0]第i天持有股票最大利润，dp[i][1]第i天不持有股票最大利润；
+```java
+    public int maxProfit (int[] prices) {
+        if(prices.length==0){
+            return 0;
+        }
+        // dp[i][0]: 第i天持有获得的最大利润
+        // dp[i][1]: 第i天不持有股票的最大利润
         int n = prices.length;
         int[][] dp = new int[n+1][2];
-
-        //3、初始化
-        dp[0][0] = 0;
-        dp[0][1] = 0;
-        dp[1][0] = -prices[0];
-        dp[1][1] = 0;
-
-        //2、递推
-        // dp[i][0]: 1.第i-1天就已经持有股票 dp[i][0] = dp[i-1][0];
-        //           2.第i-1天不持有，今天持有就是今天买入 dp[i][1] = -prices[i-1];(这里注意不要加上dp[i][1])
-        // dp[i][1]:1.第i-1天不持有股票dp[i][1]=dp[i-1][1];
-        //          2.第i-1天持有，今天不持有就是今天卖出 dp[i][1] = dp[i-1][0]+prices[i-1]
-        for (int i = 2; i < dp.length; i++) {
-            dp[i][0] = Math.max(dp[i-1][0], -prices[i-1]);
-            dp[i][1] = Math.max(dp[i-1][1], dp[i-1][0]+prices[i-1]);
+        dp[1][0] = - prices[0];
+        dp[1][1] =  0;
+        // dp[i][0] = dp[i-1][0], -prices[i-1] max（只能买卖一次）
+        // dp[i][1] = dp[i-1][1], dp[i-1][0]+prices[i-1] max
+        for(int i=2; i<dp.length; i++){
+            for(int j=0; j<2; j++){
+                dp[i][0] = Math.max(dp[i-1][0], - prices[i-1]);
+                dp[i][1] = Math.max(dp[i-1][1], dp[i-1][0]+prices[i-1]);
+            }
         }
-        return dp[n][1]; //不持有
+        return dp[n][1];
+        
     }
-}
+```
+
+==非dp解法，一定掌握！==
+
+```java
+    public int maxProfit (int[] prices) {
+        // 其实就是选一个最大值，一个最小值，且最小值在前面。按照我们正常的思路该如何去解呢
+        // 对于每个元素，知道它之前元素的最小值是多少，就可以知道目前可以得到的最大差值。
+        int n = prices.length;
+        if (n <= 1) {
+            return 0;
+        }
+        int[] mineleArray = new int[n]; // 前缀数组，最小值
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < mineleArray.length; i++) {
+            min = Math.min(min, prices[i]);
+            mineleArray[i] = min;
+        }
+        int maxPro = 0;
+        for (int i = 1; i < prices.length; i++) { //从1开始
+            maxPro = Math.max(maxPro, prices[i] - mineleArray[i - 1]);
+        }
+        return maxPro;
+    }
 ```
 
 
@@ -5060,38 +5083,31 @@ class Solution76{
     public TreeNode lowestCommonAncestor( TreeNode root, TreeNode p, TreeNode q){
         getRes(root,p,q);
         //拿到两条路径
-        List<TreeNode> nodeList = pathList.get(0);
-        List<TreeNode> nodeList1 = pathList.get(1);
-        System.out.println(nodeList);
-        System.out.println(nodeList1);
-        //从前往后找到分叉点。一定有祖先的
-        for (int i = 0; i < nodeList.size(); i++) {
-            if (nodeList.get(i)!=nodeList1.get(i)){
-                return nodeList.get(i-1);
+        List<TreeNode> pPath = pathList.get(0);
+        List<TreeNode> qPath = pathList.get(1);
+        int point = 0;
+        // 找分岔点
+        while (point < pPath.size() && point < qPath.size()) {
+            if (pPath.get(point) != qPath.get(point)) {
+                return pPath.get(point - 1).val;
             }
-            //长度不一样，只要有一个遍历完了，就需要返回了
-            if (i==nodeList.size()-1 || i==nodeList1.size()-1){
-                return nodeList.get(i);
-            }
+            point++;
         }
-
-        return null;
+        // 如果遍历完某条路径还没有找到，说明两者是嵌入关系，指针的上一个位置就是
+				return qPath.get(point - 1).val;
 
     }
-    //递归函数; 我草又写错了
+    //前序递归函数; 我草又写错了
     public List<TreeNode> path = new ArrayList<>();
     public List<List<TreeNode>> pathList = new ArrayList<>();
     public void getRes(TreeNode node, TreeNode p, TreeNode q){
         path.add(node); //中逻辑放在最前面，后面一定发送回溯
-        //2.
         if (node == null) {
             return;
         }
-        if (node == p){
+        if (node.val == p || node.val == q) {
             pathList.add(new ArrayList<>(path));
-        }
-        if (node == q){
-            pathList.add(new ArrayList<>(path));
+            // return; 啊啊啊啊又写错了，这里不能停止啊！
         }
         //3.前序遍历
         getRes(node.left,p,q);
@@ -5104,7 +5120,7 @@ class Solution76{
 
 
 
-# ==77、面试题 08.08. 有重复字符串的排列组合==
+# 77、面试题 08.08. 有重复字符串的排列组合
 
 有重复字符串的排列组合。编写一种方法，计算某字符串的所有排列组合。
 
@@ -5203,36 +5219,25 @@ class Solution77 {
 - 最多会对` appendTail、deleteHead `进行` 10000` 次调用
 
 ```java
-public class 用两个栈实现队列 {
-    public static void main(String[] args) {
+public class Solution {
+    Stack<Integer> stack1 = new Stack<Integer>(); // 入队
+    Stack<Integer> stack2 = new Stack<Integer>(); // 出队
 
-    }
-}
-class CQueue{
-
-    private Stack<Integer> stack1; //插入的时候放入这个
-    private Stack<Integer> stack2; //删除时先找2是不是有元素，有的话就直接pop，没有的话就先把1倒入，再pop
-
-    public CQueue(){
-        stack1 = new Stack<>();
-        stack2 = new Stack<>();
+    public void push(int node) {
+        stack1.push(node);
     }
 
-    public void appendTail(int value){
-        stack1.push(value);
-    }
-
-    public int deleteHead(){
-        //1.先看2有没有元素
-        if (!stack2.isEmpty()) return stack2.pop();
-        //2.没有的话就先把1倒入，再pop
-        if (stack1.isEmpty()) return -1;
-        while (!stack1.isEmpty()){
-            stack2.push(stack1.pop());
+    public int pop() {
+        if (stack2.isEmpty()) {
+            while (!stack1.isEmpty()) {
+                stack2.push(stack1.pop());
+            }
         }
         return stack2.pop();
+
     }
 }
+
 ```
 
 
@@ -5249,6 +5254,10 @@ F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
 斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。
 
 答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+
+
+
 
 
 
@@ -5284,7 +5293,7 @@ F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
  */
 class Solution80 {
     // 两两交换链表中的节点
-    //递归法：返回值是当前节点为头节点的链表c完之后的新头节点
+    //递归法：返回值是当前节点为头节点的链表交换之后的新头节点
     public ListNode swapPairs(ListNode head) {
         if (head == null || head.next == null){
             return head;
@@ -5309,8 +5318,6 @@ class Solution80 {
         }
         //
         ListNode newHead = head.next.next;
-//        head.next.next = swapPairs2(newHead.next.next);
-//        newHead.next.next = head;
         if (newHead.next!=null) { //当第二对有两个元素时
             head.next.next = swapPairs2(newHead.next.next);
             newHead.next.next = head;
@@ -5872,7 +5879,7 @@ public class 最少回文分割094 {
     }
 ```
 
-# 89、搜索旋转排序数组（阿里）
+# ==89、搜索旋转排序数组（阿里）==
 
 **先做前面这道题：剑指offer11. 旋转数组的最小数字**
 
@@ -5929,7 +5936,7 @@ public class 最少回文分割094 {
     }
 ```
 
-# 90、搜索旋转排序数组 II
+# ==90、搜索旋转排序数组 II==
 
 已知存在一个按非降序排列的整数数组 `nums` ，**数组中的值有重复。**
 
@@ -7843,6 +7850,88 @@ private boolean isPalindrome(String s) {
 - `-105 <= Node.val <= 105`
 
 
+
+
+
+# ==112、剑指 offer 23.链表中环的入口结点==
+
+<img src="images/image-20230803192102334.png" alt="image-20230803192102334" style="zoom:50%;" />
+
+```java
+public class Solution {
+
+    public ListNode EntryNodeOfLoop(ListNode pHead) {
+        // 链表有环问题+环的入口；分为两部分做
+        //1.链表有环?
+        if (pHead == null || pHead.next == null || pHead.next.next == null) {
+            return null; // 肯定无环
+        }
+        ListNode fast = pHead;
+        ListNode slow = pHead;
+        boolean flag = false; //有环的标识
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) {
+                flag = true;
+                break;
+            }
+        }
+        //2.求环的入口
+        if (!flag) return null;
+        ListNode temp = pHead;
+        while (temp != slow) {
+            temp = temp.next;
+            slow = slow.next;
+        }
+        return slow;
+    }
+
+
+}
+
+```
+
+
+
+# ==113、剑指 offer 23.删除链表中重复的节点==
+
+<img src="images/image-20230803195221043.png" alt="image-20230803195221043" style="zoom:50%;" />
+
+```java
+public class Solution {
+    public ListNode deleteDuplication(ListNode pHead) {
+        // 链表节点的删除，需要前置节点
+        ListNode rhead = new ListNode(-1);
+        rhead.next = pHead;
+        ListNode pretemp = rhead;
+        // 使用两个Set，遍历一次得到重复的节点数值
+        Set<Integer> set1 = new HashSet<>();
+        Set<Integer> repeatNum = new HashSet<>();
+        while (pretemp.next != null) {
+            if (set1.contains(pretemp.next.val)) {
+                repeatNum.add(pretemp.next.val);
+            } else {
+                set1.add(pretemp.next.val);
+            }
+            pretemp = pretemp.next;
+        }
+        // 开始删除重复的节点
+        pretemp = rhead; //前置节点
+        ListNode temp = pretemp.next;
+        while (temp != null) {
+            if (repeatNum.contains(temp.val)) {
+                pretemp.next = temp.next;
+                temp = temp.next; 
+            }else{
+                pretemp = pretemp.next;
+                temp = temp.next;
+            }
+        }
+        return rhead.next;
+    }
+}
+```
 
 
 
