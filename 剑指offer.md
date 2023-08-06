@@ -7,17 +7,19 @@
 - **质数一定是2或奇数；**合数不一定是奇数或偶数，无规律（例如，8、9）
 - 奇数、偶数---->>>>质数、合数没有规律；
 
+# 质数、合数、质因子的概率均指的正整数，不含0
 
+即求一个数的质因子时，有这个说法就肯定这个被求的数是正整数，然后1是唯一一个没有质因子的正整数。
 
 
 
 ## **1、判断一个数为素数（质数）**
 
-素数又称[质数](https://so.csdn.net/so/search?q=质数&spm=1001.2101.3001.7020)，**大于1的正整数**，且除了1和它自身外，不能被其他正整数整除。否则称为合数（规定1既不是素数也不是合数）。
+素数又称[质数](https://so.csdn.net/so/search?q=质数&spm=1001.2101.3001.7020)，**大于1的正整数**，且除了1和它自身外，不能被其他正整数整除。否则称为合数（规定1既不是质数也不是合数）。
 
-==2是特殊的质数，它的质因子是2；1不是质数==
+==2是质数；1不是质数也不是合数==（为什么把2单独拿出来呢，因为它无法按照正常的判断质数的逻辑去看）
 
-判断：遍历从2到n-1的所有数字，判断是否有可以整除n的数字，如果没有，则为素数。（n % i == 0 ：这个就是n被i整除了）。数学证明优化：**只需要判断2到 平方根 Math.sqrt(n) 即可**
+判断：遍历从**2到n-1**的所有数字，判断是否有可以整除n的数字，如果没有，则为质数。（n % i == 0 ：这个就是n被i整除了）。数学证明优化：**只需要判断2到 平方根 Math.sqrt(n) 即可**
 
 ```java
 // 素数是一个大于1 的自然数
@@ -33,7 +35,7 @@ public static boolean isprim(int n) {
 
 
 
-## **2 、求质因子质因数**
+## **2 、求质因子**
 
 （和上面的质数不一样哦）
 
@@ -557,7 +559,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 
 
 
-# 8、剑指offer11. 旋转数组的最小数字
+# ==8、剑指offer11. 旋转数组的最小数字==
 
 把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。
 
@@ -3472,7 +3474,7 @@ public String getResult(int[] nums){
 
 
 
-# ==54、无重复字符的最长子串==
+# ==54、无重复字符的最长子串（同63、剑指 Offer 48）==
 
 给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长子串** 的长度。子串在原字符串中是连续的。
 
@@ -3783,7 +3785,45 @@ class Solution {
 
 在节点 c1 开始相交。
 
- 【经典题目】两个节点一起跑。A跑完有效节点后**到达null节点时，也要进行判断，不要直接跳到B的头节点了，否则陷入死循环了。**
+ 经典题目】两个节点一起跑。
+
+- **易错点1：**判断两个指针为空的操作写在了最后面，中间是指针的移动 ===》导致死循环，在有相交节点情况没有问题，在无相交节点时就死循环了，因为两个指针同时移动到了null后，没有马上进行判断；
+
+  因为原则1为：指针移动后马上接判断，同之前的先处理后移动原则
+
+- 易错点2：已经保证了判断AB指针==操作在最前面，判断空操作在中间，指针移动在最后面； ==》》导致B链表是嵌入在A里面时，找到的节点不对。因为在指针进行空判断后，马上切到了另外指针的头部，此时也需要马上进行判断，之前是切换到了头部后，马上又接了一个.next操作，从意义来看，就是连续移动了两次！！！
+
+  因此原则2为：A指针从自己的null节点切换到B链表的头节点时，也相当于移动了一次，需要马上判断，不能再移动了
+
+**【错误解法：】**
+
+```java
+public class Solution {
+    public ListNode FindFirstCommonNode(ListNode pHead1, ListNode pHead2) {
+        // 这个采用遍历双链表法，两边同时开始遍历，如果两个指针相遇则判断是否为null，不为空就是有公共节点
+        ListNode p1 = pHead1;
+        ListNode p2 = pHead2; //只进行遍历，不需要虚拟头节点了
+        if(pHead1==null || pHead2==null){
+            return null;
+        }
+        while (true) {
+            if (p1 == p2) {
+                return p1 == null ? null : p1;
+            }
+            if(p1 == null){
+                p1 = pHead2;
+            }
+            if(p2 == null){
+                p2 = pHead1;
+            }
+            p1 = p1.next;
+            p2 = p2.next;
+        }
+    }
+}
+```
+
+**【正确解法：】**
 
 ```java
 class Solution57{
@@ -3813,6 +3853,8 @@ class Solution57{
     }
 }
 ```
+
+
 
 
 
@@ -3930,11 +3972,15 @@ public class 翻转单词顺序 {
 }
 ```
 
-、
+\
 
-# 60、剑指 Offer 53 - I. 在排序数组中查找数字 I
+
+
+# ==60、剑指 Offer 53 - I. 在排序数组中查找数字 I==
 
 统计一个数字在排序数组中出现的次数。
+
+你必须设计并实现时间复杂度为 `O(log n)` 的算法解决此问题。
 
  **提示：**
 
@@ -3950,27 +3996,70 @@ public class 翻转单词顺序 {
 输出: 2
 ```
 
-```java
-public class 在排序数组中查找数字1 {
-     public static void main(String[] args) {
+【分析】属于很有技巧的题目，没有做过不会做，然后那个左边界、右边界的默认值-1，这里是hard难度，容易想不到
 
-     }
-     public static int getRes(int[] nums, int target){
-          //直接遍历
-          int res = 0;
-          for (int i = 0; i < nums.length; i++) {
-               if (nums[i]==target){
-                    res++;
-                    i++;
-                    while (i<nums.length && nums[i]==target ){
-                         res++;
-                         i++;
-                    }
-                    return res;
-               }
-          }
-          return 0;
-     }
+参考解法：[34. 在排序数组中查找元素的第一个和最后一个位置 - 力扣（LeetCode）](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/solutions/2339323/bu-yao-jiu-jie-zhi-jie-yong-er-fen-cha-z-y2wm/)
+
+在 searchRight 函数中，先将左边界 left 初始化为数组的起始位置，将右边界 right 初始化为数组的末尾位置。然后，通过二分查找的方式来缩小查找范围，直到找到目标值。如果找到目标值，则更新右边界 rightRange 为当前位置 mid，并继续向右搜索，即将左边界 left 更新为 mid + 1。如果目标值在左半部分，则更新右边界 right 为 mid - 1；如果目标值在右半部分，则更新左边界 left 为 mid + 1。
+
+```java
+public class Solution {
+
+    public int GetNumberOfK (int[] nums, int k) {
+        int target = k;
+        // 1.初始判断
+        if (nums.length == 0) return 0;
+        int n = nums.length;
+        int min = nums[0];
+        int max = nums[n - 1];
+        if (min > target || target > max) {
+            return 0;
+        }
+        //2. 开始寻找左右边界
+        int left = dichotomyLeft(nums, target);
+        int right = dichotomyRight(nums, target);
+        if(left==-1 || right==-1){ //如果没有找到相等的值
+            return 0;
+        }
+        return right - left + 1;
+    }
+    public int dichotomyLeft(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length - 1;
+        int mid = left + (right - left) / 2;
+        int leftIndex = -1; //如果没有找到，这是默认值
+        while (left <= right) {
+            if (nums[mid] == target) {
+                leftIndex = mid;
+                right = mid - 1;
+            } else if (target > nums[mid]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+            mid = left + (right - left) / 2;
+        }
+        return leftIndex;
+    }
+
+    public int dichotomyRight(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length - 1;
+        int mid = left + (right - left) / 2;
+        int rightIndex = 0; //如果没有找到，这是默认值
+        while (left <= right) {
+            if (nums[mid] == target) {
+                rightIndex = mid;
+                left = mid + 1;
+            } else if (target > nums[mid]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+            mid = left + (right - left) / 2;
+        }
+        return rightIndex;
+    }
 }
 ```
 
@@ -3998,6 +4087,8 @@ public class 在排序数组中查找数字1 {
 
 
 
+
+
 # 62、剑指 Offer 53 - II. 0～n-1中缺失的数字
 
 一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。
@@ -4017,6 +4108,8 @@ public class 在排序数组中查找数字1 {
 输入: [0,1,2,3,4,5,6,7,9]
 输出: 8
 ```
+
+
 
 
 
@@ -4048,41 +4141,31 @@ public class 在排序数组中查找数字1 {
 滑动窗口，我们要记录窗口内所有的元素，判断新来的有没有重复。
 
 ```java
-public class 最长不含重复字符的子字符串 {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        String s = sc.nextLine();
-        getRes(s);
-    }
-
-    // for + while
-    public static int getRes(String s) {
-        int n = s.length();
-        char[] chars = s.toCharArray();
+// 滑动窗口法：forwhile，窗口有效性，ifelse   
+public int lengthOfLongestSubstring (String s) {
+        // write code here
+        int start = 0;
         Set<Character> set = new HashSet<>();
-
-        int left = 0;
-        int Maxlen = 0;
-        for (int i = 0; i < n; i++) { //结束位置
-            if (!set.contains(chars[i])) {
-                set.add(chars[i]);
-                Maxlen = Math.max(i - left + 1, Maxlen);
-            } else {
-                //此时i索引元素没有加入滑动窗口，先将左指针移动到合适位置
-                while (set.contains(chars[i])) {
-                    set.remove(chars[left]);
-                    left++;
+        int ans = 0;
+        int curlen = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if(!set.contains(s.charAt(i))){
+                set.add(s.charAt(i));
+                curlen++;
+                ans = Math.max(ans, curlen);
+            }else{
+                while(set.contains(s.charAt(i)) && start<i){
+                    set.remove(s.charAt(start));
+                    curlen--;
+                    start++;
                 }
-                set.add(chars[i]);
-                Maxlen = Math.max(i - left + 1, Maxlen);
+                set.add(s.charAt(i));
+                curlen++;
+                ans = Math.max(ans, curlen);
             }
         }
-        System.out.println(Maxlen);
-        return Maxlen;
-
-
+        return ans;
     }
-}
 ```
 
 
@@ -4148,7 +4231,7 @@ class Solution {
 
 **说明:** 
 
-1. `1` 是丑数。
+1. 规定`1` 是丑数。
 2. `n` **不超过**1690。
 3. `1 <= n <= 1690`
 
@@ -4163,7 +4246,7 @@ class Solution {
 
 其实我们要发现一个规律，最小的丑数是1对吧，那么下一个丑数是不是只可能为 1x2 或1x3或1x5这三个里面的最小值，这就是为什么题目规定最小的丑数是1的原因，如果1不算是丑数，那么就只能2算一次、3算一次、5算一次，就只能按照我现在下面的方法来做了！！！
 
-**方法一: 最小堆（Queue+Set）**
+**方法: 最小堆（Queue+Set）**
 
 要得到从小到大的第 n 个丑数，可以使用最小堆实现
 初始时堆为空。首先将最小的丑数 1 加入堆。
@@ -4204,6 +4287,7 @@ public class 丑数 {
 }
 ```
 
+ 最小堆（Queue+Set）
 ```java
     public int GetUglyNumber_Solution (int index) {
         // 使用Long的原因是可能会溢出，但我还是不理解，为什么最终返回值又是int呢？瞎搞
@@ -4234,9 +4318,8 @@ public class 丑数 {
 
 
 
-
-
 # ==66、剑指 Offer 65. 不用加减乘除做加法==
+
 
 写一个函数，求两个整数之和，要求在函数体内不得使用 “+”、“-”、“*”、“/” 四则运算符号。
 
@@ -4336,59 +4419,7 @@ public class 不用加减乘除做加法 {
 - 【删除某个值】通过 O(1) 的时间，删除某个元素；
 - 【插入某个值】通过 O(1) 的时间，插入某个元素；
 
-```java
-public class Solution {
 
-    public ArrayList<Integer> maxInWindows (int[] num, int size) {
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        int n = num.length;
-        if (size > n || size == 0) {
-            return list;
-        }
-        // write code here
-        // 两个双端队列，一个是正常的窗口进出，一个是单调队列，求最大值——单调递减
-        Queue<Integer> queue1 = new ArrayDeque<>();
-        MyQueue queue2 = new MyQueue();
-
-        for (int i = 0; i < size; i++) {
-            queue1.offer(num[i]);
-            queue2.offer(num[i]);
-        }
-        list.add(queue2.getMax());
-        for (int i = size; i < n; i++) {
-            if (queue1.poll() == queue2.getMax()) {
-                queue2.poll();
-            }
-            queue1.offer(num[i]);
-            queue2.offer(num[i]);
-            list.add(queue2.getMax());
-        }
-        return list;
-    }
-}
-// 单调队列，求最大值——单调递减;
-class MyQueue {
-    ArrayDeque<Integer> queue = new ArrayDeque<>();
-
-    public void offer(int num) {
-        if (queue.isEmpty()) {
-            queue.add(num);
-        } else {
-            while (!queue.isEmpty() && queue.peekLast() < num) {
-                queue.pollLast();
-            }
-            queue.offer(num);
-        }
-
-    }
-    public int poll() {
-        return queue.poll();
-    }
-    public int getMax() {
-        return queue.peek();
-    }
-}
-```
 
 
 
@@ -4415,8 +4446,8 @@ class MyQueue {
 
 ```java
 class MaxQueue {
-    Deque<Integer> queue1 = new ArrayDeque<>();
-    Deque<Integer> queue2 = new ArrayDeque<>();
+    Deque<Integer> queue1 = new ArrayDeque<>(); //正常的队列
+    Deque<Integer> queue2 = new ArrayDeque<>(); //d
 
     public MaxQueue() {
 
