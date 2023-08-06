@@ -4233,81 +4233,30 @@ class Solution {
 
 1. 规定`1` 是丑数。
 2. `n` **不超过**1690。
+3. `1 <= n <= 1690`
 
-【质因子】
+
 
 **质因子，是指一个数的所有质因数。**
 
 - 常规解法，先拿到每个正整数的所有质因子，然后判断质因子是不是只含有2、3、5三个。————————超时
 - 其实可以优化，在拿所有质因子的时候就判断！！！不要求出所有的质因子了！！
 
-```java
-// 初始版本——TIMEOUT——10%
-public class 丑数 {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt(); //第n个丑数
-        getRes(n);
-    }
-    public static int getRes(int n){
-        //使用list存储n个丑数即可
-        List<Integer> list = new ArrayList<>();
-        list.add(1); //特殊的丑数先加进来
-        int num = 2;
-        while (true){
-            if (list.size()==n){
-                break; //已经找到了前面n个丑数
-            }
-            Set<Integer> getprimfactor = getprimfactor(num);
-            getprimfactor.remove(2);
-            getprimfactor.remove(3);
-            getprimfactor.remove(5);
-            if (getprimfactor.size()==0) {
-                //说明num是丑数
-                list.add(num);
-            }
-            num++;
-        }
-        System.out.println(list.get(n-1));
-        return list.get(n-1);
-    }
+**【优化后——90%】这种的时间复杂度还是高，因为是从2开始一个个顺序遍历。**
 
-    //获取输入正整数n的所有质因子（Set）
-    public static Set<Integer> getprimfactor(int n){
-        Set<Integer> list = new HashSet<>();
-        for (int i = 2; i <= n; i++) {
-            if (!isprim(i)) continue;
-            while (n % i == 0) {
-                list.add(i);
-                n /= i;
-            }
-        }
-        return list;
-    }
-    //判断一个正整数是否为质数
-    public static boolean isprim(int n) {
-        if (n==1) return false;
-        if (n == 2) return true;
-        for (int i = 2; i <= Math.sqrt(n); i++) {
-            if (n % i == 0) return false;
-        }
-        return true;
-    }
+其实我们要发现一个规律，最小的丑数是1对吧，那么下一个丑数是不是只可能为 1x2 或1x3或1x5这三个里面的最小值，这就是为什么题目规定最小的丑数是1的原因，如果1不算是丑数，那么就只能2算一次、3算一次、5算一次，就只能按照我现在下面的方法来做了！！！
 
-}
-```
+**方法: 最小堆（Queue+Set）**
 
-【优化后——90%】
+要得到从小到大的第 n 个丑数，可以使用最小堆实现
+初始时堆为空。首先将最小的丑数 1 加入堆。
+每次取出堆顶元素 x，则 x 是堆中最小的丑数，由于 2x,3x,5x 也是丑数，因此将 2x,3x,5x加入堆。
+上述做法会导致堆中出现重复元素的情况。为了避免重复元素，可以使用哈希集合去重，避免相同元素多次加入堆。
+在排除重复元素的情况下，第 n 次从最小堆中取出的元素即为第 n 个丑数
 
 ```java
 public class 丑数 {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = sc.nextInt(); //第n个丑数
-        getRes(n);
-
-    }
-    public static int getRes(int n) {
+    public int getRes(int n) {
         //使用list存储n个丑数即可
         List<Integer> list = new ArrayList<>();
         list.add(1); //特殊的丑数先加进来
@@ -4324,14 +4273,12 @@ public class 丑数 {
         System.out.println(list.get(n - 1));
         return list.get(n - 1);
     }
-
     //判断正整数的质因子是否仅仅只有2、3、5这三个里面的
-  // 就是该正整数是否能被2、3、5这三个数整除
-    public static boolean isValid(int n) {
+    public boolean isValid(int n) {
         int[] num = new int[]{2, 3, 5};
         for (int i = 0; i < num.length; i++) {
             while (n % num[i] == 0) {
-                n /= num[i];
+                n /= num[i];//这里一定是最小为1，肯定是正整数
             }
         }
         //如果最后 n==1，说明n仅仅可以被 2、3、5这三个整除
@@ -4339,6 +4286,34 @@ public class 丑数 {
     }
 }
 ```
+
+ 最小堆（Queue+Set）
+```java
+    public int GetUglyNumber_Solution (int index) {
+        // 使用Long的原因是可能会溢出，但我还是不理解，为什么最终返回值又是int呢？瞎搞
+        Queue<Long> queue = new PriorityQueue<>(); // small
+        Set<Long> set = new HashSet<>();
+        queue.add(1L);
+        set.add(1L);
+        int count = 0; //记录第几个出队列
+        int[] nums = new int[]{2,3,5};
+        while(true){
+            Long poll = queue.poll();
+            count++;
+            if(count == index){
+                return poll.intValue();
+            }
+            for(int i=0; i<nums.length; i++){
+                Long num = poll * nums[i];
+                if(!set.contains(num)){
+                    set.add(num);
+                    queue.add(num);
+                }
+            }
+        }
+    }
+```
+
 
 
 
@@ -4429,7 +4404,9 @@ public class 不用加减乘除做加法 {
 
 
 
-【单调队列做】优先队列做不了，因为滑动窗口每次移动出去的都是最左边的那个元素；
+**【单调队列】求窗口的最大值，所以单调递减队列，队头为最大值。**
+
+优先队列做不了，因为滑动窗口每次移动出去的都是最左边的那个元素；
 
 双端队列实现单调队列：只能队尾插入，可以两端删除，内部存储的元素值成单调性。队列内元素小于窗口元素个数。手写数据结构，三个操作，一个属性
 
@@ -4437,74 +4414,7 @@ public class 不用加减乘除做加法 {
 - 【删除某个值】通过 O(1) 的时间，删除某个元素；
 - 【插入某个值】通过 O(1) 的时间，插入某个元素；
 
-```java
-public class 滑动窗口的最大值 {
-    public static void main(String[] args) {
-        int[] nums = new int[]{1,3,-1,-3,5,3,6,7};
-        getRes(nums,3);
-    }
-    public static int[] getRes(int[] nums, int k){
-        //
-        MyQueue myQueue = new MyQueue() ;
-        //放入k个元素啊
-        for (int i = 0; i < k; i++) {
-            myQueue.offer(nums[i]);
-        }
-        List<Integer> list = new ArrayList<>();
-        list.add(myQueue.peek());
-        //再加
-        for (int i = k; i < nums.length; i++) {
-            myQueue.poll(nums[i-k]);
-            myQueue.offer(nums[i]);
-            list.add(myQueue.peek());
-        }
-        int[] res = new int[list.size()];
-        for (int i = 0; i < res.length; i++) {
-            res[i] = list.get(i);
-        }
-        System.out.println(list);
-        return res;
 
-    }
-
-
-}
-//手写一个单调队列，单调递减的，即队头是最大值
-class MyQueue{
-    private Deque<Integer> deque;
-
-    public MyQueue(){
-        this.deque = new ArrayDeque<>();
-    }
-    //1、插入某个元素(只能队尾）
-    public void offer(int n){
-        if (deque.isEmpty()) deque.offer(n);
-        else {
-            //因为单调递减，所以插入元素要判断
-            if (deque.peekLast() >= n){
-                deque.offer(n);
-            }else {
-                while (!deque.isEmpty() && deque.peekLast()<n){
-                    deque.pollLast();
-                }
-                deque.offer(n);
-            }
-        }
-    }
-    //2、删除某个元素（只能队头删除）
-    public void poll(int n){
-        if (deque.isEmpty()) return;
-        if (n == deque.peek()){
-            deque.pollFirst();
-        }
-    }
-    //3、查看队头元素，即查看最大值
-    public int peek(){
-        if (deque.isEmpty()) return -1;
-        return deque.peek();
-    }
-}
-```
 
 
 
@@ -4523,7 +4433,7 @@ class MyQueue{
 输出: [null,null,null,2,1,2]
 ```
 
-![image-20230411161909165](images/image-20230411161909165.png)
+<img src="images/image-20230411161909165.png" alt="image-20230411161909165" style="zoom:50%;" />
 
 【就是单调队列啊】
 
@@ -4531,41 +4441,37 @@ class MyQueue{
 
 ```java
 class MaxQueue {
-
-    public Deque<Integer> deque;
-    public Deque<Integer> dequeAll;
+    Deque<Integer> queue1 = new ArrayDeque<>(); //正常的队列
+    Deque<Integer> queue2 = new ArrayDeque<>(); //d
 
     public MaxQueue() {
-        this.deque = new ArrayDeque<>();
-        this.dequeAll = new ArrayDeque<>(); //用一个队列记录所有被插入的值，这样删除的时候我就知道删除的是哪个数
-    }
 
+    }
     public int max_value() {
-        if (deque.isEmpty()) return -1;
-        return deque.peek();
+        if(queue1.isEmpty()) return -1;
+        return queue2.peek();
     }
-
+    
     public void push_back(int value) {
-        dequeAll.offer(value);
-        if (deque.isEmpty()) deque.offer(value);
-        else {
-            if (deque.peekLast() >= value) deque.offer(value);
-            else {
-                while (!deque.isEmpty() && deque.peekLast() < value) {
-                    deque.pollLast();
-                }
-                deque.offer(value);
+        queue1.add(value);
+        if(queue2.isEmpty()){
+            queue2.add(value);
+        }else{
+            while(!queue2.isEmpty() && queue2.peekLast()<value){
+                queue2.pollLast();
             }
+            queue2.add(value);
+            System.out.println(queue2);
         }
     }
-
-    // 哦豁，有点问题，这里要得到队头元素，不是得到最大值，但我们已经删除了啊！
-    // 办法：再来一个队列，存放所有被插入的值，即一个正常的队列
+    
     public int pop_front() {
-        if (dequeAll.isEmpty()) return -1;
-        int poll = dequeAll.poll();
-        if (poll == deque.peek()){
-            deque.poll();
+        if(queue1.isEmpty()){
+            return -1;
+        }
+        int poll = queue1.poll();
+        if( poll == queue2.peekFirst()){
+            queue2.poll();
         }
         return poll;
     }
@@ -4711,7 +4617,7 @@ public class n个骰子的点数 {
 
 
 
-# ==71、面试题67. 把字符串转换成整数==
+# 71、剑执offer67. 把字符串转换成整数
 
 写一个函数 StrToInt，实现把字符串转换成整数这个功能。不能使用 atoi 或者其他类似的库函数。
 
@@ -4775,100 +4681,73 @@ public class n个骰子的点数 {
 
 
 
-卡在了去除前导0的路上，不用去除了，很麻烦啊
 
-<img src="images/image-20230412224220546.png" alt="image-20230412224220546" style="zoom:80%;" />
+
+<img src="images/image-20230412224220546.png" alt="image-20230412224220546" style="zoom: 50%;" />
 
 ```java
-
-public class 把字符串转换成整数 {
-    public static void main(String[] args) {
-        //输入会有小数，但小数点那里会被判断的时候去掉
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-            String s = sc.nextLine();
-            System.out.println(getRes(s));
-        }
-
-    }
-
-    //
-    public static int getRes(String s) {
-
-        String trim = s.trim();
-        if (Objects.equals(trim, "")) {
-            return 0; //无法转换
-        }
-        char c1 = trim.charAt(0);
-        StringBuilder stringBuilder = new StringBuilder();
-        if (c1 == '+') {
-            /**
-             * 1、之前没有考虑索引越界情况。只有一个字符+
-             */
-            if (trim.length() == 1) return 0;
-            if (trim.charAt(1) < '0' || trim.charAt(1) > '9') return 0;
-            stringBuilder.append('+');
-            for (int i = 1; i < trim.length(); i++) {
-                if (trim.charAt(i) >= '0' && trim.charAt(i) <= '9') {
-                    stringBuilder.append(trim.charAt(i));
-                } else break;
+class Solution {
+    public int strToInt(String str) {
+        int start = 0; //数字部分开始索引
+        int end = 0; //结束索引
+        boolean flag = false; //是否为负数
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) == '-' && (i + 1 < str.length()) && '0' <= str.charAt(i + 1) && str.charAt(i + 1) <= '9') {
+                flag = true;
             }
-        } else if (c1 == '-') {
-            if (trim.length() == 1) return 0;
-            stringBuilder.append('-');
-            if (trim.charAt(1) < '0' || trim.charAt(1) > '9') return 0;
-            for (int i = 1; i < trim.length(); i++) {
-                if (trim.charAt(i) >= '0' && trim.charAt(i) <= '9') {
-                    stringBuilder.append(trim.charAt(i));
-                } else break;
-            }
-        } else if (c1 >= '0' && c1 <= '9') {
-            stringBuilder.append('+');
-            for (int i = 0; i < trim.length(); i++) {
-                if (trim.charAt(i) >= '0' && trim.charAt(i) <= '9') {
-                    stringBuilder.append(trim.charAt(i));
-                } else break;
-            }
-        } else {
-            return 0;
-        }
-        // 最后int范围判断。
-        /**
-         * 去除前导0，真的麻烦 【-0000000000012345678】
-         */
-        int index = -1;  //求出第一个非0整数的索引位置
-        for (int i = 1; i < stringBuilder.length(); i++) {
-            if (stringBuilder.charAt(i) != '0') {
-                index = i;
+            if ('0' <= str.charAt(i) && str.charAt(i) <= '9') {
+                start = i;
+                for (int j = i; j < str.length(); j++) {
+                    if ('0' <= str.charAt(j) && str.charAt(j) <= '9') {
+                        end = j;
+                    }
+                }
                 break;
             }
         }
-        String resString;
-        if (index == -1) return 0;
-        else {
-            resString = stringBuilder.charAt(0)+ stringBuilder.substring(index,stringBuilder.length());
+        // 数字的前面只能为空格（注意负号）
+        if (flag) {
+            for (int i = 0; i < start - 1; i++) {
+                if (str.charAt(i) != ' ') {
+                    return 0;
+                }
+            }
+        } else {
+            for (int i = 0; i < start; i++) {
+                if (str.charAt(i) != ' ') {
+                    return 0;
+                }
+            }
         }
-        //
-        /**
-         * 2、妈的，输入字符串比long都长，这怎么搞，先直接判断位数吧，int最多表示10位十进制
-         */
-        if (resString.length() > 15) {
-            if (resString.charAt(0) == '-') return Integer.MIN_VALUE;
-            else return Integer.MAX_VALUE;
+
+        // 取出数字部分（包括负号）
+        String num;
+        if (flag) {
+            num = str.substring(start - 1, end + 1);
+        } else {
+            num = str.substring(start, end + 1);
         }
-        long l = Long.parseLong(resString);
-        if (l >= Integer.MAX_VALUE) return Integer.MAX_VALUE;
-        if (l <= Integer.MIN_VALUE) return Integer.MIN_VALUE;
-        return (int) l;
+        // 进行范围判断
+        if (num.length() >= 12) { // int最多表示9位
+            return flag ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        }
+        long longnum = Long.parseLong(num);
+        if (Integer.MIN_VALUE <= longnum && longnum <= Integer.MAX_VALUE) {
+            return (int) longnum;
+        } else {
+            return flag ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        }
     }
 }
 ```
 
 
 
-# ==71、面试题61. 扑克牌中的顺子==
+# ==71、剑指offer61. 扑克牌中的顺子==
 
-从**若干副扑克牌**中随机抽 `5` 张牌，判断是不是一个顺子，即这5张牌是不是连续的。2～10为数字本身，A为1，J为11，Q为12，K为13，而大、小王为 0 ，可以看成任意数字。A 不能视为 14。
+从**若干副扑克牌**中随机抽 `5` 张牌，判断是不是一个顺子，即这5张牌是不是连续的。
+
+2～10为数字本身，A为1，J为11，Q为12，K为13，而大、小王为 0 ，可以看成任意数字。A 不能视为 14。
 
 **示例 1:**
 
@@ -4901,33 +4780,31 @@ public class 把字符串转换成整数 {
 
 
 ```java
-public class 扑克牌中的顺子 {
-    public static void main(String[] args) {
-        int[] nums = new int[]{0, 0, 1, 2, 5};
-        System.out.println(getRes(nums));
-    }
 
-    public static boolean getRes(int[] nums) {
-        //题目已经提前给我们做了转换，我们只需要判断数组是不是严格递增即可。0是特殊字符
-        Arrays.sort(nums);
-        int num_0 = 0; //0的个数
-        Set<Integer> set = new HashSet<>(); //出现重复的非0数字也不行
-        for (int num : nums) {
-            if (num == 0) num_0++;
-            else {
-                if (set.contains(num)) return false;
-                else set.add(num);
+public class Solution {
+
+    public boolean IsContinuous (int[] numbers) {
+        // write code here
+        // 先把扑克牌翻译成数字，然后从小到大排序
+        Arrays.sort(numbers);
+        int countO = 0;
+        Set<Integer> set = new HashSet<>();
+        for (int i = 0; i < numbers.length; i++) {
+            if (numbers[i] == 0) {
+                countO++;
             }
+            if(set.contains(numbers[i]) && numbers[i]!=0){
+                return false;
+            }
+            set.add(numbers[i]);
         }
-        if (num_0 == 5) return true;
-        // 到这里，说没有出现非0的重复数字。
-        //从宏观的角度来观察五张牌，找出0以外最小的值、最大的值。
-        // 检查这两个值之间缺牌的个数gap与大小王的个数num0的关系：若gap>num0，说明缺的牌太多，0补不过来；
-        // 若gap<=num0，说明缺的牌可以被0当赖子填上。
-        int diff = nums[nums.length - 1] - nums[num_0] - 1; //最大值-最小值，他们中间差几个填充
-        if (diff == 0) return true;
-        int tt = (nums.length  - num_0  - 2); //目前已经有了几个填充值了
-        if (num_0 >= diff-tt) return true;
+        int min = numbers[countO]; //最小数字
+        int max = numbers[numbers.length - 1];//最大数字
+        int needNum = (max - min - 1); //中间需要几个数字填充
+        int exist = numbers.length - 1 - countO - 1; //已经填充了几个数字了
+        if ( needNum - exist  <= countO) { // 0是否可以补上空缺
+            return true;
+        }
         return false;
 
     }
@@ -4936,9 +4813,9 @@ public class 扑克牌中的顺子 {
 
 
 
-# 72、剑指 Offer 55 - II. 平衡二叉树
+# ==72、剑指 Offer 55 - II. 平衡二叉树==
 
-输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中任意节点的左右子树的深度相差不超过1，那么它就是一棵平衡二叉树。
+输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中**任意节点的左右子树**的深度相差不超过1，那么它就是一棵平衡二叉树。
 
 **示例 1:**
 
@@ -4954,7 +4831,9 @@ public class 扑克牌中的顺子 {
 
 返回 `true` 。
 
+**限制：**
 
+- `0 <= 树的结点个数 <= 10000`
 
 ```java
 /**
@@ -4968,12 +4847,13 @@ public class 扑克牌中的顺子 {
  */
 class Solution72 {
     public boolean isBalanced(TreeNode root) {
-        //判断平衡二叉树——借助求二叉树的深度来求解
+        //注意是任意节点哦，这就需要我们对树中每个节点都要判断合法性。
+      // 如何判断呢？通过后序，我们不是可以知道每个节点的左子树高度和右子树高度吗，那我们在这里多加一个判断啊，对吧，之前求树的高度的时候，不就是取的Math.max嘛。我们取-1为标志位，如果不合法就把当前节点高度设置为-1。
         int depth = getDepth(root);
         return depth!=-1;
     }
 
-    //借助二叉树的深度，如果左子树右子树深度相差大于1，把该节点的深度赋值为-1；最后传入根节点判断深度是否为-1即可
+    //
     public int getDepth(TreeNode node){
         if (node == null) return 0;
         // 后序
@@ -5021,29 +4901,26 @@ class Solution72 {
 【约瑟夫】这里看到m、n就可以知道，按照之前的队列做法，一定会超时，因为要删除n-1次，并且每次要遍历m次，复杂度就是mn等级的，哎呀，很烦。
 
 ```java
-class Solution {
-    public int lastRemaining(int n, int m) {
-        // n——小朋友个数（编号，0——n-1），m——出号的数字（1，..m)，数到m出去
-        if(n==1) return 0;
+    public int LastRemaining_Solution (int n, int m) {
+        // write code here
         Queue<Integer> queue = new ArrayDeque<>();
-        for(int i=0; i<n;i++){
-            queue.offer(i); //每个人编号入队列
+        // 返回最后的编号，编号从0开始
+        int count = 0;
+        for(int i=0; i<n ; i++){
+            queue.add(i);
         }
-        //
-        int num = 0; //计数器,
         while(queue.size()!=1){
-            Integer child = queue.poll();
-            num++;
-            if(num==m){
-                num = 0;
-            }else{
-                queue.offer(child);
+            int poll = queue.poll();
+            count++;
+            if(count==m){
+                count=0;
+                continue;
             }
+            queue.offer(poll);
         }
-        // System.out.println(queue.peek());
         return queue.poll();
     }
-}
+
 ```
 
 【高级解法】
