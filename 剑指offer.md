@@ -5418,9 +5418,9 @@ class Solution2{
 
 
 
-![image-20230415152259107](images/image-20230415152259107.png)
+<img src="images/image-20230415152259107.png" alt="image-20230415152259107" style="zoom:50%;" />
 
-![image-20230415152425832](images/image-20230415152425832.png)
+<img src="images/image-20230415152425832.png" alt="image-20230415152425832" style="zoom:50%;" />
 
 ```java
 public class MaxPriorityQueue {
