@@ -5501,7 +5501,7 @@ public class MaxPriorityQueue {
 
 
 
-# 82、剑指 Offer II 094. 最少回文分割
+# 82、剑指 Offer II 094. 最少回文分割✅
 
 给定一个字符串 `s`，请将 `s` 分割成一些子串，使每个子串都是回文串。
 
@@ -5561,7 +5561,7 @@ public int getResByDP(String s) {
 
 
 
-# ==83、剑指 Offer II 001. 整数除法==
+# 83、剑指 Offer II 001. 整数除法✅
 
 给定两个整数 `a` 和 `b` ，求它们的除法的商 `a/b` ，要求不得使用乘号 `'*'`、除号 `'/'` 以及求余符号 `'%'` 。
 
@@ -5609,6 +5609,7 @@ public int getResByDP(String s) {
         }
         a = a > 0 ? -a : a;
         b = b > 0 ? -b : b;
+      
         // 计算结果，采用除数倍增法，直接每次乘以2倍增，对应的次数也是倍增的
         int ans = 0;
         int tempAns;
@@ -6030,7 +6031,7 @@ public class 最少回文分割094 {
 
 
 
-# 91、剑指 Offer II 010. 和为 k 的子数组1
+# 91、剑指 Offer II 010. 和为 k 的子数组1✅
 
 给定一个非负整数数组和一个整数k *，请找到该数组中和为* *k* *的连续子数组的个数。*
 
@@ -6067,7 +6068,7 @@ public class 最少回文分割094 {
 
 
 
-# 92、剑指 Offer II 010. 和为 k 的子数组2
+# 92、剑指 Offer II 010. 和为 k 的子数组2✅
 
 给定一个整数数组和一个整数 `k` **，**请找到该数组中和为 `k` 的连续子数组的个数。
 
@@ -6248,7 +6249,7 @@ public class 最少回文分割094 {
                 int j_new = j + dir[1];
                 if (0 <= i_new && i_new < m && 0 <= j_new && j_new < n && !visited[i_new][j_new]) {
                     visited[i_new][j_new] = true;
-                    if (ans[i_new][j_new] > ans[i][j] + 1) {
+                    if (ans[i_new][j_new] > ans[i][j] + 1) {//和现在的距离比较
                         ans[i_new][j_new] = ans[i][j] + 1;
                         list.add(new int[]{i_new, j_new}); // 已知距离的1入队，继续扩散
                     }
@@ -6264,7 +6265,7 @@ public class 最少回文分割094 {
 
 
 
-# 93-2、地图分析
+# 93-2、地图分析✅
 
 你现在手里有一份大小为 `n x n` 的 网格 `grid`，上面的每个 单元格 都用 `0` 和 `1` 标记好了。其中 `0` 代表海洋，`1` 代表陆地。
 
@@ -6320,7 +6321,7 @@ public class 最少回文分割094 {
                 int i_new = i + dir[0];
                 int j_new = j + dir[1];
                 if (0 <= i_new && i_new < m && 0 <= j_new && j_new < n && !visited[i_new][j_new]) {
-                    if (ans[i_new][j_new] > ans[i][j] + 1) {
+                    if (ans[i_new][j_new] > ans[i][j] + 1) {//这个地方条件
                         ans[i_new][j_new] = ans[i][j] + 1;
                         queue.offer(new int[]{i_new, j_new}); //已知距离的0入队，继续扩散
                     }
@@ -6472,7 +6473,7 @@ public class 开密码锁109 {
 
 
 
-# 95、剑指 Offer II 013. 二维子矩阵的和
+# 95、剑指 Offer II 013. 二维子矩阵的和✅
 
 给定一个二维矩阵 `matrix`，以下类型的多个请求：
 
@@ -6578,7 +6579,7 @@ class NumMatrix {
 
 
 
-# ==96、剑指 Offer II 106. 二分图==
+# 96、剑指 Offer II 106. 二分图✅
 
 存在一个 **无向图** ，图中有 `n` 个节点。其中每个节点都有一个介于 `0` 到 `n - 1` 之间的唯一编号。
 
@@ -6644,7 +6645,7 @@ class NumMatrix {
     private boolean ans = true; // 是否为二分图
     private boolean[] visited; // 标记节点已访问
 
-    // dfs
+    // dfs 将当前节点进行染色
     // x：当前节点；
     private void dfs(int x, int[][] graph, int color) {
         nodeColor[x] = color;
@@ -6709,7 +6710,7 @@ class NumMatrix {
 
 
 
-# 97、剑指 Offer II 093. 最长斐波那契数列
+# 97、剑指 Offer II 093. 最长斐波那契数列✅
 
 如果序列 `X_1, X_2, ..., X_n` 满足下列条件，就说它是 *斐波那契式* 的：
 
@@ -6779,7 +6780,7 @@ class NumMatrix {
 
 
 
-# ==98、剑指 Offer II 005. 单词长度的最大乘积==
+# 98、剑指 Offer II 005. 单词长度的最大乘积✅
 
 给定一个字符串数组 `words`，请计算当两个字符串 `words[i]` 和 `words[j]` 不包含相同字符时，它们长度的乘积的最大值。假设字符串中只包含英语的小写字母。如果没有不包含相同字符的一对字符串，返回 0。
 
@@ -6837,7 +6838,7 @@ class NumMatrix {
 
 
 
-# 99、剑指 Offer II 096. 字符串交织
+# 99、剑指 Offer II 096. 字符串交织✅
 
 给定三个字符串 `s1`、`s2`、`s3`，请判断 `s3` 能不能由 `s1` 和 `s2` **交织（交错）** 组成。
 
@@ -7401,7 +7402,7 @@ public int[] topKFrequent(int[] nums, int k) {
 
 
 
-# ==105、剑指 Offer II 009. 乘积小于 K 的子数组==
+# 105、剑指 Offer II 009. 乘积小于 K 的子数组✅
 
 给定一个正整数数组 `nums`和整数 `k` ，请找出该数组内乘积小于 `k` 的连续的子数组的个数；
 
