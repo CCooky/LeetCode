@@ -1232,7 +1232,7 @@ public boolean isNumber(String s){
 
 
 
-# ==19、剑指 Offer 21==. 调整数组顺序使奇数位于偶数前面(1)
+# 19、剑指 Offer 21.调整数组顺序使奇数位于偶数前面✅
 
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
@@ -1306,7 +1306,7 @@ class Solution19 {
 
 
 
-# ==19-2、==调整数组顺序使奇数位于偶数前面(2)
+# 19-2、调整数组顺序使奇数位于偶数前面✅
 
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
@@ -1326,7 +1326,9 @@ class Solution19 {
 
 
 
-# ==20、剑指 Offer 15. 二进制中1的个数==
+
+
+# 20、剑指 Offer 15. 二进制中1的个数✅
 
 编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数。
 
@@ -2684,11 +2686,6 @@ class Solution41 {
 
 **【采用后序遍历递归解决】**
 
- **【大佬的解题思路】**
-
-1. 实际上二叉搜索树的中序遍历和后序遍历对应着一种栈的压入、弹出序列, 而对后序遍历序列从小到大排序就得到了中序遍历序列
-2. 我们得到中序遍历序列后, 将其作为入栈序列, 检查后序遍历序列是不是一个合法的出栈序列即可
-
 ```java
     public boolean verifyPostorder(int [] sequence) {
         if (sequence.length == 0) {
@@ -2738,6 +2735,11 @@ class Solution41 {
       
     }
 ```
+
+ **【大佬的解题思路】**
+
+1. 实际上二叉搜索树的中序遍历和后序遍历对应着一种栈的压入、弹出序列, 而对后序遍历序列从小到大排序就得到了中序遍历序列
+2. 我们得到中序遍历序列后, 将其作为入栈序列, 检查后序遍历序列是不是一个合法的出栈序列即可
 
 ```java
 public class Solution {
@@ -2860,7 +2862,7 @@ class Solution44{
 
 
 
-# ==45、剑指 Offer 34. 二叉树中和为某一值的路径(背诵)==
+# 45、剑指 Offer 34. 二叉树中和为某一值的路径✅
 
 给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 **从根节点到叶子节点** 路径总和等于给定目标和的路径。
 
@@ -2931,7 +2933,7 @@ class Solution45 {
 
 
 
-# ==46、剑指 Offer II 031. 最近最少使用缓存（手写数据结构）==
+# 46、剑指 Offer II 031. 最近最少使用缓存✅
 
 运用所掌握的数据结构，设计和实现一个 [LRU (Least Recently Used，最近最少使用) 缓存机制](https://baike.baidu.com/item/LRU) 。
 
@@ -3320,7 +3322,7 @@ class Solution51{
 
 
 
-# ==52、剑指 Offer 45. 把数组排成最小的数==
+# 52、剑指 Offer 45. 把数组排成最小的数✅
 
 输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
 
@@ -3395,6 +3397,7 @@ class Solution51{
     }
 
 
+// 使用排序api
 public String getResult(int[] nums){
     List<String> stringList = new ArrayList<>();
     for (int num : nums) {
@@ -3477,7 +3480,7 @@ public String getResult(int[] nums){
 
 
 
-# ==54、无重复字符的最长子串（同63、剑指 Offer 48）==
+# 54、无重复字符的最长子串✅
 
 给定一个字符串 `s` ，请你找出其中不含有重复字符的 **最长子串** 的长度。子串在原字符串中是连续的。
 
@@ -3615,7 +3618,7 @@ public class 和为s的连续正数序列 {
 
 
 
-# ==56、剑指 Offer 46. 把数字翻译成字符串==
+# 56、剑指 Offer 46. 把数字翻译成字符串✅
 
 
 
@@ -3725,7 +3728,7 @@ class Solution {
 
 
 
-# ==56、**JZ46** 把数字翻译成字符串（牛客）==
+# 56、JZ46 把数字翻译成字符串✅
 
 有一种将字母编码成数字的方式：'a'->1, 'b->2', ... , 'z->26'。
 
@@ -3739,36 +3742,30 @@ class Solution {
 
 ```java
     public int solve (String nums) {
-        if (nums.length() == 0) {
-            return 0;
-        }
-        // 本质上是一个分割问题，每段区间保证合法即可，只要求得出有多少种不同的结果；
-        // 就不需要使用回溯了，使用dp先尝试，这不是子序列问题哦，这是求全序列的结果！！！
-        // dp[i]: 前i个元素的序列有多少种结果；
+        //dp[i]: 前i个元素的xx结果数量。
         int[] dp = new int[nums.length() + 1];
 
-        dp[0] = 1; //由递归公式得到
-        dp[1] = nums.charAt(0) == '0' ? 0 : 1;
+        dp[0] = 1;
+        dp[1] = nums.charAt(0) != '0' ? 1 : 0;
 
         for (int i = 2; i < dp.length; i++) {
-            int twonum = Integer.parseInt(nums.substring(i - 2, i));
-            int firstnum = Integer.parseInt(nums.substring(i - 2, i-1));
-            int lastnum = Integer.parseInt(nums.substring(i - 1, i));
-            // firstnum属于两个数字的判断条件
-            if (1 <= twonum && twonum <= 26 && firstnum!=0 && lastnum != 0) {
-                // 最后两个数字、最后一个数字都合法
-                dp[i] = dp[i - 1] + dp[i - 2];
-            } else if (1 <= twonum && twonum <= 26  && firstnum!=0 && lastnum == 0) {
-                // 最后两个数字合法、最后一个数字不合法
-                dp[i] = dp[i - 2];
-            }else if((1 > twonum || twonum > 26 || firstnum==0)&& lastnum != 0) {
-                // 最后两个数字不合法、最后一个数字合法
-                dp[i] = dp[i - 1];
-            }else {
-                // 最后两个数字、最后一个数字都不合法
-                dp[i] = 0;
+            int curNum = Integer.parseInt(nums.substring(i - 1, i)); //0-9
+            int preNum = Integer.parseInt(nums.substring(i - 2, i - 1));
+            int twoNum = Integer.parseInt(nums.substring(i - 2, i));//00-99
+            // 第i个元素不一定合法，因为这里单个0是不能翻译的，所以说先判断新加入元素的情况，再判断两个元素的组合情况
+            if (curNum == 0) {
+                if (preNum != 0 && 0 <= twoNum && twoNum <= 26) {
+                    dp[i] = dp[i - 2];
+                } else {
+                    dp[i] = 0;
+                }
+            } else {
+                if (preNum != 0 && 0 <= twoNum && twoNum <= 26) {
+                    dp[i] = dp[i - 2] + dp[i - 1];
+                } else {
+                    dp[i] = dp[i - 1];
+                }
             }
-
         }
         return dp[nums.length()];
     }
@@ -3778,7 +3775,7 @@ class Solution {
 
 
 
-# ==57、剑指 Offer 52. 两个链表的第一个公共节点==
+# 57、剑指 Offer 52. 两个链表的第一个公共节点✅
 
 输入两个链表，找出它们的第一个公共节点。
 
@@ -3788,7 +3785,7 @@ class Solution {
 
 在节点 c1 开始相交。
 
- 经典题目】两个节点一起跑。
+【 经典题目】两个节点一起跑。
 
 - **易错点1：**判断两个指针为空的操作写在了最后面，中间是指针的移动 ===》导致死循环，在有相交节点情况没有问题，在无相交节点时就死循环了，因为两个指针同时移动到了null后，没有马上进行判断；
 
@@ -3975,11 +3972,11 @@ public class 翻转单词顺序 {
 }
 ```
 
-\
 
 
 
-# ==60、剑指 Offer 53 - I. 在排序数组中查找数字 I==
+
+# 60、剑指 Offer 53 - I. 在排序数组中查找数字 I✅
 
 统计一个数字在排序数组中出现的次数。
 
@@ -4116,7 +4113,7 @@ public class Solution {
 
 
 
-# ==63、剑指 Offer 48. 最长不含重复字符的子字符串（手撕）==
+# 63、剑指 Offer 48. 最长不含重复字符的子字符串✅
 
 请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。子串这里是连续的必须。
 
@@ -4220,7 +4217,7 @@ class Solution {
 
 
 
-# ==65、剑指 Offer 49. 丑数==
+# 65、剑指 Offer 49. 丑数✅
 
 我们把只包含质因子 2、3 和 5 的数称作丑数（Ugly Number）。求按从小到大的顺序的第 n 个丑数。
 
@@ -4321,7 +4318,7 @@ public class 丑数 {
 
 
 
-# ==66、剑指 Offer 65. 不用加减乘除做加法==
+# 66、剑指 Offer 65. 不用加减乘除做加法✅
 
 
 写一个函数，求两个整数之和，要求在函数体内不得使用 “+”、“-”、“*”、“/” 四则运算符号。
@@ -4385,7 +4382,7 @@ public class 不用加减乘除做加法 {
 
 
 
-# ==67、剑指 Offer 59 - I. 滑动窗口的最大值（手写数据结构）==
+# 67、剑指 Offer 59 - I. 滑动窗口的最大值✅
 
 给定一个数组 `nums` 和滑动窗口的大小 `k`，请找出所有滑动窗口里的最大值。
 
@@ -4426,7 +4423,7 @@ public class 不用加减乘除做加法 {
 
 
 
-# ==68、剑指offer59 - II. 队列的最大值（手写数据结构）==
+# 68、剑指offer59 - II. 队列的最大值✅
 
 请定义一个队列并实现函数 `max_value` 得到队列里的最大值，要求函数`max_value`、`push_back` 和 `pop_front` 的**均摊**时间复杂度都是O(1)。
 
@@ -4488,7 +4485,7 @@ class MaxQueue {
 
 
 
-# ==69、剑指 Offer 66. 构建乘积数组==
+# 69、剑指 Offer 66. 构建乘积数组✅
 
 给定一个数组 `A[0,1,…,n-1]`，请构建一个数组 `B[0,1,…,n-1]`，其中 `B[i]` 的值是数组 `A` 中除了下标 `i` 以外的元素的积, 即 `B[i]=A[0]×A[1]×…×A[i-1]×A[i+1]×…×A[n-1]`。不能使用除法。
 
@@ -4751,7 +4748,7 @@ class Solution {
 
 
 
-# ==71、剑指offer61. 扑克牌中的顺子==
+# 71、剑指offer61. 扑克牌中的顺子✅
 
 从**若干副扑克牌**中随机抽 `5` 张牌，判断是不是一个顺子，即这5张牌是不是连续的。
 
@@ -4788,11 +4785,9 @@ class Solution {
 
 
 ```java
-
 public class Solution {
 
     public boolean IsContinuous (int[] numbers) {
-        // write code here
         // 先把扑克牌翻译成数字，然后从小到大排序
         Arrays.sort(numbers);
         int countO = 0;
@@ -4821,7 +4816,7 @@ public class Solution {
 
 
 
-# ==72、剑指 Offer 55 - II. 平衡二叉树==
+# 72、剑指 Offer 55 - II. 平衡二叉树✅
 
 输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中**任意节点的左右子树**的深度相差不超过1，那么它就是一棵平衡二叉树。
 
