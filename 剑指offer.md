@@ -636,7 +636,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 
 
 
-# 9、剑指12. 矩阵中的路径
+# 9、剑指12. 矩阵中的路径✅
 
 给定一个 `m x n` 二维字符网格 `board` 和一个字符串单词 `word` 。如果 `word` 存在于网格中，返回 `true` ；否则，返回 `false` 。
 
@@ -753,7 +753,7 @@ class Solution6 {
 
 
 
-# 10、面试题13. 机器人的运动范围
+# 10、面试题13. 机器人的运动范围✅
 
 地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 `[0, 0] `的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
 
@@ -1234,12 +1234,8 @@ public boolean isNumber(String s){
 
 
 
-<<<<<<< HEAD
-# 19、剑指 Offer 21.调整数组顺序使奇数位于偶数前面✅
-=======
-# 19、剑指 Offer 21. 调整数组顺序使奇数位于偶数前面(1)✅
->>>>>>> 2fc609f4afda658ee295d5430b44a62730c448b8
 
+# 19、剑指 Offer 21.调整数组顺序使奇数位于偶数前面✅
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
 **示例：**
@@ -1312,12 +1308,8 @@ class Solution19 {
 
 
 
-<<<<<<< HEAD
-# 19-2、调整数组顺序使奇数位于偶数前面✅
-=======
-# 19-2、调整数组顺序使奇数位于偶数前面(2)✅
->>>>>>> 2fc609f4afda658ee295d5430b44a62730c448b8
 
+# 19-2、调整数组顺序使奇数位于偶数前面✅
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
 并保证奇数和奇数，偶数和偶数之间的相对位置不变。
@@ -1336,11 +1328,6 @@ class Solution19 {
 
 
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 2fc609f4afda658ee295d5430b44a62730c448b8
 # 20、剑指 Offer 15. 二进制中1的个数✅
 
 编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数。
@@ -1763,7 +1750,7 @@ class Solution {
 }
 ```
 
-# ==28、剑指 Offer 35. 复杂链表的复制==
+# 28、剑指 Offer 35. 复杂链表的复制✅
 
 请实现 `copyRandomList` 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 `next` 指针指向下一个节点，还有一个 `random` 指针指向链表中的任意节点或者 `null`。
 
@@ -1828,7 +1815,7 @@ class Node {
 
 
 
-# ==29、剑指 Offer 40. 最小的k个数==
+# 29、剑指 Offer 40. 最小的k个数
 
 输入整数数组 `arr` ，找出其中最小的 `k` 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
 
@@ -1866,7 +1853,7 @@ class Solution29 {
 }
 ```
 
-# ==30、剑指 Offer 30. 包含min函数的栈（手写数据结构）==
+# 30、剑指 Offer 30. 包含min函数的栈✅
 
 定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
 
@@ -1927,7 +1914,7 @@ class Solution30{
 
 
 
-# ==31、剑指 Offer 41. 数据流中的中位数（手写数据结构）==
+# 31、剑指 Offer 41. 数据流中的中位数✅
 
 如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。
 
@@ -1998,7 +1985,6 @@ class MedianFinder {
 
 ```java
 class MedianFinder {
-  
     // 要得到更好的时间复杂度，那么哪种排序算法支持插入的时候复杂度低了，肯定就是堆排序了，插入一个新元素看当前树的高度O（logk）。
     // 并且题目只要求返回中位数，不要返回所有的元素，所以我们利用大根堆小根堆想办法下手
     private Queue<Integer> bigHeap = new PriorityQueue<>((o1, o2)->o2 - o1);
@@ -2007,7 +1993,6 @@ class MedianFinder {
     public MedianFinder() {
 
     }
-
     public void addNum(int num) {
         //规定奇数个元素时，多的放入大根堆
         if (bigHeap.size() == smallHeap.size()) {
@@ -2022,10 +2007,8 @@ class MedianFinder {
             bigHeap.offer(smallHeap.poll());
         }
     }
-
     public double findMedian() {
-        int count = bigHeap.size() + smallHeap.size();
-        if (count % 2 == 0) {
+        if (bigHeap.size() == smallHeap.size()) {
             return (bigHeap.peek() + smallHeap.peek()) / 2.0;
         } else {
             return bigHeap.peek() / 1.0;
@@ -2036,7 +2019,7 @@ class MedianFinder {
 
 
 
-# ==32、剑指 Offer 42. 连续子数组的最大和==
+# 32、剑指 Offer 42. 连续子数组的最大和✅
 
 输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
 
@@ -3558,7 +3541,7 @@ NO，仔细分析你会发现dp法无法解决，因为是求连续的，所以�
 
 
 
-# ==55、剑指 Offer 57 - II. 和为s的连续正数序列==
+# 55、剑指 Offer 57 - II. 和为s的连续正数序列✅
 
 输入一个正整数 `target` ，输出所有和为 `target` 的连续正整数序列（至少含有两个数）。
 
@@ -6127,7 +6110,7 @@ public class 最少回文分割094 {
 
 
 
-# 93、剑指 Offer II 107. 矩阵中的距离 
+# ==93、LCR 107. 01 矩阵==
 
 给定一个由 `0` 和 `1` 组成的矩阵 `mat` ，请输出一个大小相同的矩阵，其中每一个格子是 `mat` 中对应位置元素到最近的 `0` 的距离。
 
@@ -6233,45 +6216,50 @@ public class 最少回文分割094 {
 - 求每个元素到最近0的距离：为什么**只能从0找1呢**，因为我们能已知0元素的距离是0，但对于其他元素我们无法直接得出，也就不能由它进行扩散；
 
 ```java
-
-    public int[][] getResByLC(int[][] mat) {
+    public int[][] updateMatrix(int[][] mat) {
+        // 找矩阵中每个元素到1的距离。只能是bfs法。queuelist+while
         int m = mat.length;
         int n = mat[0].length;
-        int[][] ans = new int[m][n]; // 结果数组
+
         Queue<int[]> queue = new ArrayDeque<>();
         List<int[]> list = new ArrayList<>();
         boolean[][] visited = new boolean[m][n];
-        // 1、距离数组初始化，0元素为0，其他元素设置为最大值
+
+        int[][] ans = new int[m][n];
+        //距离数组初始化，0元素为0，其他元素设置为最大值
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 if (mat[i][j] == 0) {
                     ans[i][j] = 0;
-                    queue.offer(new int[]{i, j}); // 0入队
+                    queue.add(new int[]{i, j}); // 0入队
                     visited[i][j] = true; // 标记已遍历
-                } else ans[i][j] = Integer.MAX_VALUE;
+                } else {
+                    ans[i][j] = Integer.MAX_VALUE;
+                }
             }
         }
-        // bfs
-        int[][] direction = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // 方向数组
+
+        //开始bfs
+        int[][] direction = new int[][]{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}; // 方向数组
         while (!queue.isEmpty()) {
-            int i = queue.peek()[0], j = queue.peek()[1];
-            queue.poll();
-            // 上下左右
-            for (int[] dir : direction) {
-                int i_new = i + dir[0];
-                int j_new = j + dir[1];
-                if (0 <= i_new && i_new < m && 0 <= j_new && j_new < n && !visited[i_new][j_new]) {
-                    visited[i_new][j_new] = true;
-                    if (ans[i_new][j_new] > ans[i][j] + 1) {//和现在的距离比较
-                        ans[i_new][j_new] = ans[i][j] + 1;
-                        list.add(new int[]{i_new, j_new}); // 已知距离的1入队，继续扩散
+
+            while (!queue.isEmpty()) {
+                int[] poll = queue.poll();
+                int i = poll[0];
+                int j = poll[1];
+                for (int[] dir : direction) {
+                    int iNew = i + dir[0];
+                    int jNew = j + dir[1];
+                    if (0 <= iNew && iNew < m && 0 <= jNew && jNew < n && !visited[iNew][jNew]) {
+                        ans[iNew][jNew] = ans[i][j] + 1; //更新未遍历的节点，并且加入list，让其继续扩散
+                        list.add(new int[]{iNew, jNew});
+                        visited[iNew][jNew] = true; // 标记已遍历
                     }
                 }
             }
             queue.addAll(list);
             list.clear();
         }
-      
         return ans;
     }
 ```
