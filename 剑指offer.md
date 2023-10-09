@@ -1644,7 +1644,7 @@ class Solution25{
 
 
 
-# 26、剑指 Offer 24. 反转链表
+# 26、剑指 Offer 24. 反转链表✅
 
 定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
 
@@ -2198,7 +2198,7 @@ class Codec {
     // 不能使用数组进行每个元素的遍历，因为我们要按照数组从前往后遍历节点，无法直接根据索引i定位已经被挂载的节点地址，所以想到queue
     public TreeNode deserialize(String data) {
         if(data.length()==0) return null;
-        //hard
+        // hard
         data = data.substring(1, data.length() - 1);
         String[] valString = data.split(", ");
       
@@ -2519,7 +2519,7 @@ class Solution39{
 
 
 
-# ==40、剑指 Offer 44. 数字序列中某一位的数字(背诵)==
+# 40、剑指 Offer 44. 数字序列中某一位的数字✅
 
 
 
@@ -2561,17 +2561,16 @@ class Solution39{
         //最大数字是一位数时，n <=10的，最大数字是两位数字时（0-99），我们将每一个非2位的数字前面补上0，（000102，99）它的长度最大是200，并且我原来的第n位需要后移10^(i-1)，i是当前最大数的位数。
         //确定了求的那个数字的位数后。使用（k / i )就可以得到我的那个数字，具体是哪一位呢，使用k%i得到。
   
-        // 核心就是找出当前索引的n值，先进行补0；注意这个n是索引哦
-        int t = 1;
-        long maxLen = 10; //当前数位下最大长度 10/200/3000
-        long k = n; //换成long类型，是求的索引
-        while (k > maxLen-1) {
-            k += Math.pow(10, t); // 后移10/100/1000
-            t++;
-            maxLen = (long)Math.pow(10, t) * t; // 200
+        // 1位数：0-10 2位数：0-200 3位数 0-3000
+        int maxLen = 10;
+        int cur = 1;
+        while (n > maxLen) {
+            n += maxLen;
+            cur++;
+            maxLen = cur * (int) Math.pow(10, cur);
         }
-        String num = String.valueOf(k / t);
-        int ans = num.charAt((int) (k % t)) - '0';
+        int num = n / cur;
+        int ans = String.valueOf(num).charAt(n % cur) - '0';
         return ans;
 }
 ```
@@ -2687,7 +2686,7 @@ class Solution41 {
         if (sequence.length == 0) {
             return false;
         }
-        //左右根，最后一个为根节点，因为是二叉搜索树，所以得到中序遍历
+        // 左右根，最后一个为根节点，因为是二叉搜索树，所以得到中序遍历
         // 可以使用递归进行切分判断
         int[] afterOrder = Arrays.copyOfRange(sequence, 0, sequence.length);
         Arrays.sort(sequence);
@@ -2711,8 +2710,7 @@ class Solution41 {
         int[] leftIn = Arrays.copyOfRange(inOrder, 0, rootIndex);
         int[] rightIn = Arrays.copyOfRange(inOrder, rootIndex + 1, inOrder.length);
         int[] leftAfter = Arrays.copyOfRange(afterOrder, 0, leftIn.length);
-        int[] rightAfter = Arrays.copyOfRange(afterOrder, leftIn.length,
-                                              afterOrder.length - 1);
+        int[] rightAfter = Arrays.copyOfRange(afterOrder, leftIn.length, afterOrder.length - 1);
       	//2. 判断当前节点
         for (int i = 0; i < leftAfter.length; i++) {
             if (rootValue < leftAfter[i]) {
@@ -3689,6 +3687,8 @@ public class 把数字翻译成字符串 {
 ```
 
 【解法二：DP】因为只需要求出最后的方案数，不需要分割的具体方案，所以试试DP能不能行。
+
+首先明确一点，这里不是子序列的问题，他是求全部序列的情况，所以不能使用子序列的解法，。
 
 这里是连续的分割情况哦，我们试试哈；
 
@@ -6917,7 +6917,7 @@ class NumMatrix {
 
 
 
-# 100、剑指 Offer II 085. 生成匹配的括号
+# 100、剑指 Offer II 085. 生成匹配的括号✅
 
 正整数 `n` 代表生成括号的对数，请设计一个函数，用于能够生成所有可能的并且 **有效的** 括号组合。
 
@@ -6938,6 +6938,8 @@ class NumMatrix {
 **提示：**
 
 - `1 <= n <= 8`
+
+**暴力解法：先回溯生成所有排列情况，再依次判断**
 
 ```java
     public List<String> getRes(int n) {
@@ -7003,9 +7005,51 @@ class NumMatrix {
     }
 ```
 
+方法一还有改进的余地：我们可以只在序列仍然保持有效时才添加左括号、右括号，而不是像 方法一那样每次添加。那如何在递归回溯的时候保证合法性呢，这里其实就是括号数量的问题，你可以发现下面的定理：
+
+**保证左括号出现的次数比右括号多时我们再使用右括号就一定能保证括号合法了，**如果左括号数量不大于 n，我们可以放一个左括号。如果右括号数量小于左括号的数量，我们可以放一个右括号。
+
+```java
+public class Solution {
+
+    public ArrayList<String> generateParenthesis (int n) {
+        // 保证左括号出现的次数比右括号多时我们再使用右括号就一定能保证括号合法了
+        backTracking(n, 0, 0);
+        return pathList;
+
+    }
+    ArrayList<String> pathList = new ArrayList<>();
+    ArrayList<String> path = new ArrayList<>();
+    public void backTracking(int n, int left, int right) { //left左括号的使用数量
+        if (left == n && right == n) {
+            pathList.add(String.join("", path));
+            return;
+        }
+        //先加左括号哦
+        if (left < n) {
+            path.add("(");
+            backTracking(n, left + 1, right);
+            path.remove(path.size() - 1);
+        }
+        if (left > right && right < n) {
+            path.add(")");
+            backTracking(n, left, right + 1);
+            path.remove(path.size() - 1);
+        }
+
+    }
+}
+```
 
 
-# 101、剑指 Offer II 062. 实现前缀树
+
+
+
+
+
+
+
+# ==101、剑指 Offer II 062. 实现前缀树==
 
 **[Trie](https://baike.baidu.com/item/字典树/9825209?fr=aladdin)**（发音类似 "try"）或者说 **前缀树** 是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补完和拼写检查。
 
@@ -7053,7 +7097,8 @@ class Trie {
         children = new Trie[26];
         isWord = false;
     }
-  
+
+
     public void insert(String s) {
         Trie node = this; // 跟节点（不存放数据）
         for (int i = 0; i < s.length(); i++) {
@@ -7925,38 +7970,30 @@ public class Solution {
 
 
 
-# ==113、剑指 offer 23.删除链表中重复的节点==
+# ==113、剑指 offer 23.删除有序链表中重复的元素2==
 
-<img src="images/image-20230803195221043.png" alt="image-20230803195221043" style="zoom:50%;" />
+<img src="images/image-20230907201143986.png" alt="image-20230907201143986" style="zoom:80%;" />
 
 ```java
 public class Solution {
-    public ListNode deleteDuplication(ListNode pHead) {
-        // 链表节点的删除，需要前置节点
+
+    public ListNode deleteDuplicates (ListNode head) {
+        if (head == null || head.next == null) return head;
         ListNode rhead = new ListNode(-1);
-        rhead.next = pHead;
-        ListNode pretemp = rhead;
-        // 使用两个Set，遍历一次得到重复的节点数值
-        Set<Integer> set1 = new HashSet<>();
-        Set<Integer> repeatNum = new HashSet<>();
-        while (pretemp.next != null) {
-            if (set1.contains(pretemp.next.val)) {
-                repeatNum.add(pretemp.next.val);
+        rhead.next = head;
+
+        ListNode pre = rhead;
+        ListNode cur = head;
+        while (cur != null && cur.next != null) {
+            if (cur.val == cur.next.val) {
+                int value = cur.val;
+                while (cur != null && cur.val == value) {
+                    cur = cur.next;
+                }
+                pre.next = cur;
             } else {
-                set1.add(pretemp.next.val);
-            }
-            pretemp = pretemp.next;
-        }
-        // 开始删除重复的节点
-        pretemp = rhead; //前置节点
-        ListNode temp = pretemp.next;
-        while (temp != null) {
-            if (repeatNum.contains(temp.val)) {
-                pretemp.next = temp.next;
-                temp = temp.next; 
-            }else{
-                pretemp = pretemp.next;
-                temp = temp.next;
+                pre = pre.next;
+                cur = cur.next;
             }
         }
         return rhead.next;
@@ -7966,7 +8003,80 @@ public class Solution {
 
 
 
+# 113-2、**删除有序链表中重复的元素1**
 
+<img src="images/image-20230907201229006.png" alt="image-20230907201229006" style="zoom:80%;" />
+
+```java
+public class Solution {
+
+    public ListNode deleteDuplicates (ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode cur = head;
+        while (cur != null && cur.next != null) {
+            if (cur.val == cur.next.val) {
+                cur.next = cur.next.next;
+            } else {
+                cur = cur.next;
+            }
+        }
+        return head;
+    }
+}
+```
+
+
+
+# 113-3、删除链表的倒数第 N 个结点
+
+给你一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点。
+
+**示例 1：**
+
+<img src="images/remove_ex1.jpg" alt="img" style="zoom:80%;" />
+
+```
+输入：head = [1,2,3,4,5], n = 2
+输出：[1,2,3,5]
+```
+
+**示例 2：**
+
+```
+输入：head = [1], n = 1
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：head = [1,2], n = 1
+输出：[1]
+```
+
+ ```java
+ class Solution {
+     public ListNode removeNthFromEnd(ListNode head, int n) {
+         ListNode rhead = new ListNode(-1);
+         rhead.next = head;
+ 
+         ListNode slow = rhead;
+         ListNode fast = rhead;
+         for(int i=0; i<n; i++){ // n肯定是合法的，不然就直接返回ERROR这种的
+             fast = fast.next;
+         }
+         // fast遍历到最后一个节点停止
+         while(fast.next != null){
+             slow = slow.next;
+             fast = fast.next;
+         }
+         slow.next = slow.next.next;
+         return rhead.next;
+     }
+ }
+ ```
 
 
 
@@ -8164,7 +8274,1217 @@ public:
 
 
 
+#==114、环形类型1==
+
+n个珠子成串，有三个红珠子，每次操作交换两个相邻珠子，最少交换几次使得每个红珠子至少相隔k？告诉你三个红色珠子的索引位置。
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        System.out.println(getRes(6, 2, 1, 2, 3)); //2
+        System.out.println(getRes(5, 2, 1, 3, 4)); //-1
+    }
+
+    public static int getRes(int n, int k, int a1, int a2, int a3) {
+        if (n < 3 * k) {
+            return -1;
+        }
+        int[] nums = new int[]{a1, a2, a3};
+        Arrays.sort(nums);
+        int dis1 = nums[1] - nums[0];
+        int dis2 = nums[2] - nums[1];
+        int dis3 = nums[0] + n - nums[0];
+        // 得到最小的两个间隔
+        int max = Math.max(dis1, Math.max(dis2, dis3));
+        int ans = 0;
+        if (dis1 < max && dis1 < k) {
+            ans += k - dis1;
+        }
+        if (dis2 < max && dis2 < k) {
+            ans += k - dis2;
+        }
+        if (dis3 < max && dis3 < k) {
+            ans += k - dis3;
+        }
+        return ans;
+    }
+}
+```
 
 
 
+# 115、大数加法
+
+<img src="images/image-20230830194438841.png" alt="image-20230830194438841" style="zoom: 80%;" />
+
+```java
+public class Solution {
+    public String solve (String s, String t) {
+        // write code here
+        int n = s.length();
+        int m = t.length();
+        // 首先进行两个字符串长度对齐，短的补0即可
+        if (n > m) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < (n - m); i++) {
+                sb.append(0);
+            }
+            sb.append(t);
+            t = sb.toString();
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < (m-n); i++) {
+                sb.append(0);
+            }
+            sb.append(s);
+            s = sb.toString();
+        }
+        // 开始依次从低到高计算
+        int len = s.length();
+        StringBuilder ans = new StringBuilder();
+        int add = 0;
+        for(int i=len-1; i>=0; i--){
+            int num1 = Integer.parseInt(s.substring(i,i+1));
+            int num2 = Integer.parseInt(t.substring(i,i+1));
+            int sum = num1+num2;
+            if(add ==1){ //如果有上一次的进位
+                sum += 1;
+                add = 0;
+            }
+            if(sum >= 10){ //判断这次是否有进位
+                add = 1;
+                ans.append(sum%10);
+            }else{
+                ans.append(sum);
+            }
+        }
+        if(add == 1){ //判断最大位是否有进位
+            ans.append(1);
+        }
+        ans.reverse();
+        return ans.toString();
+    }
+}
+```
+
+
+
+# 116、大数乘法
+
+<img src="images/image-20230830202051667.png" alt="image-20230830202051667" style="zoom:80%;" />
+
+```java
+public class Main {
+
+    public String solve(String s, String t) {
+        // 1.两个数字相乘，长度最多是两个数字的长度相加；
+        int[] nums = new int[s.length() + t.length()];
+
+        // num1的每个数字和num2的每个数字相乘，并且放到nums数组合适的位置（i+j+1）
+        for (int i = s.length() - 1; i >= 0; i--) {
+            for (int j = t.length() - 1; j >= 0; j--) {
+                nums[i + j + 1] = nums[i + j + 1] + (s.charAt(i) - '0') * (t.charAt(j) - '0');
+            }
+        }
+      
+        // 2.注意了，此时nums数组，是没有处理进位的情况的 [0,9,18,9]
+        int add = 0;
+        for (int i = nums.length - 1; i >= 0; i--) {
+            if (add != 0) {
+                nums[i] += add;
+                add = 0;
+            }
+            if (nums[i] >= 10) {
+                add = nums[i] / 10;
+                nums[i] = nums[i] % 10;
+            }
+        }
+
+        // 3.最后去掉前导0即可
+        int index = nums.length - 1;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) {
+                index = i;
+                break;
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = index; i < nums.length; i++) {
+            sb.append(nums[i]);
+        }
+        return sb.toString();
+    }
+}
+```
+
+
+
+# 117、两数相加
+
+给你两个 **非空** 的链表，表示两个非负的整数。它们每位数字都是按照 **逆序** 的方式存储的，并且每个节点只能存储 **一位** 数字。
+
+请你将两个数相加，并以相同形式返回一个表示和的链表。
+
+你可以假设除了数字 0 之外，这两个数都不会以 0 开头。
+
+**示例 1：**
+
+<img src="images/addtwonumber1.jpg" alt="img" style="zoom:80%;" />
+
+```
+输入：l1 = [2,4,3], l2 = [5,6,4]
+输出：[7,0,8]
+解释：342 + 465 = 807.
+```
+
+**提示：**
+
+- 每个链表中的节点数在范围 `[1, 100]` 内
+- `0 <= Node.val <= 9`
+- 题目数据保证列表表示的数字不含前导零
+
+```java
+class Main {
+  
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        // 变成两个字符串相加，大数之和的形式操作即可
+        String s = getString(l1);
+        String t = getString(l2);
+        //1.补0对齐
+        int m = s.length();
+        int n = t.length();
+        StringBuilder sb = new StringBuilder();
+        if (m > n) {
+            for (int i = 0; i < m - n; i++) {
+                sb.append(0);
+            }
+            sb.append(t);
+            t = sb.toString();
+        } else {
+            for (int i = 0; i < n - m; i++) {
+                sb.append(0);
+            }
+            sb.append(s);
+            s = sb.toString();
+        }
+        //2.从低位到高位依次相加，注意进位
+        int len = s.length();
+        int add = 0;
+        sb.delete(0, sb.length());
+        for (int i = len - 1; i >= 0; i--) {
+            int sum = s.charAt(i) - '0' + t.charAt(i) - '0';
+            if (add != 0) {
+                sum += add;
+                add = 0;
+            }
+            if (sum >= 10) {
+                add = sum / 10;
+                sum = sum % 10;
+            }
+            sb.append(sum);
+        }
+        if (add != 0) {
+            sb.append(add);
+        }
+        String ans = sb.toString(); //数字顺序是反的
+        //3.拼接最后的返回链表
+        ListNode rhead = new ListNode(-1);
+        ListNode temp = rhead;
+        for (int i = 0; i < ans.length(); i++) {
+            ListNode node = new ListNode(ans.charAt(i) - '0');
+            temp.next = node;
+            temp = temp.next;
+        }
+        return rhead.next;
+    }
+
+    public String getString(ListNode l1) {
+        Stack<Integer> stack = new Stack<>();
+        while (l1 != null) {
+            stack.push(l1.val);
+            l1 = l1.next;
+        }
+        StringBuilder sb = new StringBuilder();
+        while (!stack.isEmpty()) {
+            sb.append(stack.pop());
+        }
+        return sb.toString();
+    }
+}
+```
+
+
+
+# 118、**按之字形顺序打印二叉树**
+
+<img src="images/image-20230901161008712.png" alt="image-20230901161008712" style="zoom: 80%;" />
+
+```java
+public class Solution {
+
+    public ArrayList<ArrayList<Integer>> Print (TreeNode pRoot) {
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        if (pRoot == null) {
+            return ans;
+        }
+        // write code here
+
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        List<TreeNode> list = new ArrayList<>();
+        queue.add(pRoot);
+
+        int layer = 0;
+        ArrayList<Integer> temp = new ArrayList<>(); //用来倒序的
+        while (!queue.isEmpty()) {
+            ArrayList<Integer> curList = new ArrayList<>();
+            layer++;
+            while (!queue.isEmpty()) {
+                TreeNode poll = queue.poll();
+                curList.add(poll.val);
+                list.add(poll);
+            }
+            for (TreeNode node : list) {
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+            list.clear();
+            if (layer % 2 == 0) {
+                for (int i = curList.size() - 1; i >= 0; i--) {
+                    temp.add(curList.get(i));
+                }
+                curList.clear();
+                curList.addAll(temp);
+                temp.clear();
+            }
+            ans.add(curList);
+        }
+        return ans;
+    }
+}
+```
+
+
+
+# 119、**重排链表**
+
+<img src="images/image-20230901161204474.png" alt="image-20230901161204474" style="zoom:80%;" />
+
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public void reorderList(ListNode head) {
+        if(head == null){
+            return;
+        }
+        // 中间
+        ListNode slow = head;
+        ListNode fast = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast  = fast.next.next;
+        }
+        // slow 指向中间
+        ListNode midTemp = slow.next; //3
+
+        ListNode secondHead = reverse(midTemp);
+        slow.next = null;
+
+        //
+        ListNode temp = head;
+        ListNode temp2 = secondHead;
+        while (temp != null && temp2 != null) {
+            ListNode t = temp.next;
+            ListNode t2 = temp2.next;
+            temp.next = temp2;
+            temp2.next = t;
+            temp = temp.next.next;
+            temp2 = t2;
+        }
+    }
+
+    public ListNode reverse(ListNode head) {
+        ListNode pre = null;
+        ListNode cur = head;
+        while (cur != null) {
+            ListNode temp = cur.next; 
+            cur.next = pre;
+            pre = cur;
+            cur = temp;
+        }
+        return pre;
+    }
+}
+```
+
+
+
+# 120、**链表内指定区间反转**
+
+<img src="images/image-20230901161404158.png" alt="image-20230901161404158" style="zoom:80%;" />
+
+【解法一】：常规解法，直接把链表拆分成三段，然后翻转加拼接
+
+【解法二】：根本不需要拆分，直接原地翻转，需要找到两个特定位置指针的，就好了。
+
+==一定要虚拟头节点，因为有可能整个链表都要反转==
+
+```java
+public class Solution {
+
+    public ListNode reverseBetween (ListNode head, int m, int n) {
+        // 找到反转部分的前一个节点和反转部分的后一个节点,如果是m=1的话，就没有前置节点,需要一个虚拟头节点,不加不得行
+        ListNode rhead = new ListNode(-1);
+        rhead.next = head;
+
+        ListNode temp = rhead;
+        for (int i = 0; i < m - 1; i++) {
+            temp = temp.next;
+        }
+        ListNode po1 = temp;
+        for (int i = 0; i < n + 1 - (m - 1); i++) {
+            temp = temp.next;
+        }
+        ListNode po2 = temp;
+
+        //
+        ListNode pre = null;
+        ListNode cur = po1.next;
+        ListNode curHead = po1.next;
+        while(cur != po2){
+            ListNode t = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = t;
+        }
+        //
+        po1.next = pre;
+        curHead.next = po2;
+        return rhead.next;
+
+
+    }
+}
+```
+
+
+
+
+
+# 121、**链表中的节点每k个一组翻转**
+
+<img src="images/image-20230902204757821.png" alt="image-20230902204757821" style="zoom:80%;" />
+
+```java
+public class Solution {
+
+    public ListNode reverseKGroup (ListNode head, int k) {
+        // 递归写法，
+        ListNode temp = head;
+        for(int i=0; i<k; i++){ //不足k个元素节点，不用反转了
+            if(temp == null){
+                return head;
+            }
+            temp = temp.next;
+        }
+        // 
+        ListNode pre = null;
+        ListNode cur = head;
+        while(cur != temp){
+            ListNode t = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = t;
+        }
+        head.next = reverseKGroup(temp, k);
+        return pre;
+    }
+}
+```
+
+
+
+# 122、完成所有任务的最少初始能量
+
+给你一个任务数组 `tasks` ，其中 `tasks[i] = [actuali, minimumi]` ：
+
+- `actuali` 是完成第 `i` 个任务 **需要耗费** 的实际能量。
+- `minimumi` 是开始第 `i` 个任务前需要达到的最低能量。
+
+比方说，如果任务为 `[10, 12]` 且你当前的能量为 `11` ，那么你不能开始这个任务。如果你当前的能量为 `13` ，你可以完成这个任务，且完成它后剩余能量为 `3` 。
+
+你可以按照 **任意顺序** 完成任务。请你返回完成所有任务的 **最少** 初始能量。
+
+**提示：**
+
+- `1 <= tasks.length <= 105`
+- `1 <= actuali <= minimumi <= 104`
+
+**示例 1：**
+
+```
+输入：tasks = [[1,2],[2,4],[4,8]]
+输出：8
+解释
+一开始有 8 能量，我们按照如下顺序完成任务：
+    - 完成第 3 个任务，剩余能量为 8 - 4 = 4 。
+    - 完成第 2 个任务，剩余能量为 4 - 2 = 2 。
+    - 完成第 1 个任务，剩余能量为 2 - 1 = 1 。
+注意到尽管我们有能量剩余，但是如果一开始只有 7 能量是不能完成所有任务的，因为我们无法开始第 3 个任务。
+输入：tasks = [[1,3],[2,4],[10,11],[10,12],[8,9]]
+输出：32
+解释：
+一开始有 32 能量，我们按照如下顺序完成任务：
+    - 完成第 1 个任务，剩余能量为 32 - 1 = 31 。
+    - 完成第 2 个任务，剩余能量为 31 - 2 = 29 。
+    - 完成第 3 个任务，剩余能量为 29 - 10 = 19 。
+    - 完成第 4 个任务，剩余能量为 19 - 10 = 9 。
+    - 完成第 5 个任务，剩余能量为 9 - 8 = 1 。
+```
+
+【分析】主要是确定按照什么顺序来执行任务，因为反正要完成所有的任务来的，那么完成任务的顺序应该是啥呢？差值越大越能为后面提供更多的能量，所以先把差值大的任务给做了！！！
+
+我们使用两个全局变量，一个是energy表示完成所有任务需要的最少能量，还有一个remian表示当前剩下的能量（如果上一个任务完成后剩余能量无法满足这次任务要求，那么就将remian变成当前任务最低能量，并且energy加上这个要补充的能量差值）
+
+<img src="images/image-20230907161744061.png" alt="image-20230907161744061" style="zoom: 80%;" />
+
+```java
+    public int minimumEffort(int[][] tasks) {
+        List<int[]> list = new ArrayList<>();
+        for (int[] task : tasks) {
+            list.add(new int[]{task[0],task[1],task[1]-task[0]});
+        }
+        // 都是一个长度为3的数组,
+        Collections.sort(list, (o1, o2) -> o2[2] - o1[2]); //按照差值进行降序
+        int energy = 0;
+        int remian = 0;
+        for (int i = 0; i < list.size(); i++) {
+            int[] task = list.get(i);
+            if (remian < task[1]) {
+                // 低于此次任务最低能量
+                energy += task[1] - remian;
+                remian = task[1];
+                remian = remian - task[0];
+            }else {
+                // 剩余能量可以满足此次任务
+                remian = remian - task[0];
+            }
+        }
+        return energy;
+    }
+```
+
+
+
+
+
+# 123、完成任务最多数量-招银笔试
+
+驾校某教练只有一辆车，一天开放14个小时做学晨练车（5:00~19:00)，由于学员很多，教练定下规则：学员需要提前一天报名并预约练车时间，说明开始时间、结束时间，时间必须取整(整点开始和结束)，时长不限(不超过14小时）。教练在前一天晚上会通知可以练车的学员明天练车。
+
+教练不按报名顺序安排练车，而是希望每天练车的人数尽可能多。注：每人每天最多选一个时段。
+
+测试示例:
+
+```java
+输入:
+//总人数
+//开始和结束时间
+11 
+6 9 
+10 14
+11 15
+5 11 
+10 12
+13 16 
+7 18 
+17 19 
+13 17
+8 10
+8 13
+输出:
+4 //最大练车人数
+```
+
+【分析】DP解法，挺有意思的一道题目；
+
+dp[i]表示时间i到最后结束的最多练习人数，i的范围是5-19，然后从后往前枚举，因为我们固定了结束时间，按照递推逻辑应该是区间从小到大；
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            int l = sc.nextInt();
+            int r = sc.nextInt();
+            if (l < 5 || r > 19) { // 对不合法的时间进行过滤
+                continue;
+            }
+            if (map.containsKey(l)) { // 对于相同开始时间，取最短的那个结束时间
+                map.put(l, Math.min(r, map.get(l)));
+            } else {
+                map.put(l, r);
+            }
+        }
+
+        int[] dp = new int[30]; // dp[i]表示时间i到最后结束的最多练习人数
+        for (int i = 19; i >= 5; i--) {// 从后往前枚举，因为我们固定了结束时间，按照递推逻辑应该是区间从小到大
+            // i:开始时间，x：结束时间
+            if (map.containsKey(i)) { //如果第i时刻有练车请求
+                int x = map.get(i);
+                dp[i] = Math.max(dp[i + 1], dp[x] + 1); //第i时刻是否需要安排练车
+            } else { // 没有练车请求
+                dp[i] = dp[i + 1];
+            }
+        }
+        System.out.println(dp[5]);  //开始时间是5，所以输出dp[5]
+    }
+}
+```
+
+
+
+
+
+
+
+# 124、服务器能耗统计-华为
+
+服务器有三种运行状态:空载、单任务、多任务,每个时间片的能耗的分别为1、3、4；
+
+每个任务由起始时间片和结束时间片定义运行时间;
+
+如果一个时间片只有一个任务需要执行，则服务器处于单任务状态;如果一个时间片有多个任务需要执行，则服务器处于多任务状态;
+
+给定一个任务列表，请计算出从第一个任务开始，到所有任务结束，服务器的总能耗。
+
+```tex
+输入：一个只包含整数的二维数组
+第一行的数字表示一共有多少个任务
+后续每行包含由空格分割的两个整数，用于确定每一个任务的起始时间片和结束时间片;
+任务执行时间包含起始和结束时间片，即任务执行时间是左闭右闭的;
+结束时间片一定大于等于起始时间片;
+时间片范围:[0,1000000];
+任务数范围:[1,10000];
+
+输出: 一个整数，代表服务器的总能耗。
+```
+
+```java
+输入:
+2
+2 5
+8 9
+输出:
+20
+解释:
+[0,1]没有任务需要执行,能耗为0
+[2,5]处于单任务状态,能耗为3*4=12
+[6,7]处于空载状态,能耗为1*2=2
+[8,9]处于单任务状态,能耗为3*2=6
+共计能耗为12+2+6=20
+```
+
+```java
+输入:
+3
+4 8
+1 6
+2 9
+输出:
+34
+解释:
+[1,1]处于单任务状态，能耗为3*1=3
+[2,8]处于多任务状态,能耗为4*7=28
+[9,9]处于单任务状态，能耗为3*1=3
+共计能耗为3+28+3=34
+```
+
+【分析】
+
+这道题属于任务计算类型，重点就是时刻关注CPU的状态才行，此时是多加任务还是减少任务，并且呢，根据他给的二维数组，我们应该要对里面所有的数字都拉通排序，因为并不是只有开始时间会影响到cpu，结束时间也会，那如何知道排序后下一个时刻是开始任务还是结束任务呢，这里我们就要对每个时间点做一个标记，因为会有重复的时间点出现，所以不能仅拿一个数组，我们用一个长度为2的数组即可，【1】有0、1两个状态，0表示此时为开始任务，1表示此时为结束任务。
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // 先对输入二维数组进行处理，记录每个时间状态，0-开始任务；1-结束任务
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        List<int[]> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            int begin = in.nextInt();
+            int end = in.nextInt();
+            int[] nums1 = new int[]{begin, 0};
+            int[] nums2 = new int[]{end, 1};
+            list.add(nums1);
+            list.add(nums2);
+        }
+        Collections.sort(list, ((o1, o2) -> o1[0] - o2[0])); //一定要排序啊，输入的顺序大小可不保证
+        int res = new Main().getRes(list);
+        System.out.println(res);
+    }
+
+    public int getRes(List<int[]> list) {
+        int cpu = 0; // cpu运行任务数量
+        int energy = 0; //答案求的能量
+        for (int i = 0; i < list.size(); i++) {
+            int[] cur = list.get(i);
+            if (cur[1] == 0) {
+                // 任务为开始状态（先计算energy，再cpu，因为我们是计算前一段时间的能量耗时）
+                if (i == 0) {
+                    cpu++;
+                } else {
+                    energy += (cur[0] - list.get(i - 1)[0] - 1) * getV(cpu);
+                    cpu++;
+                }
+            } else {
+                // 任务为结束状态
+                energy += (cur[0] - list.get(i - 1)[0] + 1) * getV(cpu);
+                cpu--;
+            }
+        }
+        return energy;
+    }
+    private int getV(int cpu) {
+        if (cpu == 0) return 1;
+        else if (cpu == 1) return 3;
+        else return 4;
+    }
+}
+```
+
+
+
+# 125、任务赚的最多酬劳
+
+小明是一家店铺的专职外卖员。小明每天会接到很多不同地方的n个外卖订单，其中第i个订单会在s;时刻下单,花费小明,时间往返,并赚取a;元酬劳。小明每次只能送1单外卖，订单一旦错过就会被派给其他外卖员。
+
+如果小明提前知道了今天的全部订单，请你帮小明选择最优的接单方式，使得今天赚取的酬劳最多。
+
+对于每一组数据,包含4行数据
+
+第一行是外卖订单数：n。
+
+第二行有n个数字表示第i个订单的下单时刻。
+
+第三行有n个数字表示第i个订单的往返时间。
+
+第四行有n个数字表示第i个订单的酬劳。
+
+输出一个整数，表示小明今天最多可赚取的酬劳。
+
+```java
+输入：
+  5
+  1 3 6 7 11
+  4 3 4 3 9
+  2 5 5 3 4
+输出：
+  14
+解释：
+小明选择接2、3、5单可以赶在下一单到来前结束当前订单，并可以赚取14元。
+提示:如果小明在t时刻返回，她可以接包括t时刻以及之后到来的订单，但不能接t-1时刻以及之前的订单。
+```
+
+
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        int[] nums1 = new int[n];
+        int[] nums2 = new int[n];
+        int[] nums3 = new int[n];
+        for (int i = 0; i < n; i++) {
+            nums1[i] = in.nextInt();
+        }
+        for (int i = 0; i < n; i++) {
+            nums2[i] = in.nextInt();
+        }
+        for (int i = 0; i < n; i++) {
+            nums3[i] = in.nextInt();
+        }
+        List<int[]> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            int[] t = new int[3];
+            t[0] = nums1[i];
+            t[1] = nums2[i];
+            t[2] = nums3[i];
+            list.add(t);
+        }
+        Collections.sort(list, ((o1, o2) -> o1[0] - o2[0]));
+        backtracking(list, 0);
+        System.out.println(maxMoney);
+
+    }
+
+    static int maxMoney = 0;
+    static int curMoney = 0;
+    static int time = 0;
+    public static void backtracking(List<int[]> list, int startIndex) {
+        if (startIndex == list.size()){
+            maxMoney = Math.max(maxMoney, curMoney);
+            return;
+        }
+        for (int i = startIndex; i < list.size(); i++) {
+            int[] nums = list.get(i);
+            if (nums[0] < time){
+                continue;
+            }
+            int tempTime = time;
+            time = nums[0] + nums[1];
+            curMoney += nums[2];
+            backtracking(list, i+1);
+            curMoney -= nums[2];
+            time = tempTime;
+        }
+    }
+}
+```
+
+
+
+
+
+# 126、**加起来和为目标值的组合(二)**
+
+<img src="images/image-20230915112028736.png" alt="image-20230915112028736" style="zoom:80%;" />
+
+就是将组合内的数字按照从小到大排序就可以了，题目意思有点没有说清楚。然后组合之间也是按照数字进行从小到大排序。
+
+```java
+import java.util.*;
+public class Solution {
+    public ArrayList<ArrayList<Integer>> combinationSum2(int[] num, int target) {
+
+
+        ArrayList<ArrayList<Integer>> res = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer> arr = new ArrayList<Integer>();
+        if (num == null || num.length == 0 || target < 0)return res;
+        Arrays.sort(num); //对候选数组进行排序 方便后续处理
+        dfs(num, target, res, arr, 0);
+        return res;
+    }
+
+    public int sum = 0;
+    void dfs(int[] num, int target, ArrayList<ArrayList<Integer>> res,
+             ArrayList<Integer> arr, int start) {
+
+        if (sum == target) {
+            //已找到一组 存储进res
+            res.add(new ArrayList<Integer>(arr));
+            return;
+        }
+
+        if (start == num.length || sum > target) return;
+
+        for (int i = start; i < num.length; i++) {
+            if (i > start && num[i] == num[i - 1])continue;
+            //回溯操作
+            arr.add(num[i]);
+            sum += num[i];
+            dfs(num, target, res, arr, i + 1);
+            sum -= num[i];
+            arr.remove(arr.size() - 1);
+        }
+    }
+}
+```
+
+
+
+# 127、 **链表相加(二)**
+
+<img src="images/image-20230920170027503.png" alt="image-20230920170027503" style="zoom:80%;" />
+
+```java
+import java.util.*;
+public class Solution {
+
+    public ListNode addInList (ListNode head1, ListNode head2) {
+        // 直接大数相加这种，先变成字符串，然后得到相加后的字符串，再新建一个链表
+        StringBuilder sb1 = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+
+        while (head1 != null) {
+            sb1.append(head1.val);
+            head1 = head1.next;
+        }
+        while (head2 != null) {
+            sb2.append(head2.val);
+            head2 = head2.next;
+        }
+
+        // 首先要进行高位补0才行
+        String s1, s2;
+        StringBuilder sb3 = new StringBuilder();
+        if (sb1.length() > sb2.length()) {
+            for (int i = 0; i < sb1.length() - sb2.length(); i++) {
+                sb3.append(0);
+            }
+            sb3.append(sb2);
+            s1 = sb1.toString();
+            s2 = sb3.toString();
+        } else {
+            for (int i = 0; i < sb2.length() - sb1.length(); i++) {
+                sb3.append(0);
+            }
+            sb3.append(sb1);
+            s1 = sb3.toString();
+            s2 = sb2.toString();
+        }
+        // 开始相加
+        StringBuilder sb = new StringBuilder();
+        int add = 0;
+        for (int i = s1.length() - 1; i >= 0; i--) {
+            int num1 = s1.charAt(i) - '0';
+            int num2 = s2.charAt(i) - '0';
+            int sum = num1 + num2;
+            if (add != 0) {
+                sum += add;
+                add = 0;
+            }
+            if (sum / 10 != 0) {
+                add = sum / 10;
+                sum = sum % 10;
+            }
+            sb.append(sum);
+        }
+        if(add!=0){ //处理最高位的进位
+            sb.append(add);
+        }
+        sb.reverse();
+        // 新建链表
+        ListNode rhead = new ListNode(-1);
+        ListNode temp = rhead;
+        for(int i=0; i<sb.length(); i++){
+            ListNode node = new ListNode(sb.charAt(i)-'0');
+            temp.next = node;
+            temp = temp.next;
+        }
+        return rhead.next;
+
+    }
+}
+```
+
+
+
+# 128、**合并区间**
+
+<img src="images/image-20230921135225706.png" alt="image-20230921135225706" style="zoom:80%;" />
+
+
+
+```java
+import java.util.*;
+/*
+ * public class Interval {
+ *   int start;
+ *   int end;
+ *   public Interval(int start, int end) {
+ *     this.start = start;
+ *     this.end = end;
+ *   }
+ * }
+ */
+public class Solution {
+
+    public ArrayList<Interval> merge (ArrayList<Interval> intervals) {
+        // 发现重叠的两个区间就合并，那先进行排序(按照开始区间)
+        Collections.sort(intervals, (o1, o2)->o1.start - o2.start);
+        ArrayList<Interval> ans = new ArrayList<>(); //结果数组
+        if(intervals.size()==0) return ans;
+        ans.add(intervals.get(0)); //先要放入第一个元素，然后才能依次后续比较
+        int p = 0;
+        for(int i=1; i<intervals.size(); i++){
+            Interval ansP = ans.get(p);
+            Interval cur = intervals.get(i);
+            if(cur.start <= ansP.end){
+                ansP.end = Math.max(cur.end, ansP.end);
+            }else{
+                ans.add(cur);
+                p++;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+<img src="images/image-20230921140916056.png" alt="image-20230921140916056" style="zoom:80%;" />
+
+
+
+# 129、**在两个长度相等的排序数组中找到上中位数**
+
+<img src="images/image-20230921153515500.png" alt="image-20230921153515500" style="zoom:80%;" />
+
+【分析】这个如何使用二分法来做呢，没有做过的还真不知道这种思路；
+
+我们要先分别取出两个数组各自的中位数进行比较，此时相当于什么，这两个中位数的累计长度已经到达了合并数组的中位数长度对吧；然后如果第一次的两个中位数相等了，则返回任意一个都可以这就是答案；如果不相等呢，那么我们就借助二分法可以排除各自一半的元素范围，确定中位数不在该区间；总体而言就是这个思路。
+
+```java
+public class Solution {
+
+    public int findMedianinTwoSortedAray (int[] arr1, int[] arr2) {
+
+        if (arr1.length == 1) {
+            return Math.min(arr1[0], arr2[0]);
+        }
+
+        int left1 = 0;
+        int right1 = arr1.length - 1;
+
+        int left2 = 0;
+        int right2 = arr2.length - 1;
+
+        while (left1 < right1 && left2 < right2) {
+
+            int mid1 = left1 + (right1 - left1) / 2;
+            int mid2 = left2 + (right2 - left2) / 2;
+
+            //如果是偶数，那么有一个arr多缩减了一个数 注意:这里不能写成int jiOu = (arr1.length % 2 == 0 ? 1 : 0); 因为每次2分后 数组左右指针都是变化的 可能一会是奇数 一会是偶数(但是两个数组奇偶情况是一定的，数组长度就不一定相等了)
+            int jiOu = ((right2 - left2 + 1) % 2 == 0 ? 1 : 0);
+
+            //相等表明找到中位数
+            if (arr1[mid1] == arr2[mid2]) {
+                return arr1[mid1];
+            }
+            if (arr1[mid1] > arr2[mid2]) {
+                //判断是不是要多一移一位，偶数需要  arr2[mid2+cr: right2] ---arr1[0:mid1]
+                left2 = mid2 + jiOu;
+                right1 = mid1;
+            } else {
+                //arr1[mid1+cr: right1] ---arr2[0:mid2]
+                left1 = mid1 + jiOu;
+                right2 = mid2;
+            }
+        }
+
+        //若两数组中位数不相等,最后返回最小的为上中位数
+        return Math.min(arr1[left1], arr2[left2]);
+    }
+}
+```
+
+
+
+# 130、缺失的第一个正数
+
+给你一个未排序的整数数组 `nums` ，请你找出其中没有出现的最小的正整数。
+
+请你实现时间复杂度为 `O(n)` 并且只使用常数级别额外空间的解决方案。
+
+**示例 1：**
+
+```
+输入：nums = [1,2,0]
+输出：3
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,4,-1,1]
+输出：2
+```
+
+**示例 3：**
+
+```
+输入：nums = [7,8,9,11,12]
+输出：1
+```
+
+**提示：**
+
+- `1 <= nums.length <= 5 * 105`
+- `-231 <= nums[i] <= 231 - 1`
+
+【好难的一题】
+
+<img src="images/image-20230925145720315.png" alt="image-20230925145720315" style="zoom:80%;" />
+
+<img src="images/image-20230925145746113.png" alt="image-20230925145746113" style="zoom:80%;" />
+
+<img src="images/image-20230925145756855.png" alt="image-20230925145756855" style="zoom:80%;" />
+
+```java
+import java.util.*;
+
+public class Solution {
+
+    public int minNumberDisappeared (int[] nums) {
+        // 很巧妙的方法哦，如果不限制空间复杂度的话，我们直接一个哈希表就可以解决
+        // 那么现在是如何去利用给的数组空间，来完成类似的操作？
+        // 首先数组的长度为N，那么这个最小的未出现的正整数肯定是1~N+1，没有其他的可能了。
+        // 那么我们只需要记录1-N+1之间出现了哪些数就行了，刚好长度对应着数组的长度，
+        // 先要把不在1~N之间的数，都变成N+1（其他的也可以）,此时所有数都是正数
+        // 即遍历到某个数x，如果是1-N之间，就认为设置索引x-1的位置，为负数（人为设置哈希表映射机制）
+        // 最后再从头到尾遍历一次数组，第一个非负数的位置，就是要求的最小正整数的映射；如果全部为正数，则最小正整数为N+1；
+
+        // 1.
+        int N = nums.length;
+        for (int i = 0; i < N; i++) {
+            if (nums[i] < 1 || nums[i] > N) {
+                nums[i] = N + 2;
+            }
+        }
+        // 2.
+        for (int i = 0; i < N; i++) {
+            if (1 <= Math.abs(nums[i]) && Math.abs(nums[i]) <= N) { //这里是取绝对值
+                nums[Math.abs(nums[i]) - 1] = -nums[Math.abs(nums[i]) - 1];
+            }
+        }
+        // 3.
+        for (int i = 0; i < N; i++) {
+            if (nums[i] > 0) {
+                return i + 1;
+            }
+        }
+        return N + 1;
+    }
+}
+```
+
+
+
+# 131、**合并两个有序的数组**
+
+<img src="images/image-20231008154537239.png" alt="image-20231008154537239" style="zoom:80%;" />
+
+- 时间复杂度和空间复杂度要求为：O(m+n)  O(1)
+
+```java
+import java.util.*;
+public class Solution {
+    public void merge(int A[], int m, int B[], int n) {
+        //1、直接插入排序啊（刚好符合插入排序的规则）
+        //2、双指针，但不能占用额外空间复杂度；正常的思路是新创建一个数组，然后两个指针从前往后依次比较放入；
+        // 观察可知，nums1的后半部分是空的，可以直接覆盖而不会影响结果。因此可以指针设置为从后向前遍历，每次取两者之中的较大者放进最后面即可；
+
+        //1、插入排序，复杂度高
+        // int add = 0;
+        // for (int i = 0; i < n; i++) {
+        //     A[m - 1 + add + 1] = B[i];
+        //     int k = m - 1 + add + 1;
+        //     for (int j = m - 1 + add; j >= 0; j--) {
+        //         if (A[k] > A[j]) break;
+        //         else {
+        //             int temp = A[k];
+        //             A[k] = A[j];
+        //             A[j] = temp;
+        //             k = j;
+        //         }
+        //     }
+        //     add++; //A数组长度加1
+        // }
+
+        //2.后序双指针
+        int p1 = m-1;
+        int p2 = n-1;
+        int p3 = m+n-1;
+        while(p1 >=0 && p2>=0){
+            if(A[p1] > B[p2]){
+                A[p3] = A[p1];
+                p1--;
+            }else{
+                A[p3] = B[p2];
+                p2--;
+            }
+            p3--;
+        }
+        while(p1 >=0){
+            A[p3--] = A[p1--];
+        }
+        while(p2 >=0){
+            A[p3--] = B[p2--];
+        }
+
+    }
+}
+```
+
+
+
+# 132、**划分链表**
+
+<img src="images/image-20231009153005826.png" alt="image-20231009153005826" style="zoom:80%;" />
+
+```java
+public class Solution {
+
+    public ListNode partition (ListNode head, int x) {
+        // 直接在原链表进行删除插入
+        ListNode rhead = new ListNode(-1);
+        rhead.next = head;
+
+        ListNode slow = rhead;
+        ListNode fast = rhead;
+        while (fast.next != null) {
+            if (fast.next.val < x) {
+                // 将这个节点先删除，再插入到slow节点后面
+                ListNode temp = fast.next;
+                fast.next = fast.next.next;
+                temp.next = null;
+                ListNode temp2 = slow.next;
+                slow.next = temp;
+                temp.next = temp2;
+                if (fast == slow) { //fast节点是否要移动要分情况
+                    slow = slow.next;
+                    fast = fast.next;
+                } else {
+                    slow = slow.next;
+                }
+            } else {
+                fast = fast.next;
+            }
+        }
+        return rhead.next;
+    }
+}
+```
+
+```java
+public class Solution {
+
+    public ListNode partition (ListNode head, int x) {
+        // 新建一个链表头，将小的节点从原链表删除插入到新链表后，再拼接
+        ListNode smallHead = new ListNode(-1);
+        ListNode smallTemp = smallHead;
+        ListNode rhead = new ListNode(-1);
+        rhead.next = head;
+        ListNode temp = rhead;
+
+        while(temp.next != null){
+            if(temp.next.val < x){
+                smallTemp.next = temp.next; //注意该节点的next没有置null，因为后面会覆盖掉
+                smallTemp = smallTemp.next;
+                temp.next = temp.next.next;
+            }else{
+                temp = temp.next;
+            }
+        }
+        smallTemp.next = rhead.next;
+        return smallHead.next;
+    }
+}
+```
 
