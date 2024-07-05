@@ -7,9 +7,11 @@
 - **质数一定是2或奇数；**合数不一定是奇数或偶数，无规律（例如，8、9）
 - 奇数、偶数---->>>>质数、合数没有规律；
 
+
+
 ## 质数、合数、质因子的概念均指的正整数，不含0
 
-即求一个数的质因子时，有这个说法就肯定这个被求的数是正整数，然后1是唯一一个没有质因子的正整数。
+即求一个数的质因子时，                有这个说法就肯定这个被求的数是正整数，然后1是唯一一个没有质因子的正整数。
 
 
 
@@ -24,7 +26,7 @@
 ```java
 // 素数是一个大于1 的自然数
 public static boolean isprim(int n) {
-    if (n==1) return false;
+    if (n == 1) return false;
     if (n == 2) return true;
     for (int i = 2; i <= n - 1; i++) {
         if (n % i == 0) return false;
@@ -1308,8 +1310,8 @@ class Solution19 {
 
 
 
-
 # 19-2、调整数组顺序使奇数位于偶数前面✅
+
 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
 
 并保证奇数和奇数，偶数和偶数之间的相对位置不变。
@@ -1320,11 +1322,41 @@ class Solution19 {
 
 
 
-【】这里要求元素的相对有序，上面的双指针和快慢指针就不行了啊，怎么搞呢？
+【1】这里要求元素的相对有序，上面的双指针和快慢指针就不行了啊，怎么搞呢？
 
 ​		**要保证有序性，一次遍历就无法保证了**
 
-只能使用遍历几次，第一次遍历找到奇数，第二次遍历找到偶数，然后两个数组拼接起来即可。
+​		只能使用遍历几次，第一次遍历找到奇数，第二次遍历找到偶数，然后两个数组拼接起来即可。
+
+【2】如果不用额外空间复杂度的话，那么就是双指针，慢指针指向奇数要放的位置，快指针指向奇数，然后要将slow、fast内的偶数部分整体后移，所以时间复杂度为n^2。
+
+```java
+import java.util.*;
+
+public class Solution {
+
+    public int[] reOrderArray (int[] array) {
+        // write code here
+        int i = 0;
+        for (int j=0; j < array.length; ++j) {
+            // 遇到奇数时
+            if (array[j] % 2 == 1) {
+                // 先将 array[j] 赋值
+                int tmp = array[j];
+                // 将 【i, j-1】数组后移动
+                for (int k=j-1; k>=i; --k) {
+                    array[k+1] = array[k];
+                }
+                // 将array[j]插入到 i++ 的位置
+                array[i++] = tmp;
+            }
+        }
+        return array;
+    }
+}
+```
+
+
 
 
 
@@ -1763,6 +1795,8 @@ class Solution {
 输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
 ```
 
+<img src="images/image-20231024162409928.png" alt="image-20231024162409928" style="zoom:80%;" />
+
 【MID】
 
 而本题中因为随机指针的存在，当我们拷贝节点时，「当前节点的随机指针指向的节点」可能还没创建，因此我们需要变换思路。我们可以使用一个map集合存储每个节点，key—原链表节点，value—对应的新链表节点；这样我们在给random指针赋值时就直接从map集合里面去get就行了；
@@ -1866,7 +1900,7 @@ minStack.push(0);
 minStack.push(-3);
 minStack.min();   --> 返回 -3.
 minStack.pop();
-minStack.top();      --> 返回 0.
+minStack.pop();      --> 返回 0.
 minStack.min();   --> 返回 -2.
 ```
 
@@ -2679,7 +2713,7 @@ class Solution41 {
 
 【因为是二叉搜索树】所以知道了后序，也就知道了中序，还原就是根据后序+中序判断构建出来的二叉树，是不是一颗二叉搜索树。暴力一点的办法就是，直接先构建，然后再写一个验证二叉搜索树的方法，但之前我们的验证二叉搜索树是通过获取树中序遍历判断是否严格递增实现的，这里就有问题，所以说，如果可以成功构建出来那么就肯定是合理的后序，不能构建出来就是不合理的；那不合理的条件在构建过程中怎么判断呢，这里是不得行的！！！所以这种构造的办法去判断不行。而且麻烦呢。
 
-**【采用后序遍历递归解决】**
+**【采用前序遍历递归解决】**
 
 ```java
     public boolean verifyPostorder(int [] sequence) {
@@ -5941,7 +5975,7 @@ public class 最少回文分割094 {
             if (nums[mid] == target) {
                 return mid;
             } else if (nums[mid] > nums[right]) {
-                // 【left,mid】区间有序，我们直接判断
+                // 【left,mid】区间有序，
                 if (target >= nums[left] && target < nums[mid]) {
                     right = mid-1;
                 }else {
@@ -6032,6 +6066,8 @@ public class 最少回文分割094 {
 给定一个非负整数数组和一个整数k *，请找到该数组中和为* *k* *的连续子数组的个数。*
 
 这是我自己改的题目。（注意k是一个整数）
+
+【PS】纠正一下：滑动窗口无法处理含有0的数组，因为可能出现0即在左边也在右边的情况，那么窗口无论加还是减都有问题，所以我自己改的题目有问题
 
 ```java
     public int getRes(int[] nums, int k) {
@@ -6153,62 +6189,57 @@ public class 最少回文分割094 {
 - <img src="images/image-20230702143749110.png" alt="image-20230702143749110" style="zoom:50%;" /><img src="images/image-20230702143913803.png" alt="image-20230702143913803" style="zoom:50%;" />
 
   ```java
-  
-      public int[][] getRes(int[][] mat) {
-          // 矩阵的搜索类型：一般是DFS递归回溯法，但这个要找最近的，我们只能BFS搜索,借助辅助数据结构队列实现
-          // 其次矩阵的每个位置都要搜索一次
+      public int[][] updateMatrix(int[][] mat) {
+          // bfs
           int[][] ans = new int[mat.length][mat[0].length];
           for (int i = 0; i < mat.length; i++) {
               for (int j = 0; j < mat[0].length; j++) {
-                  ans[i][j] = bfs(mat, i, j);
+                  if (mat[i][j] == 0) {
+                      ans[i][j] = 0;
+                  } else {
+                      ans[i][j] = bfs(mat, i, j);
+                  }
               }
           }
-          return ans;
+  
+  
+          return null;
       }
-  		// bfs
-      private int bfs(int[][] mat, int i, int j) {
-          if (mat[i][j] == 0) return 0;
-          int distance = 0;
+  
+      public int bfs(int[][] mat, int i, int j) {
+          boolean[][] visited = new boolean[mat.length][mat[0].length]; // 标记数组
+          int[][] direction = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // 方向数组
           Queue<int[]> queue = new ArrayDeque<>();
           List<int[]> list = new ArrayList<>();
-          boolean[][] visited = new boolean[mat.length][mat[0].length];
-  
-          queue.offer(new int[]{i, j}); // 与Tree的BFS不同，这里要防止某个节点多次入队
-          visited[i][j] = true;
-          while (true) { //外层还有一个循环
+          queue.add(new int[]{i, j});
+          int distance = -1; // 此次遍历的距离
+          while (!queue.isEmpty()) {
               distance++;
-              while (!queue.isEmpty()) { // 判断一个外圈的所有元素
-                  int[] ints = queue.poll();
-                  i = ints[0];
-                  j = ints[1];
-                  if (0 <= i + 1 && i + 1 < mat.length && 0 <= j && j < mat[0].length && !visited[i+1][j]) {
-                      if (mat[i + 1][j] == 0) return distance;
-                      list.add(new int[]{i + 1, j});
-                      visited[i+1][j] = true;
+              while (!queue.isEmpty()) {
+                  int[] poll = queue.poll();
+                  if (mat[poll[0]][poll[1]] == 0) {
+                      return distance;
                   }
-                  if (0 <= i - 1 && i - 1 < mat.length && 0 <= j && j < mat[0].length && !visited[i-1][j]) {
-                      if (mat[i - 1][j] == 0) return distance;
-                      list.add(new int[]{i - 1, j});
-                      visited[i-1][j] = true;
-                  }
-                  if (0 <= i && i < mat.length && 0 <= j + 1 && j + 1 < mat[0].length && !visited[i][j+1]) {
-                      if (mat[i][j+1] == 0) return distance;
-                      list.add(new int[]{i, j + 1});
-                      visited[i][j+1] = true;
-                  }
-                  if (0 <= i && i < mat.length && 0 <= j - 1 && j - 1 < mat[0].length && !visited[i][j-1]) {
-                      if (mat[i][j-1] == 0) return distance;
-                      list.add(new int[]{i, j - 1});
-                      visited[i][j-1] = true;
-                  }
+                  list.add(poll);
+                  visited[poll[0]][poll[1]] = true;
               }
-              for (int[] ints1 : list) { //没有找到，下一个外圈入队列
-                  queue.offer(ints1);
+              for (int[] ints : list) { // 四个方向
+                  for (int[] dir : direction) {
+                      int x = ints[0] + dir[0];
+                      int y = ints[1] + dir[1];
+                      if (x < 0 || x >= mat.length || y < 0 || y >= mat[0].length || visited[x][y]) { // 位置不合法 或 已经遍历过就跳过
+                          continue;
+                      }
+                      queue.offer(new int[]{x, y});
+                  }
               }
               list.clear();
           }
+          return -1; // 题目说了最少一个0
       }
   ```
+
+
 
 **更好的思路：扩散法**
 
@@ -6217,19 +6248,16 @@ public class 最少回文分割094 {
 
 ```java
     public int[][] updateMatrix(int[][] mat) {
-        // 找矩阵中每个元素到1的距离。只能是bfs法。queuelist+while
-        int m = mat.length;
-        int n = mat[0].length;
-
+        // bfs
+        // 从0找1，逆向过来，就不用对矩阵中每个节点进行单独的bfs了
+        int[][] ans = new int[mat.length][mat[0].length];
+        boolean[][] visited = new boolean[mat.length][mat[0].length];
         Queue<int[]> queue = new ArrayDeque<>();
         List<int[]> list = new ArrayList<>();
-        boolean[][] visited = new boolean[m][n];
-
-        int[][] ans = new int[m][n];
-        //距离数组初始化，0元素为0，其他元素设置为最大值
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (mat[i][j] == 0) {
+        int[][] direction = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // 方向数组
+        for (int i = 0; i < mat.length; i++) {
+            for (int j = 0; j < mat[0].length; j++) {
+                if (mat[i][j] == 0) { // 距离数组初始化，0元素为0，其他元素设置为最大值
                     ans[i][j] = 0;
                     queue.add(new int[]{i, j}); // 0入队
                     visited[i][j] = true; // 标记已遍历
@@ -6238,26 +6266,24 @@ public class 最少回文分割094 {
                 }
             }
         }
-
-        //开始bfs
-        int[][] direction = new int[][]{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}; // 方向数组
+        //
         while (!queue.isEmpty()) {
 
-            while (!queue.isEmpty()) {
+            while (!queue.isEmpty()) { //该层节点已经处理过了，直接处理下一层
                 int[] poll = queue.poll();
-                int i = poll[0];
-                int j = poll[1];
-                for (int[] dir : direction) {
-                    int iNew = i + dir[0];
-                    int jNew = j + dir[1];
-                    if (0 <= iNew && iNew < m && 0 <= jNew && jNew < n && !visited[iNew][jNew]) {
-                        ans[iNew][jNew] = ans[i][j] + 1; //更新未遍历的节点，并且加入list，让其继续扩散
-                        list.add(new int[]{iNew, jNew});
-                        visited[iNew][jNew] = true; // 标记已遍历
+                list.add(new int[]{poll[0], poll[1]});
+            }
+            for (int[] ints : list) {
+                for (int[] ints1 : direction) {
+                    int x = ints[0] + ints1[0];
+                    int y = ints[1] + ints1[1];
+                    if (x >= 0 && x < mat.length && y >= 0 && y < mat[0].length && !visited[x][y]) {
+                        ans[x][y] = ans[ints[0]][ints[1]] + 1; //更新未遍历的节点，并且加入list，让其继续扩散
+                        visited[x][y] = true;
+                        queue.add(new int[]{x, y});
                     }
                 }
             }
-            queue.addAll(list);
             list.clear();
         }
         return ans;
@@ -7049,7 +7075,7 @@ public class Solution {
 
 
 
-# ==101、剑指 Offer II 062. 实现前缀树==
+# 101、剑指 Offer II 062. 实现前缀树（数据结构）✅
 
 **[Trie](https://baike.baidu.com/item/字典树/9825209?fr=aladdin)**（发音类似 "try"）或者说 **前缀树** 是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补完和拼写检查。
 
@@ -7310,7 +7336,7 @@ class XORTrie{
 
 
 
-# 103、剑指 Offer II 064. 神奇的字典
+# 103、剑指 Offer II 064. 神奇的字典✅
 
 设计一个使用单词列表进行初始化的数据结构，单词列表中的单词 **互不相同** 。 如果给出一个单词，请判定能否只将这个单词中**一个**字母换成另一个字母，使得所形成的新单词存在于已构建的神奇字典中。
 
@@ -7481,7 +7507,7 @@ public int[] topKFrequent(int[] nums, int k) {
 ```java
 public int numSubarrayProductLessThanK(int[] nums, int k) {
     //只需要输出个数，直接dp；滑动窗口也可以；dp好像做不了，算了，滑动起来for+while
-    // 注意forwhile只能求大于的条件，我们可以逆序转换成大于的条件,这道题有点难
+
     int multiply = 1;
     int start = 0;
     int ans = 0;
@@ -7636,7 +7662,7 @@ public List<Integer> getRes(TreeNode root) {
 
 
 
-# 108、剑指 Offer II 118. 多余的边==（并查集）==
+# 108、剑指 Offer II 118. 冗余连接（并查集）✅
 
 树可以看成是一个连通且 **无环** 的 **无向** 图。
 
@@ -7679,13 +7705,7 @@ public List<Integer> getRes(TreeNode root) {
 **这道题应用并查集的思路：**每条边都判断该边的两个节点是否已在并查集中，已经在则说明要加入的这条边多余了不能再加入，是需要被删除的边，不在则将新节点加入到并查集里面（因为正常的多叉树是连通的，再随便多一条就形成了一个环）
 
 ```java
-import java.util.Arrays;
-
 public class 多余的边118 {
-    public static void main(String[] args) {
-        int[][] edges = new int[][]{{1, 2}, {2, 3}, {3, 4}, {1, 4}, {1, 5}};
-        System.out.println(Arrays.toString(new 多余的边118().findRedundantConnection(edges)));
-    }
 
     public int[] findRedundantConnection(int[][] edges) {
         UF uf = new UF();
@@ -7699,17 +7719,17 @@ public class 多余的边118 {
                 uf.union(i, u);
             }
         }
-        System.out.println(Arrays.toString(uf.eleFather));
         return ans;
     }
 
 }
 
 class UF {
-    public int[] eleFather;
+    public int[] eleFather; // 数组索引：代表每个节点存储的元素（就是每个节点嘛，因为每个节点存储元素都不一样）
+  													// 数组值：该节点的父节点。
 
     public UF() {
-        eleFather = new int[6]; // 题目说了最多1000个节点，索引代表每个节点的编号
+        eleFather = new int[1001]; // 题目说了最多1000个节点
         for (int i = 0; i < eleFather.length; i++) {
             eleFather[i] = i;
         }
@@ -7742,7 +7762,7 @@ class UF {
 
 
 
-# 109、剑指 Offer II 047. 二叉树剪枝
+# 109、剑指 Offer II 047. 二叉树剪枝✅
 
 给定一个二叉树 **根节点** `root` ，树的每个节点的值要么是 `0`，要么是 `1`。请剪除该二叉树中所有节点的值为 `0` 的子树。
 
@@ -7778,50 +7798,47 @@ class UF {
 
 
 ```java
-public class 二叉树剪枝047 {
-
     public TreeNode pruneTree(TreeNode root) {
-        // 直接dfs，且带返回值的
-        // dfs写完了，那每个节点都需要判断一次啊，然后进行删除,现在是要前序遍历，再来一个dfs
-        // 删除需要知道该节点的上一个节点
-        TreeNode rRoot = new TreeNode();
-        rRoot.left = root;
-        preOrder(rRoot.left, rRoot);
-        return rRoot.left;
+        // 直接后序遍历写判断是否为全0子树，再前序遍历进行删除
+        TreeNode proot = new TreeNode(-1);
+        proot.left = root;
+        preOrder(proot, root);
+        return proot.left;
     }
 
-    public void preOrder(TreeNode root, TreeNode pre) {
-        if (root == null) return;
-        if (dfs(root)) {
-            if (pre.left == root) { //比较引用地址
+    public void preOrder(TreeNode pre, TreeNode node){
+        if (node == null){
+            return;
+        }
+        if (afterOrder(node)){
+            if (pre.left == node){
                 pre.left = null;
-            } else {
+            }else if (pre.right == node){
                 pre.right = null;
             }
             return; // 当前节点都没了，不用往下判断子节点了
         }
-        preOrder(root.left, root);
-        preOrder(root.right, root);
+        preOrder(node, node.left);
+        preOrder(node, node.right);
     }
 
-    // 以当前节点为根节点的树，是否全为0
-    public boolean dfs(TreeNode node) {
-        if (node == null) return true;
-        boolean left = dfs(node.left);
-        boolean right = dfs(node.right);
-        if (node.val == 0 && left && right) {
+    // 返回值：判断以该节点的子树是否为全0子树
+    // 但是这样只能判断某个子树是否为全0树，无法进行删除，所以要再来一个前序遍历
+    public boolean afterOrder(TreeNode root){
+        if (root == null){
             return true;
         }
-        return false;
+        boolean left = afterOrder(root.left);
+        boolean right = afterOrder(root.right);
+        return left && right && root.val == 0;
     }
-}
 ```
 
 
 
 
 
-# ==110、剑指 Offer II 019. 最多删除一个字符得到回文==
+# 110、剑指 Offer II 019. 最多删除一个字符得到回文✅
 
 给定一个非空字符串 `s`，请判断如果 **最多** 从字符串中删除一个字符能否得到一个回文字符串。
 
@@ -7898,9 +7915,11 @@ private boolean isPalindrome(String s) {
 
 
 
-# 111、剑指 Offer II 077. 链表排序
+# 111、剑指 Offer II 077. 链表排序✅
 
 给定链表的头结点 `head` ，请将其按 **升序** 排列并返回 **排序后的链表** 。 
+
+在 `O(nlog n)` 时间复杂度和常数级空间复杂度下，对链表进行排序。
 
 **示例 1：**
 
@@ -7927,9 +7946,74 @@ private boolean isPalindrome(String s) {
 
 
 
+【有点意思】归并排序思路 用在链表排序上。
+
+- 一种简单的思路就是：先遍历一遍得到数组，然后数组进行高级排序（三选一）再遍历一遍链表修改链表节点值。
+- 第二种就是在链表上进行归并排序。时间复杂度是 `O(nlog n)` 了，但由于递归，空间复杂度为logn。
+
+用归并排序的原因在于归并的特点和链表的特点完全匹配，都是小的连续的部分进行合并。
+
+```java
+    // 因为tail传入null，这里我们就可以直接省略归并的第二个入参了
+    public ListNode sortList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        // 先分后治，找到中间节点(必须要有虚拟头节点，不然为偶数的时候陷入死循环了）
+        ListNode rhead = new ListNode(-1);
+        rhead.next = head;
+        ListNode slow = rhead;
+        ListNode fast = rhead;
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+        }
+        ListNode head2 = slow.next;
+        slow.next = null; // 必须要拆开哦
+        ListNode left = sortList(head);
+        ListNode right = sortList(head2);
+        ListNode ans = merge(left, right);
+        return ans;
+    }
+
+    // 将两个有序链表合并
+    public ListNode merge(ListNode left, ListNode right) {
+        ListNode rhead = new ListNode(-1);
+        ListNode temp = rhead;
+        while (left != null && right != null) {
+            if (left.val < right.val) {
+                temp.next = left;
+                temp = temp.next;
+                left = left.next;
+            } else {
+                temp.next = right;
+                temp = temp.next;
+                right = right.next;
+            }
+        }
+        while (left != null) {
+            temp.next = left;
+            temp = temp.next;
+            left = left.next;
+        }
+        while (right != null) {
+            temp.next = right;
+            temp = temp.next;
+            right = right.next;
+        }
+        return rhead.next;
+    }
+```
 
 
-# ==112、剑指 offer 23.链表中环的入口结点==
+
+
+
+
+
+
+
+# 112、剑指 offer 23.链表中环的入口结点
 
 <img src="images/image-20230803192102334.png" alt="image-20230803192102334" style="zoom:50%;" />
 
@@ -7970,9 +8054,15 @@ public class Solution {
 
 
 
-# ==113、剑指 offer 23.删除有序链表中重复的元素2==
+# 113、剑指 offer 23.删除有序链表中重复的元素2✅
 
 <img src="images/image-20230907201143986.png" alt="image-20230907201143986" style="zoom:80%;" />
+
+【这道题有点意思】
+
+其实就算简单版再加一个新头节点就行了，中间这个val标识和循环删除节点思想是重点。
+
+其次就算一定是pre + cur的组合，如果双指针同时指向一个节点就不行了！！
 
 ```java
 public class Solution {
@@ -7982,12 +8072,12 @@ public class Solution {
         ListNode rhead = new ListNode(-1);
         rhead.next = head;
 
-        ListNode pre = rhead;
+        ListNode pre = rhead; //新头节点（虚拟或者新建都是可以的，推荐虚拟）
         ListNode cur = head;
         while (cur != null && cur.next != null) {
             if (cur.val == cur.next.val) {
                 int value = cur.val;
-                while (cur != null && cur.val == value) {
+                while (cur != null && cur.val == value) { // 判空操作不能丢
                     cur = cur.next;
                 }
                 pre.next = cur;
@@ -8092,11 +8182,11 @@ public class Solution {
 
 ==以下都是使用邻接表进行树、图的搜索解法==
 
-​	这个是一般而言用的最多的，而且代码结构也比较简短。但在**求最短路径这一类**的搜索题目中就不行了，只能使用BFS，所以两种搜索方法都要掌握。
+​	这个是一般而言用的最多的，而且代码结构也比较简短。但在**求最短路径这一类** 的搜索题目中就不行了，只能使用BFS，所以两种搜索方法都要掌握。
 
-**树：方向唯一，不会往回递归，函数参数有pre**
+**树：方向唯一，不会往回递归，函数参数有pre。**
 
-​		因为方向一直是向下的，所以如何不往回遍历呢，只需要加一个“if(y==pre) continue;”就可以了，如果邻接点是现节点的父节点，就跳过该节点的判断。
+​		因为方向一直是向下的，所以如何不往回遍历呢，只需要加一个 `“if(y==pre) continue;”  `  就可以了，如果邻接点是现节点的父节点，就跳过该节点的判断。
 
 ```java
 public void dfs(int pre, int x, List<List<Integer>> ver){
@@ -8173,6 +8263,257 @@ private void bfs(int x, int[][] graph) {
   
 }
 ```
+
+
+
+# 树的dfs1
+
+来自于蚂蚁实习笔试题：
+
+小红拿到了一棵有根树，树的根节点为1号节点。小红将一些节点染成了红色。她想知道有多少子树满足子树所有节点均为红色?
+
+输入描述
+
+- 第一行输入一个正整数n、代表节点的数量。
+- 第二行输入一个长度为n的字符串，第i个字符为'R'代表第i个节点被染成红色, 为'w'代表未被染色。
+- 接下来的 n-1行，每行输入两个正整数x和y, 代表x和y有一条边连接。
+- ``1<= n <= 10^5；1<= x, y <= n`
+
+输出描述：
+
+- 输出一个整数，代表节点均为红色的子树数量。
+
+```
+输入：
+3
+WRR
+1 2
+1 3
+输出：
+2
+```
+
+```java
+public class Main2 {
+    public ArrayList<ArrayList<Integer>> ver = new ArrayList<>();//邻接表
+
+    //1、采用邻接表存储有根树数据。
+    public void run() {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt(); //n个节点
+        chars = sc.next().toCharArray();
+        for (int i = 0; i < n; i++) {
+            ver.add(new ArrayList<>());
+        }
+        // 邻接表赋值
+        for (int i = 0; i < n - 1; i++) {
+            int x = sc.nextInt(); //第x个节点（在邻接表的索引是x-1）
+            int y = sc.nextInt(); //第y个节点
+            ver.get(x - 1).add(y - 1);
+            ver.get(y - 1).add(x - 1);
+        }
+        //开始dfs
+        dfs(0,0);
+        System.out.println(ans);
+    }
+
+    int ans = 0;
+    char[] chars;
+    //以x为根节点的树是否是全红树
+    public boolean dfs(int x, int pre) {//当前节点、父节点; 是邻接表的索引节点表示
+        //先判断当前节点
+        boolean c = chars[x] == 'R';
+        //遍历邻接表
+        for (Integer y : ver.get(x)) {
+            if (y == pre) continue;
+            boolean dfs = dfs(y, x);
+            c = c && dfs;
+        }
+        if (c) ans++;
+        return c;
+    }
+
+
+    public static void main(String[] args) {
+        Main2 main2 = new Main2();
+        main2.run();
+    }
+}
+```
+
+
+
+# 树的dfs2
+
+题目描述:
+
+有一棵n个节点的树,有一条边被选定。小美想知道对于所有经过这条选定边的所有树上简单路径，最长的那条有多长。一条简单的路径的长度指这条简单路径上的边的个数。
+
+输入描述：
+
+- 第一行一个整数n, 表示树的节点个数。
+- 第二行n-1个整数, 第i个整数pi 表示节点 i+1 和 pi 之间有一条边相连。
+- 第三行两个整数x, y，表示这条选定的边。保证这条边一定是树上的一条边。
+- 对于全部数据，``2<= n <=10^5, 1<= pi <=n, 1<= x,y <=n, x!=y`。保证输人数据正确描述—棵树, 并且(x,y)是树上的一条边。
+
+输出描述：
+
+输出一行,一个整数, 表示所有经过选定边的树上简单路径中，最长的那条的长度。
+
+```
+输入：
+7
+1 2 3 4 5 3
+3 7
+输出：
+4
+```
+
+
+
+# 树的dfs3
+
+来自华为实习笔试题第二道：
+
+给定一棵树，这个树有n个节点，节点编号从0开始依次弟增,0固定为根节点。在这棵树上有一个小猴子，初始时该猴子位于根节点(0号)上，小猴子一次可以沿着树上的边从一个节点挪到另一个节点，但这棵树上有一些节点设置有障碍物,如果某个节点上设置了障碍物，小猴子就不能通过连接该节点的边挪动到该节点上。问小猴子是否能跑到校的叶子节点(叶子节点定义为只有一条边连接的节点)，如果可以，请输出小猴子跑到叶子节点的最短路径(通过的边最少)，否则输出字符串NULL。
+
+**输入：**
+
+第一行给出数字n,表示这个树有n个节点，节点编号从0开始依次递增,0固定为根节点,1<=n<10000
+
+第二行给出数字edge，表示接下来有edge行，每行是一条边接下来的edge行是边：x，y，表示x和y节点有一条边连接
+
+边信息结束后接下来的一行给出数字block，表示接下来有block行，每行是一个障碍物接下来的block行是障碍物：x，表示节点x上存在障碍物
+
+**输出：**
+
+如果小猴子能跑到树的叶子节点, 请输出小猴子跑到叶子节点的最短路径（通过的边最少)，比如小猴子从0经过1到达2(叶子节点)，那么输出0->1->2";否则输出"NULL"。注意如果存在多条最短路径,请按照节点序号排序输出，比如0->1和0->3两条路径，第一个节点0一样,则比较第二个节点1和3,1比3小,因此输出0->1这条路径。再如0->5->2->3和0->5->1->4，则输出0->5->1->4。
+
+```java
+样例1：
+输入：
+4
+3
+0 1
+0 2
+0 3
+2
+2
+3
+输出：0->1
+解释:n=4, edge=[[0,1],[0,2],[0,3]], block=[2,3]表示一个有4个节点、3条边的树,其中节点2和节点3上有障碍物,小猴子能从0到达叶子节点1(节点1只有一条边[0,1]和它连接,因此是叶子节点),即可以跑出这个树,所以输出为0->1。
+
+样例2：
+输入：
+7
+6
+0 1
+0 3
+1 2
+3 4
+1 5
+5 6
+1
+4
+输出：0->1->2
+解释:节点4上有障碍物,因此0-3-4这条路不通,节点2和节点6都是叶子节点,但0->1->2比0->1->5->6路径短(通过的边最少),因此输出为0->1->2
+
+  
+样例3：
+输入：
+2
+1
+0 1
+1
+1
+输出：NULL
+解释:节点1是叶子节点,但存在障得物，因小猴子无法到达叶子节点,输出NULL
+  
+样例4：
+输入：
+4
+3
+0 1
+0 2
+0 3
+1
+2
+输出：0->1
+解释:n=4,edge=[[0,1],[0,2],[0,3]],block=[2]表示一个有4个节点、3条边的树,其中节点2上有障碍物,小猴子能从0到达叶子节点1(节点1只有一条边[0,1]和它连接,因此是叶子节点),路径是0->1,也能从O到达叶子节点3(节点3只有一条边[0,3]和它连接,因此是叶子节点)路径是0->3,因此按通过节点的顺序及序号比较选择0->1。
+```
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        for (int i = 0; i < n; i++) { // list的邻接表初始化
+            ver.add(new ArrayList<>());
+        }
+        int edge = in.nextInt();
+        for (int i = 0; i < edge; i++) {  // 读入边信息到邻接表
+            int x = in.nextInt();
+            int y = in.nextInt();
+            ver.get(x).add(y);
+            ver.get(y).add(x);
+        }
+        int block = in.nextInt();
+        blocks = new boolean[n];
+        for (int i = 0; i < block; i++) {
+            int z = in.nextInt();
+            blocks[z] = true; // z节点有障碍物
+        }
+        // 由于最后结果是按照路径的从小到大排序，所以我们这里直接对每个节点的邻接表排序，那么最后得到的顺序就是从小到大来的，
+        // 例如0->1一定出现在0->3的前面，后面我们判断是否更新答案时只用判断新的叶子节点路径的长度是否更小即可
+        for (List<Integer> list : ver) {
+            Collections.sort(list);
+        }
+
+        // dfs
+        dfs(0, 0);
+        if (pathList.size()==0){
+            System.out.println("NULL");
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Integer x : pathList) {
+            sb.append(x + "->");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.deleteCharAt(sb.length() - 1);
+        System.out.println(sb.toString());
+
+    }
+
+    public static List<List<Integer>> ver = new ArrayList<>(); //邻接表
+    public static boolean[] blocks; // 障碍物数组，索引代表每个节点
+    public static List<Integer> pathList = new ArrayList<>();
+    public static List<Integer> path = new ArrayList<>();
+
+    public static void dfs(int pre, int x) {
+        path.add(x); // 放在最前面，添加后才是目前的节点路径
+        if (ver.get(x).size() == 1 && x != 0) { // 如果到了叶子节点（第二个条件是因为根节点有可能只有一边）
+            if (pathList.size() == 0 || pathList.size() > path.size()) {
+                pathList.clear();
+                pathList.addAll(path);
+            }
+            return;
+        }
+        for (int y : ver.get(x)) { // 遍历邻接表
+            if (y == pre || blocks[y]) { //父节点或有障碍物则跳过
+                continue;
+            }
+            dfs(x, y);
+        }
+        path.remove(path.size() - 1); // 回溯
+    }
+    
+}
+```
+
+
+
+
 
 
 
@@ -8274,7 +8615,7 @@ public:
 
 
 
-#==114、环形类型1==
+#114、环形类型1✅
 
 n个珠子成串，有三个红珠子，每次操作交换两个相邻珠子，最少交换几次使得每个红珠子至少相隔k？告诉你三个红色珠子的索引位置。
 
@@ -8293,7 +8634,7 @@ public class Test {
         Arrays.sort(nums);
         int dis1 = nums[1] - nums[0];
         int dis2 = nums[2] - nums[1];
-        int dis3 = nums[0] + n - nums[0];
+        int dis3 = nums[0] + n - nums[2];
         // 得到最小的两个间隔
         int max = Math.max(dis1, Math.max(dis2, dis3));
         int ans = 0;
@@ -8313,7 +8654,7 @@ public class Test {
 
 
 
-# 115、大数加法
+# 115、大数加法✅
 
 <img src="images/image-20230830194438841.png" alt="image-20230830194438841" style="zoom: 80%;" />
 
@@ -8369,7 +8710,7 @@ public class Solution {
 
 
 
-# 116、大数乘法
+# 116、大数乘法✅
 
 <img src="images/image-20230830202051667.png" alt="image-20230830202051667" style="zoom:80%;" />
 
@@ -8569,70 +8910,59 @@ public class Solution {
 
 
 
-# 119、**重排链表**
+# 119、**重排链表✅**
 
 <img src="images/image-20230901161204474.png" alt="image-20230901161204474" style="zoom:80%;" />
 
 ```java
-/**
- * Definition for singly-linked list.
- * class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode(int x) {
- *         val = x;
- *         next = null;
- *     }
- * }
- */
-public class Solution {
     public void reorderList(ListNode head) {
-        if(head == null){
-            return;
-        }
-        // 中间
-        ListNode slow = head;
-        ListNode fast = head;
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast  = fast.next.next;
-        }
-        // slow 指向中间
-        ListNode midTemp = slow.next; //3
-
-        ListNode secondHead = reverse(midTemp);
-        slow.next = null;
-
-        //
         ListNode temp = head;
-        ListNode temp2 = secondHead;
-        while (temp != null && temp2 != null) {
-            ListNode t = temp.next;
-            ListNode t2 = temp2.next;
-            temp.next = temp2;
-            temp2.next = t;
-            temp = temp.next.next;
-            temp2 = t2;
+        int n = 0;
+        while (temp != null) {
+            n++;
+            temp = temp.next;
         }
-    }
-
-    public ListNode reverse(ListNode head) {
+        // 拆分成两个链表，前一段可能会多一个节点
+        ListNode head2 = head;
+        for (int i = 0; i < (n - 1) / 2; i++) {
+            head2 = head2.next;
+        }
+        ListNode t = head2.next;
+        head2.next = null; //拆分开
+        head2 = t; //第二段的头节点
+        // 将第二段头节点反转
         ListNode pre = null;
-        ListNode cur = head;
+        ListNode cur = head2;
         while (cur != null) {
-            ListNode temp = cur.next; 
+            ListNode tt = cur.next;
             cur.next = pre;
             pre = cur;
-            cur = temp;
+            cur = tt;
         }
-        return pre;
+        head2 = pre;
+        // 新建一个头节点，依次插入
+        ListNode rhead = new ListNode(-1);
+        ListNode temp2 = rhead;
+        while (head != null && head2 != null) {
+            temp2.next = head;
+            ListNode tt = head.next;
+            head.next = head2;
+            // 移动
+            head = tt;
+            head2 = head2.next;
+            temp2 = temp2.next.next;
+        }
+        temp2.next = head;
+
+        // 返回结果
+        head = rhead.next; //return rhead.next
+
     }
-}
 ```
 
 
 
-# 120、**链表内指定区间反转**
+# 120、**链表内指定区间反转✅**
 
 <img src="images/image-20230901161404158.png" alt="image-20230901161404158" style="zoom:80%;" />
 
@@ -8684,7 +9014,7 @@ public class Solution {
 
 
 
-# 121、**链表中的节点每k个一组翻转**
+# 121、**链表中的节点每k个一组翻转✅**
 
 <img src="images/image-20230902204757821.png" alt="image-20230902204757821" style="zoom:80%;" />
 
@@ -8692,7 +9022,7 @@ public class Solution {
 public class Solution {
 
     public ListNode reverseKGroup (ListNode head, int k) {
-        // 递归写法，
+        // 递归写法，很高级
         ListNode temp = head;
         for(int i=0; i<k; i++){ //不足k个元素节点，不用反转了
             if(temp == null){
@@ -8700,7 +9030,7 @@ public class Solution {
             }
             temp = temp.next;
         }
-        // 
+        // 此时temp为第k+1个节点 
         ListNode pre = null;
         ListNode cur = head;
         while(cur != temp){
@@ -8917,20 +9247,22 @@ public class Main {
 
 【分析】
 
-这道题属于任务计算类型，重点就是时刻关注CPU的状态才行，此时是多加任务还是减少任务，并且呢，根据他给的二维数组，我们应该要对里面所有的数字都拉通排序，因为并不是只有开始时间会影响到cpu，结束时间也会，那如何知道排序后下一个时刻是开始任务还是结束任务呢，这里我们就要对每个时间点做一个标记，因为会有重复的时间点出现，所以不能仅拿一个数组，我们用一个长度为2的数组即可，【1】有0、1两个状态，0表示此时为开始任务，1表示此时为结束任务。
+这道题属于任务计算类型，重点就是时刻关注CPU的状态才行，此时是多加任务还是减少任务，并且呢，根据他给的二维数组，我们应该要对里面所有的数字都拉通排序，因为并不是只有开始时间会影响到cpu，结束时间也会，那如何知道排序后下一个时刻是开始任务还是结束任务呢，这里我们就要对每个时间点做一个标记，因为会有重复的时间点出现，所以不能仅拿一个数组，我们用一个长度为2的数组即可，【1】有1、-1两个状态，1表示此时为开始任务，-1表示此时为结束任务。
 
 ```java
+import java.util.*;
+
 public class Main {
     public static void main(String[] args) {
-        // 先对输入二维数组进行处理，记录每个时间状态，0-开始任务；1-结束任务
+        // 先对输入二维数组进行处理，记录每个时间状态，1-开始任务；-1-结束任务
         Scanner in = new Scanner(System.in);
         int n = in.nextInt();
         List<int[]> list = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             int begin = in.nextInt();
             int end = in.nextInt();
-            int[] nums1 = new int[]{begin, 0};
-            int[] nums2 = new int[]{end, 1};
+            int[] nums1 = new int[]{begin, 1};
+            int[] nums2 = new int[]{end, -1};
             list.add(nums1);
             list.add(nums2);
         }
@@ -8942,24 +9274,35 @@ public class Main {
     public int getRes(List<int[]> list) {
         int cpu = 0; // cpu运行任务数量
         int energy = 0; //答案求的能量
-        for (int i = 0; i < list.size(); i++) {
+        cpu++; //第一个任务一定是开始任务
+        for (int i = 1; i < list.size(); i++) {
             int[] cur = list.get(i);
-            if (cur[1] == 0) {
+            int[] pre = list.get(i - 1);
+            if (cur[1] == 1) {
                 // 任务为开始状态（先计算energy，再cpu，因为我们是计算前一段时间的能量耗时）
-                if (i == 0) {
-                    cpu++;
+                if (cur[1] == pre[1]) {
+                    // 两个时刻处于同一状态
+                    energy += (cur[0] - list.get(i - 1)[0]) * getV(cpu);
                 } else {
-                    energy += (cur[0] - list.get(i - 1)[0] - 1) * getV(cpu);
-                    cpu++;
+                    // 有状态的切换（前时刻是-1，现在为1）
+                    energy += (cur[0] - list.get(i - 1)[0]) * getV(cpu);
                 }
+                cpu++;
             } else {
-                // 任务为结束状态
-                energy += (cur[0] - list.get(i - 1)[0] + 1) * getV(cpu);
+                // 任务为结束状态（-1）
+                if (cur[1] == pre[1]) {
+                    // 两个时刻处于同一状态
+                    energy += (cur[0] - list.get(i - 1)[0]) * getV(cpu);
+                } else {
+                    // 有状态的切换（前时刻是1，现在为-1）
+                    energy += (cur[0] - list.get(i - 1)[0] + 1) * getV(cpu);
+                }
                 cpu--;
             }
         }
         return energy;
     }
+
     private int getV(int cpu) {
         if (cpu == 0) return 1;
         else if (cpu == 1) return 3;
@@ -9109,7 +9452,7 @@ public class Solution {
 
 
 
-# 127、 **链表相加(二)**
+# 127、 **链表相加(二)✅**
 
 <img src="images/image-20230920170027503.png" alt="image-20230920170027503" style="zoom:80%;" />
 
@@ -9186,7 +9529,7 @@ public class Solution {
 
 
 
-# 128、**合并区间**
+# 128、**合并区间✅**
 
 <img src="images/image-20230921135225706.png" alt="image-20230921135225706" style="zoom:80%;" />
 
@@ -9232,7 +9575,7 @@ public class Solution {
 
 
 
-# 129、**在两个长度相等的排序数组中找到上中位数**
+# 129、**在两个长度相等的排序数组中找到上中位数**✅
 
 <img src="images/image-20230921153515500.png" alt="image-20230921153515500" style="zoom:80%;" />
 
@@ -9260,7 +9603,7 @@ public class Solution {
             int mid1 = left1 + (right1 - left1) / 2;
             int mid2 = left2 + (right2 - left2) / 2;
 
-            //如果是偶数，那么有一个arr多缩减了一个数 注意:这里不能写成int jiOu = (arr1.length % 2 == 0 ? 1 : 0); 因为每次2分后 数组左右指针都是变化的 可能一会是奇数 一会是偶数(但是两个数组奇偶情况是一定的，数组长度就不一定相等了)
+            //如果是偶数，那么有一个arr多缩减了一个数 注意:这里不能写成int jiOu = (arr1.length % 2 == 0 ? 1 : 0); 因为每次2分后 数组左右指针都是变化的 数组长度可能一会是奇数 一会是偶数，而这两种情况处理方式是不同的
             int jiOu = ((right2 - left2 + 1) % 2 == 0 ? 1 : 0);
 
             //相等表明找到中位数
@@ -9286,7 +9629,7 @@ public class Solution {
 
 
 
-# 130、缺失的第一个正数
+# 130、缺失的第一个正数✅
 
 给你一个未排序的整数数组 `nums` ，请你找出其中没有出现的最小的正整数。
 
@@ -9340,33 +9683,35 @@ public class Solution {
         // 即遍历到某个数x，如果是1-N之间，就认为设置索引x-1的位置，为负数（人为设置哈希表映射机制）
         // 最后再从头到尾遍历一次数组，第一个非负数的位置，就是要求的最小正整数的映射；如果全部为正数，则最小正整数为N+1；
 
-        // 1.
-        int N = nums.length;
-        for (int i = 0; i < N; i++) {
-            if (nums[i] < 1 || nums[i] > N) {
-                nums[i] = N + 2;
+        int n = nums.length;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] <= 0 || nums[i] > n) {
+                nums[i] = n + 2;
             }
         }
-        // 2.
-        for (int i = 0; i < N; i++) {
-            if (1 <= Math.abs(nums[i]) && Math.abs(nums[i]) <= N) { //这里是取绝对值
-                nums[Math.abs(nums[i]) - 1] = -nums[Math.abs(nums[i]) - 1];
+        //
+        for (int i = 0; i < nums.length; i++) {
+            int num = Math.abs(nums[i]); // 加绝对值，因为可能前面的已经把后面的元素置负数了
+            if (num >= 1 && num <= n) {
+                if (nums[num - 1] > 0) {
+                    nums[num - 1] = -nums[num - 1]; // 可能出现重复的元素，反复变成负数
+                }
             }
         }
-        // 3.
-        for (int i = 0; i < N; i++) {
+        //
+        for (int i = 0; i < nums.length; i++) {
             if (nums[i] > 0) {
                 return i + 1;
             }
         }
-        return N + 1;
+        return n + 1;
     }
 }
 ```
 
 
 
-# 131、**合并两个有序的数组**
+# 131、**合并两个有序的数组**✅
 
 <img src="images/image-20231008154537239.png" alt="image-20231008154537239" style="zoom:80%;" />
 
@@ -9424,35 +9769,32 @@ public class Solution {
 
 
 
-# 132、**划分链表**
+# 132、**划分链表✅**
 
 <img src="images/image-20231009153005826.png" alt="image-20231009153005826" style="zoom:80%;" />
 
 ```java
 public class Solution {
 
-    public ListNode partition (ListNode head, int x) {
+    public ListNode partition(ListNode head, int x) {
         // 直接在原链表进行删除插入
         ListNode rhead = new ListNode(-1);
         rhead.next = head;
-
         ListNode slow = rhead;
         ListNode fast = rhead;
         while (fast.next != null) {
             if (fast.next.val < x) {
-                // 将这个节点先删除，再插入到slow节点后面
+                // 删除这个节点，并且插入到slow后面
                 ListNode temp = fast.next;
                 fast.next = fast.next.next;
-                temp.next = null;
-                ListNode temp2 = slow.next;
+                temp.next = slow.next;
                 slow.next = temp;
-                temp.next = temp2;
-                if (fast == slow) { //fast节点是否要移动要分情况
-                    slow = slow.next;
+                // 如果slow、fast还是指向同一个节点，就需要手动移动fast
+                if (fast == slow) {
                     fast = fast.next;
-                } else {
-                    slow = slow.next;
                 }
+                slow = slow.next; // 肯定移动
+
             } else {
                 fast = fast.next;
             }
